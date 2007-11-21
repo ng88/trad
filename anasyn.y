@@ -23,7 +23,6 @@
 %token T_CST_STR
 
 
-
 %%
 
 prog:
@@ -33,11 +32,3 @@ prog:
 %%
 
 
-int main()
-{
-
-    yyparse();
-
-
-    return EXIT_SUCCESS;
-}

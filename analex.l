@@ -11,6 +11,8 @@
 
 entier  ([0-9]+)
 
+%x COMMENT_MODE
+
 %%
 
 {entier}     { 
@@ -43,8 +45,16 @@ entier  ([0-9]+)
                                     }
 
 
-<*>.        { return yytext[0]; }
-<*>\n       {  }
+\/\*                             { BEGIN(COMMENT_MODE); }
+
+<COMMENT_MODE>\*\/     { BEGIN(INITIAL); }
+<COMMENT_MODE>.        {  }
+<COMMENT_MODE>\n       {  }
+
+
+.        { return yytext[0]; }
+\n       {  }
+
 
 
 
