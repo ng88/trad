@@ -8,7 +8,7 @@ EXE=monCompilo
 
 test:
 	bison -dv anasyn.y
-	flex analex.l
+	flex analex.lex
 	gcc  lex.yy.c anasyn.tab.c -ly -ll -lm
 
 
@@ -21,8 +21,8 @@ main.o: anasyn.tab.c lex.yy.c
 anasyn.tab.c: anasyn.y
 	 bison -dv anasyn.y
 
-lex.yy.c: analex.l
-	flex analex.l
+lex.yy.c: analex.lex
+	flex analex.lex
 
 .PHONY: clean mrproper test
 

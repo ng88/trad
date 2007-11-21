@@ -22,6 +22,13 @@
 %token T_CST_INT
 %token T_CST_STR
 
+%token mc_class
+%token mc_end
+%token mc_inherit
+%token mc_private
+%token mc_public
+%token mc_integer
+%token idf
 
 %%
 
