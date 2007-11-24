@@ -92,6 +92,10 @@ VAR        {  return MC_VAR; }
 
 
 {idf}    {
+             if(strlen(yytext) > 20)
+	     {
+		 yyerror("identificateur trop long");
+	     }
 	     yylval.vstr = strdup(yytext);
 	     return T_IDF;
          }
