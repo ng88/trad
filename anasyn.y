@@ -17,7 +17,7 @@
     char * vstr;
 }
 
-%start prog
+%start programme
 
 %token T_CST_INT
 %token T_CST_STR
@@ -29,6 +29,7 @@
 %token MC_PUBLIC
 %token MC_INTEGER
 %token MC_STRING
+%token MC_VOID
 %token MC_SUPER
 %token MC_RETURN
 %token MC_NEW
@@ -68,9 +69,6 @@
 
 %%
 
-prog:
-      bloc_inst {  }
-    ;
 
 type:
       MC_INTEGER
@@ -128,8 +126,8 @@ instruction:
      MC_SUPER '(' param_eff ')' ';'
    | appel ';'
    | affectation ';'
-//   | boucle
-//   | cond
+   | boucle
+   | cond
    | MC_RETURN '(' param_eff ')' ';'
    ;
 
@@ -167,12 +165,76 @@ liste_instruction:
    ;
 
 bloc_inst:
-     instruction
+        instruction
      | '{' liste_var_non_vide liste_instruction  '}'
-     | '{' '}'
+     | '{' liste_instruction  '}'
      ;
-     
 
+boucle:
+       MC_WHILE exp MC_DO bloc_inst
+     ;
+
+cond:
+       MC_IF exp MC_THEN bloc_inst else MC_ENDIF
+     ;
+
+else:
+       MC_ELSE bloc_inst
+     | /* vide */
+     ;
+
+d_var_class:
+      etat type liste_idf ';'
+    ;
+
+d_construct:
+      etat T_IDF param bloc_inst
+    ;
+
+d_fonction:
+      etat type T_IDF param bloc_inst
+    ;
+
+d_procedure:
+      etat T_IDF MC_VOID param bloc_inst
+    ;
+
+param:
+      '(' liste_type_idf ')'
+    | '(' ')'
+    ;
+
+liste_type_idf:
+      type T_IDF
+    | liste_type_idf ',' type T_IDF
+    ;
+
+declaration:
+      d_var_class
+    | d_construct
+    | d_fonction
+    | d_procedure
+    ;
+
+liste_declaration_non_vide:
+      declaration
+    | liste_declaration_non_vide declaration
+    ;
+
+liste_declaration:
+       liste_declaration_non_vide
+     | /* vide */
+     ;
+
+class:
+        MC_CLASS T_IDF liste_declaration MC_END
+     |  MC_CLASS T_IDF MC_INHERIT T_IDF liste_declaration MC_END
+     ;
+
+programme:
+       class
+     | programme class
+     ;
 
 %%
 
