@@ -1,5 +1,6 @@
 
 #include "anasyn.tab.h"
+#include <stdlib.h>
 
 int main()
 {
