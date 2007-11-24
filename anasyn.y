@@ -68,7 +68,8 @@
 %%
 
 prog:
-      T_CST_STR | T_CST_INT;
+     exp {  }
+    ;
 
 type:
       MC_INTEGER
@@ -87,7 +88,20 @@ exp:
    | T_CST_INT
    | T_CST_STR
    | '(' exp ')'
-   | '-' exp %prec OP_UNARY_MINUS
+   | OP_MINUS exp %prec OP_UNARY_MINUS
+   | exp OP_DIV exp
+   | exp OP_MUL exp
+   | exp OP_PLUS exp
+   | exp OP_MINUS exp
+   | exp OP_EQ exp
+   | exp OP_NE exp
+   | exp OP_LE exp
+   | exp OP_GE exp
+   | exp OP_LT exp
+   | exp OP_GT exp
+   | exp OP_AND exp
+   | exp OP_OR exp
+   ;
 
 
 
