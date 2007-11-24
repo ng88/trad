@@ -7,6 +7,8 @@
 
 #include "anasyn.tab.h"
 
+char * process_backslashes(char * str);
+
 %}
 
 entier  ([0-9]+)
@@ -18,7 +20,7 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
 
 {entier}     { 
                 yylval.vint = atoi(yytext);
-                return T_CST_INT;
+                return T_CST_INT;		
              }
 
 
@@ -31,7 +33,9 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
                                         else
                                         {
                                             yytext[ yyleng - 1 ] = 0;
-                                            yylval.vstr = ++yytext;
+
+                                            yylval.vstr = process_backslashes(yytext + 1);
+
                                             printf("CHAINE %s\n", yylval.vstr);
                                             return T_CST_STR;
                                         }
@@ -73,6 +77,7 @@ private    {  return MC_PRIVATE; }
 public     {  return MC_PUBLIC; }
 integer    {  return MC_INTEGER; }
 string     {  return MC_STRING; }
+void       {  return MC_VOID; }
 super      {  return MC_SUPER; }
 return     {  return MC_RETURN; }
 new        {  return MC_NEW; }
@@ -104,4 +109,50 @@ VAR        {  return MC_VAR; }
 int yywrap()
 {
     return 1;
+}
+
+char * process_backslashes(char * str)
+{
+    int n = strlen(str);
+    char * dest = (char*)malloc(n + 1);
+
+    int i;
+    int j = 0;
+		
+    for(i = 0; i < n; ++i)
+    {
+	if(str[i] == '\\')
+	{
+	    /* on est sur que i+1 existe */
+	    switch(str[i + 1])
+	    {
+	    case 'n':
+		dest[j++] = '\n';
+		i++;
+		break;
+	    case 't':
+		dest[j++] = '\t';
+		i++;
+		break;
+	    case '\\':
+		dest[j++] = '\\';
+		i++;
+		break;
+	    case '"':
+		dest[j++] = '\"';
+		i++;
+		break;
+	    default:
+		//free(dest);
+		printf("attention: \\%c n'est pas échappement valide\n", 
+		       str[i + 1]);
+	    }
+	}
+	else
+	    dest[j++] = str[i];
+    }
+
+    dest[n] = '\0';
+
+    return dest;
 }

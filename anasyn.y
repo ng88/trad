@@ -85,7 +85,7 @@ exp:
      // T_IDF inclu dans appel
      appel
    | T_CST_INT
-   | T_CST_STR
+   | T_CST_STR  { free($<vstr>1); }
    | '(' exp ')'
    | OP_MINUS exp %prec OP_UNARY_MINUS
    | exp OP_DIV exp
@@ -196,7 +196,7 @@ d_fonction:
     ;
 
 d_procedure:
-      etat T_IDF MC_VOID param bloc_inst
+      etat MC_VOID T_IDF param bloc_inst
     ;
 
 param:

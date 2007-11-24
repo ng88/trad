@@ -1,3 +1,8 @@
+/*
+    Fichier de test 1
+
+*/
+
 class MaClasse
 
     private integer a, b, c;
@@ -6,16 +11,18 @@ class MaClasse
 
     private void main(string arg1, string arg2)
         return (1);
-        
+    
     public integer addition(integer a, integer b)
-        return (a + b);
+        return (a + b);    
         
     public string print()
     {
         
         VAR string ret;
         
-        ret := a + b + c;
+        b := "salut \"vous\"\t!\t!\na la ligne\\ \\";
+        
+        ret := a + b + c + "ceci est une chaine";
         
         ret := ret + addition(a, 12);
         
@@ -33,6 +40,8 @@ class MaClasse
             b := b - 8;
             c := c - 1;
         }
+        
+        a.test(5).nimp(); 
         
         test.main("e", "f");
         
