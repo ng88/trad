@@ -82,6 +82,7 @@ if         {  return MC_IF; }
 then       {  return MC_THEN; }
 else       {  return MC_ELSE; }
 endif      {  return MC_ENDIF; }
+VAR        {  return MC_VAR; }
 
 
 
@@ -90,8 +91,9 @@ endif      {  return MC_ENDIF; }
 	     return T_IDF;
          }
 
+
+[\t\n ]      {  }
 .        { return yytext[0]; }
-\n       {  }
 
 
 

@@ -38,6 +38,7 @@
 %token MC_THEN
 %token MC_ELSE
 %token MC_ENDIF
+%token MC_VAR
 %token T_IDF
 %token OP_UNARY_MINUS
 %token OP_EQ
@@ -68,7 +69,7 @@
 %%
 
 prog:
-     exp {  }
+      bloc_inst {  }
     ;
 
 type:
@@ -83,8 +84,8 @@ etat:
    ;
 
 exp:
-     T_IDF
-   | appel
+     // T_IDF inclu dans appel
+     appel
    | T_CST_INT
    | T_CST_STR
    | '(' exp ')'
@@ -103,11 +104,74 @@ exp:
    | exp OP_OR exp
    ;
 
-
-
 appel:
-    'T' 'O' 'D' 'O'
+     appel_membre
+   | appel '.' appel_membre
    ;
+
+appel_membre:
+     T_IDF '(' param_eff ')'
+   | T_IDF
+   ;
+
+param_eff_non_vide:
+     exp
+   | param_eff ',' exp
+   ;
+
+param_eff:
+     param_eff_non_vide
+   | /* vide */
+   ;
+
+instruction:
+     MC_SUPER '(' param_eff ')' ';'
+   | appel ';'
+   | affectation ';'
+//   | boucle
+//   | cond
+   | MC_RETURN '(' param_eff ')' ';'
+   ;
+
+affectation:
+     T_IDF OP_AFFECT rvalue
+   ;
+
+rvalue:
+     exp
+   | MC_NEW T_IDF '(' param_eff ')'
+   ;
+
+d_var:
+     MC_VAR type liste_idf ';'
+   ;
+
+liste_idf:
+     T_IDF
+   | liste_idf ',' T_IDF
+   ;
+
+liste_var_non_vide:
+     d_var
+   | liste_var_non_vide d_var
+   ;
+
+liste_instruction_non_vide:
+     instruction
+   | liste_instruction_non_vide instruction
+   ;
+
+liste_instruction:
+     liste_instruction_non_vide
+   | /* vide */
+   ;
+
+bloc_inst:
+     instruction
+     | '{' liste_var_non_vide liste_instruction  '}'
+     | '{' '}'
+     ;
+     
 
 
 %%
