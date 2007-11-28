@@ -62,7 +62,7 @@ typedef struct _node_t
 
 
 /** Noeud binaire */
-struct _bin_node_t
+typedef struct _bin_node_t
 {
     bin_node_type_t type;
     node_t * gauche;
@@ -71,7 +71,7 @@ struct _bin_node_t
 
 
 /** Noeud unaire */
-struct _una_node_t
+typedef struct _una_node_t
 {
     una_node_type_t type;
     node_t * fils;
@@ -94,12 +94,18 @@ struct _cst_node_t
 /** Construit un noeud de base, utilisé par les autres 
  *  fonctions de créations, pas directement.
  */
-node_t * make_node();
+node_t * make_node(node_type_t t);
 
 /** Construit un noeud binaire
  */
-node_t * make_binary_node(bin_node_type_t t, node_t g, node_t d);
+node_t * make_binary_node(bin_node_type_t t, node_t * g, node_t * d);
 
 
+
+/** Libère n'importe quel noeud */
+void free_node(node_t * n);
+
+/** Fonctions de nettoyage appelées par free_node() */
+void free_binary_node(bin_node_t * n);
 
 #endif
