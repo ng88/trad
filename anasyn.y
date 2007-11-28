@@ -8,12 +8,15 @@
 #include <string.h>
 #include "anasyn.h"
 
+#include "lexique.h"
+extern lexique_t * c_lexique;
+
 %}
 
 %union
 {
     int vint;
-    char * vstr;
+    unsigned int index_lexique;
 }
 
 %start programme
@@ -91,8 +94,8 @@ etat:
 exp:
      // T_IDF inclu dans appel
      appel                                                         {printf("exp -> appel\n");}
-   | T_CST_INT                                                     {printf("exp -> T_CST_INT\n");} 
-   | T_CST_STR                                                     {printf("exp -> T_CST_STR\n");  free($<vstr>1);} 
+   | T_CST_INT                                                     {printf("exp -> T_CST_INT (val=%d)\n", $<vint>1);} 
+   | T_CST_STR                                                     {printf("exp -> T_CST_STR (val=%s)\n", lexique_get(c_lexique, $<index_lexique>1));} 
    | OP_BRACKET_O exp OP_BRACKET_C                                 {printf("exp -> OP_BRACKET_O exp OP_BRACKET_C\n");} 
    | OP_MINUS exp %prec OP_UNARY_MINUS                             {printf("exp -> OP_MINUS exp %%prec OP_UNARY_MINUS\n");} 
    | exp OP_DIV exp                                                {printf("exp -> exp OP_DIV exp\n");} 

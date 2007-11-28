@@ -8,7 +8,11 @@
 #include "anasyn.tab.h"
 #include "anasyn.h"
 
+#include "lexique.h"
+
 char * process_backslashes(char * str);
+
+lexique_t * c_lexique = NULL;
 
 %}
 
@@ -37,9 +41,8 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
                                         {
                                             yytext[ yyleng - 1 ] = 0;
 
-                                            yylval.vstr = process_backslashes(yytext + 1);
-
-                                            printf("CHAINE %s\n", yylval.vstr);
+                                            yylval.index_lexique = lexique_add_sole(c_lexique, process_backslashes(yytext + 1));
+                                            
                                             return T_CST_STR;
                                         }
                                     }
@@ -106,7 +109,7 @@ VAR        {  return MC_VAR; }
 	     {
 		 yyerror("identificateur trop long");
 	     }
-	     yylval.vstr = strdup(yytext);
+
 	     return T_IDF;
          }
 

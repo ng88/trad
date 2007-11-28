@@ -1,6 +1,20 @@
 
+ifdef DEBUG
+    DEBUGFLAGS=-g -ggdb -dH -D_DEBUG_=1
+    STRIP=@echo
+else
+    DEBUGFLAGS=
+    STRIP=strip
+endif
+
+ifdef NOASSERT
+    ASSERTFLAGS=-DDISABLE_ASSERT=1
+else
+    ASSERTFLAGS=
+endif
+
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused
+CFLAGS=-W -Wall -Wno-unused $(DEBUGFLAGS) $(ASSERTFLAGS)
 LDFLAGS=-lm
 SRC=$(wildcard *.c) $(wildcard hashtable/*.c) lex.yy.c anasyn.tab.c
 OBJS=$(SRC:.c=.o)
@@ -13,6 +27,7 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CC) `echo $(OBJS) | tr ' ' '\n' | sort -u` -o $@ $(LDFLAGS)
+	$(STRIP) $@ > /dev/null
 
 main.o: anasyn.tab.o lex.yy.o
 anasyn.tab.o: anasyn.h

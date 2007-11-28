@@ -21,6 +21,8 @@ typedef struct
 lexique_t * create_lexique();
 void free_lexique(lexique_t * l);
 
+size_t lexique_add_sole(lexique_t * l, char * str);
+
 void lexique_add(lexique_t * l, char * str);
 size_t lexique_search(lexique_t * l, char * str);
 char* lexique_get(lexique_t * l, size_t index);

@@ -34,6 +34,21 @@ void free_lexique(lexique_t * l)
     free(l);
 }
 
+size_t lexique_add_sole(lexique_t * l, char * str)
+{
+    size_t pos = lexique_search(l, str);
+                                            
+    if(pos == KEY_NOT_FOUND)
+    {
+	pos = lexique_count(l);
+	lexique_add(l, str);
+    }
+    else
+	free(str);
+
+    return pos;
+}
+
 void lexique_add(lexique_t * l, char * str)
 {
     c_assert(l && str);
