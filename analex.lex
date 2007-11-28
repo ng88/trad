@@ -69,6 +69,13 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
 \/         {  return OP_DIV; }
 \*         {  return OP_MUL; }
 :=         {  return OP_AFFECT; }
+\(         {  return OP_BRACKET_O; }
+\)         {  return OP_BRACKET_C; }
+\{         {  return OP_BRACE_O; }
+\}         {  return OP_BRACE_C; }
+\;         {  return OP_SEMICOLON; }
+,          {  return OP_COMMA; }
+\.         {  return OP_MEMBER; }
 
 class      {  return MC_CLASS; }
 end        {  return MC_END; }
