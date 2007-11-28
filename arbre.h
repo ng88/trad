@@ -47,7 +47,7 @@ typedef enum
 
 struct _bin_node_t;
 struct _una_node_t;
-
+struct _cst_node_t;
 
 /** Noeud */
 typedef struct _node_t
@@ -57,6 +57,7 @@ typedef struct _node_t
     {
 	struct _bin_node_t * bin;
 	struct _una_node_t * una;
+	struct _cst_node_t * cst;
     } node;
 } node_t;
 
@@ -79,7 +80,7 @@ typedef struct _una_node_t
 
 
 /** Noeud constante */
-struct _cst_node_t
+typedef struct _cst_node_t
 {
     cst_node_type_t type;
     union
@@ -96,10 +97,9 @@ struct _cst_node_t
  */
 node_t * make_node(node_type_t t);
 
-/** Construit un noeud binaire
- */
 node_t * make_binary_node(bin_node_type_t t, node_t * g, node_t * d);
-
+node_t * make_unary_node(una_node_type_t t, node_t * f);
+node_t * make_constant_node(cst_node_type_t t);
 
 
 /** Libère n'importe quel noeud */
@@ -107,5 +107,7 @@ void free_node(node_t * n);
 
 /** Fonctions de nettoyage appelées par free_node() */
 void free_binary_node(bin_node_t * n);
+void free_unary_node(una_node_t * n);
+void free_constant_node(cst_node_t * n);
 
 #endif
