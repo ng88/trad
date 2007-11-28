@@ -3,6 +3,10 @@
 #include "lexique.h"
 #include "assert.h"
 
+DEFINE_HASHTABLE_INSERT(_lexique_insert, char, size_t);
+DEFINE_HASHTABLE_SEARCH(_lexique_search, char, size_t);
+DEFINE_HASHTABLE_REMOVE(_lexique_remove, char, size_t);
+
 lexique_t * create_lexique()
 {
     lexique_t * l = (lexique_t *)malloc(sizeof(lexique_t));
