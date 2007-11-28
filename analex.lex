@@ -6,6 +6,7 @@
 #include  <string.h>
 
 #include "anasyn.tab.h"
+#include "anasyn.h"
 
 char * process_backslashes(char * str);
 

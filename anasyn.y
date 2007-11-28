@@ -6,8 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-    void yyerror(char * msg);
+#include "anasyn.h"
 
 %}
 

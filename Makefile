@@ -1,6 +1,6 @@
 
 CC=gcc
-CFLAGS=-W -Wall
+CFLAGS=-W -Wall -Wno-unused
 LDFLAGS=-lm
 OBJS= $(SRC:.c=.o)
 EXE=monCompilo
@@ -9,7 +9,7 @@ EXE=monCompilo
 test:
 	bison -dv anasyn.y
 	flex analex.lex
-	gcc arbre.c lex.yy.c anasyn.tab.c main.c  -lm -o test
+	gcc arbre.c lex.yy.c anasyn.tab.c main.c $(LDFLAGS) $(CFLAGS) -o test
 
 
 all: $(EXE)
