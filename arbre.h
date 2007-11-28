@@ -100,6 +100,9 @@ node_t * make_node(node_type_t t);
 node_t * make_binary_node(bin_node_type_t t, node_t * g, node_t * d);
 node_t * make_unary_node(una_node_type_t t, node_t * f);
 node_t * make_constant_node(cst_node_type_t t);
+node_t * make_constant_str_node(char * vstr);
+node_t * make_constant_idf_node(char * vidf);
+node_t * make_constant_int_node(int vint);
 
 
 /** Libère n'importe quel noeud */

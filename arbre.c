@@ -55,6 +55,27 @@ node_t * make_constant_node(cst_node_type_t t)
     return r ;
 }
 
+node_t * make_constant_str_node(char * vstr)
+{
+    node_t * r = make_constant_node(CNT_STR);
+    r->node.cst->val.vstr = vstr;
+    return r;
+}
+
+node_t * make_constant_idf_node(char * vidf)
+{
+    node_t * r = make_constant_node(CNT_IDF);
+    r->node.cst->val.vidf = vidf;
+    return r;
+}
+
+node_t * make_constant_int_node(int vint)
+{
+    node_t * r = make_constant_node(CNT_INT);
+    r->node.cst->val.vint = vint;
+    return r;
+}
+
 
 void free_node(node_t * n)
 {

@@ -92,7 +92,7 @@ exp:
      // T_IDF inclu dans appel
      appel                                                         {printf("exp -> appel\n");}
    | T_CST_INT                                                     {printf("exp -> T_CST_INT\n");} 
-   | T_CST_STR  { free($<vstr>1); }                                {printf("exp -> T_CST_STR  { free($<vstr>1); }\n");} 
+   | T_CST_STR  { free($<vstr>1); }                                {printf("exp -> T_CST_STR\n");  free($<vstr>1);} 
    | OP_BRACKET_O exp OP_BRACKET_C                                 {printf("exp -> OP_BRACKET_O exp OP_BRACKET_C\n");} 
    | OP_MINUS exp %prec OP_UNARY_MINUS                             {printf("exp -> OP_MINUS exp %%prec OP_UNARY_MINUS\n");} 
    | exp OP_DIV exp                                                {printf("exp -> exp OP_DIV exp\n");} 
