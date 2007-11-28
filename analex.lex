@@ -19,6 +19,8 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
 
 %%
 
+<<EOF>>      {return FIN_FICHIER;}
+
 {entier}     { 
                 yylval.vint = atoi(yytext);
                 return T_CST_INT;		
