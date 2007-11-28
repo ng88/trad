@@ -9,7 +9,7 @@ EXE=monCompilo
 test:
 	bison -dv anasyn.y
 	flex analex.lex
-	gcc  lex.yy.c anasyn.tab.c main.c  -lm -o test
+	gcc arbre.c lex.yy.c anasyn.tab.c main.c  -lm -o test
 
 
 all: $(EXE)
@@ -27,7 +27,7 @@ lex.yy.c: analex.lex
 .PHONY: clean mrproper test
 
 clean:
-	@rm -f *.o *~ core *.core core.* *.tmp
+	@rm -f *.o *~ core *.core core.* *.tmp lex.yy.c anasyn.tab.{h,c} anasyn.output
 
 mrproper: clean
 	@rm -f $(EXE)
