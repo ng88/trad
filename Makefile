@@ -31,7 +31,8 @@ $(EXE): $(OBJS)
 
 main.o: anasyn.tab.o lex.yy.o
 anasyn.tab.o: anasyn.h
-arbre.o: assert.h arbre.h
+arbre.o: arbre_expr.h assert.h arbre.h
+arbre_expr.o: assert.h arbre_expr.h
 lex.yy.o: anasyn.tab.h anasyn.h
 lexique.o: hashtable/hashtable.h lexique.h assert.h
 main.o: anasyn.tab.h anasyn.h
