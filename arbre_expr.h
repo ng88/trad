@@ -2,6 +2,8 @@
 #ifndef ARBRE_EXPR_H
 #define ARBRE_EXPR_H
 
+#include <stdio.h>
+
 /** Declarations pour les arbres d'expressions
  */
 
@@ -14,7 +16,8 @@ typedef enum
 } expr_node_type_t;
 
 
-/** Types de noeuds binaires */
+/** Types de noeuds binaires 
+ */
 typedef enum
 {
     BNT_MUL,
@@ -24,6 +27,7 @@ typedef enum
     BNT_EQ,
     BNT_NE,
     BNT_LE,
+    BNT_GE,
     BNT_LT,
     BNT_GT,
     BNT_AND,
@@ -87,7 +91,7 @@ typedef struct _cst_expr_node_t
     cst_expr_node_type_t type;
     union
     {
-	char * vstr;
+	size_t index_str;
 	char * vidf;
 	int    vint;
     } val;
@@ -102,10 +106,16 @@ expr_node_t * make_expr_node(expr_node_type_t t);
 expr_node_t * make_binary_expr_node(bin_expr_node_type_t t, expr_node_t * g, expr_node_t * d);
 expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f);
 expr_node_t * make_constant_expr_node(cst_expr_node_type_t t);
-expr_node_t * make_constant_str_expr_node(char * vstr);
+expr_node_t * make_constant_str_expr_node(size_t index_str);
 expr_node_t * make_constant_idf_expr_node(char * vidf);
 expr_node_t * make_constant_int_expr_node(int vint);
 
+/** Affiche un noeud d'expression */
+void print_expr_node(expr_node_t * e, FILE * f);
+
+void print_binary_expr_node(bin_expr_node_t * e, FILE * f);
+void print_unary_expr_node(una_expr_node_t * e, FILE * f);
+void print_constant_expr_node(cst_expr_node_t * e, FILE * f);
 
 /** Libère n'importe quel noeud d'expression */
 void free_expr_node(expr_node_t * n);

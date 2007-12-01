@@ -13,16 +13,12 @@ extern lexique_t * c_lexique;
 
 %}
 
-%union
-{
-    int vint;
-    unsigned int index_lexique;
-}
+
 
 %start programme
 
-%token T_CST_INT
-%token T_CST_STR
+%token <vint> T_CST_INT
+%token <index_lexique> T_CST_STR
 
 %token FIN_FICHIER
 %token MC_CLASS
@@ -66,6 +62,8 @@ extern lexique_t * c_lexique;
 %token OP_COMMA
 %token OP_MEMBER
 
+%type <expr> exp
+
 /* Priorité des opérateurs */
 
 %left OP_AND OP_OR
@@ -93,23 +91,23 @@ etat:
 
 exp:
      // T_IDF inclu dans appel
-     appel                                                         {printf("exp -> appel\n");}
-   | T_CST_INT                                                     {printf("exp -> T_CST_INT (val=%d)\n", $<vint>1);} 
-   | T_CST_STR                                                     {printf("exp -> T_CST_STR (val=%s)\n", lexique_get(c_lexique, $<index_lexique>1));} 
-   | OP_BRACKET_O exp OP_BRACKET_C                                 {printf("exp -> OP_BRACKET_O exp OP_BRACKET_C\n");} 
-   | OP_MINUS exp %prec OP_UNARY_MINUS                             {printf("exp -> OP_MINUS exp %%prec OP_UNARY_MINUS\n");} 
-   | exp OP_DIV exp                                                {printf("exp -> exp OP_DIV exp\n");} 
-   | exp OP_MUL exp                                                {printf("exp -> exp OP_MUL exp\n");}
-   | exp OP_PLUS exp                                               {printf("exp -> exp OP_PLUS exp\n");}
-   | exp OP_MINUS exp                                              {printf("exp -> exp OP_MINUS exp\n");}
-   | exp OP_EQ exp                                                 {printf("exp -> exp OP_EQ exp\n");}
-   | exp OP_NE exp                                                 {printf("exp -> exp OP_NE exp\n");}
-   | exp OP_LE exp                                                 {printf("exp -> exp OP_LE exp\n");}
-   | exp OP_GE exp                                                 {printf("exp -> exp OP_GE exp\n");}
-   | exp OP_LT exp                                                 {printf("exp -> exp OP_LT exp\n");}
-   | exp OP_GT exp                                                 {printf("exp -> exp OP_GT exp\n");}
-   | exp OP_AND exp                                                {printf("exp -> exp OP_AND exp\n");}
-   | exp OP_OR exp                                                 {printf("exp -> exp OP_OR exp\n");}
+     appel                                            { printf("exp -> appel\n"); }
+   | T_CST_INT                                        { $$ = make_constant_int_expr_node($1); }
+   | T_CST_STR                                        { $$ = make_constant_str_expr_node($1); }
+   | OP_BRACKET_O exp OP_BRACKET_C                    { $$ = $2; }
+   | OP_MINUS exp %prec OP_UNARY_MINUS                { $$ = make_unary_expr_node(UNT_MINUS, $2); }
+   | exp OP_DIV exp                                   { $$ = make_binary_expr_node(BNT_DIV, $1, $3); }
+   | exp OP_MUL exp                                   { $$ = make_binary_expr_node(BNT_MUL, $1, $3); }
+   | exp OP_PLUS exp                                  { $$ = make_binary_expr_node(BNT_PLUS, $1, $3); }
+   | exp OP_MINUS exp                                 { $$ = make_binary_expr_node(BNT_MINUS, $1, $3); }
+   | exp OP_EQ exp                                    { $$ = make_binary_expr_node(BNT_EQ, $1, $3); }
+   | exp OP_NE exp                                    { $$ = make_binary_expr_node(BNT_NE, $1, $3); }
+   | exp OP_LE exp                                    { $$ = make_binary_expr_node(BNT_LE, $1, $3); }
+   | exp OP_GE exp                                    { $$ = make_binary_expr_node(BNT_GE, $1, $3); }
+   | exp OP_LT exp                                    { $$ = make_binary_expr_node(BNT_LT, $1, $3); }
+   | exp OP_GT exp                                    { $$ = make_binary_expr_node(BNT_GT, $1, $3); }
+   | exp OP_AND exp                                   { $$ = make_binary_expr_node(BNT_AND, $1, $3); }
+   | exp OP_OR exp                                    { $$ = make_binary_expr_node(BNT_OR, $1, $3); }
    ;
 
 appel:
@@ -146,7 +144,14 @@ affectation:
    ;
 
 rvalue:
-     exp                                                           {printf("rvalue -> exp\n");}
+     exp
+     {
+	 printf("rvalue=[");
+	 print_expr_node($1, stdout);
+	 printf("]\n");
+
+	 free_expr_node($1);
+     }
    | MC_NEW T_IDF OP_BRACKET_O param_eff OP_BRACKET_C              {printf("rvalue -> MC_NEW T_IDF OP_BRACKET_O param_eff OP_BRACKET_C\n");}
    ;
 

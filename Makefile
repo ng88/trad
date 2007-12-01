@@ -30,12 +30,12 @@ $(EXE): $(OBJS)
 	$(STRIP) $@ > /dev/null
 
 main.o: anasyn.tab.o lex.yy.o
-anasyn.tab.o: anasyn.h
+anasyn.tab.o: anasyn.h lexique.h
 arbre.o: arbre_expr.h assert.h arbre.h
-arbre_expr.o: assert.h arbre_expr.h
-lex.yy.o: anasyn.tab.h anasyn.h
+arbre_expr.o: assert.h arbre_expr.h lexique.h
 lexique.o: hashtable/hashtable.h lexique.h assert.h
-main.o: anasyn.tab.h anasyn.h
+lex.yy.o: anasyn.h anasyn.tab.h lexique.h
+main.o: anasyn.tab.h anasyn.h lexique.h
 hashtable/hashtable.o: hashtable/hashtable.h hashtable/hashtable_private.h
 hashtable/hashtable_itr.o: hashtable/hashtable.h hashtable/hashtable_private.h hashtable/hashtable.h hashtable/hashtable_private.h hashtable/hashtable_itr.h
 
