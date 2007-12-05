@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "arbre_expr.h"
+#include "tds.h"
 
 /** Declarations pour les arbres d'instructions
  */
@@ -27,6 +28,7 @@ struct _cond_instr_node_t;
 struct _return_instr_node_t;
 struct _super_instr_node_t;
 struct _affect_instr_node_t;
+struct _bloc_instr_node_t;
 
 /** Noeud */
 typedef struct _instr_node_t
@@ -72,6 +74,24 @@ typedef struct _affect_instr_node_t
     idf_t           lvalue;
     rvalue_node_t * rvalue;
 } affect_instr_node_t;
+
+/** element de la liste du bloc d'instruction*/
+typedef struct _bloc_list_elt_t
+{
+    instr_node_t * instr;
+    struct _bloc_list_elt_t * next;
+} bloc_list_elt_t;
+
+/** Bloc d'instruction */
+typedef struct _bloc_instr_node_t
+{
+    /** Table des symboles*/
+    tds_t * tds;
+
+    /** Premier noeud de la liste chainee des instructions */
+    bloc_list_elt_t * first;
+
+} bloc_instr_node_t;
 
 
 #endif
