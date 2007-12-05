@@ -40,6 +40,7 @@ typedef enum
     CNT_INT,
     CNT_STR,
     CNT_IDF,
+    CNT_DBL,
 } cst_expr_node_type_t;
 
 
@@ -94,6 +95,7 @@ typedef struct _cst_expr_node_t
 	size_t index_str;
 	char * vidf;
 	int    vint;
+	double vdouble;
     } val;
 } cst_expr_node_t;
 
@@ -109,6 +111,7 @@ expr_node_t * make_constant_expr_node(cst_expr_node_type_t t);
 expr_node_t * make_constant_str_expr_node(size_t index_str);
 expr_node_t * make_constant_idf_expr_node(char * vidf);
 expr_node_t * make_constant_int_expr_node(int vint);
+expr_node_t * make_constant_dbl_expr_node(double vd);
 
 /** Affiche un noeud d'expression */
 void print_expr_node(expr_node_t * e, FILE * f);

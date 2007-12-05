@@ -17,7 +17,13 @@ lexique_t * c_lexique = NULL;
 
 %}
 
+%option yylineno
+%option noyywrap
+
 entier  ([0-9]+)
+reel1   ({entier}("."{entier})?([eE][+-]?{entier})?)
+reel2   ("."{entier})
+reel    ({reel1}|{reel2})
 idf     ([a-zA-Z][a-zA-Z0-9]*)
 
 %x COMMENT_MODE
@@ -28,7 +34,12 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
 
 {entier}     { 
                 yylval.vint = atoi(yytext);
-                return T_CST_INT;		
+                return T_CST_INT;
+             }
+
+{reel}       { 
+                yylval.vdouble = atof(yytext);
+                return T_CST_DBL;
              }
 
 
@@ -124,10 +135,12 @@ VAR        {  return MC_VAR; }
 
 %%
 
-int yywrap()
+void yyerror(char * msg)
 {
-    return 1;
+    fprintf(stderr, "line %d near `%s': %s\n", yylineno, yytext, msg);
+    exit(1);
 }
+
 
 char * process_backslashes(char * str)
 {

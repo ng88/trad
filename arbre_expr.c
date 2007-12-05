@@ -82,6 +82,13 @@ expr_node_t * make_constant_int_expr_node(int vint)
     return r;
 }
 
+expr_node_t * make_constant_dbl_expr_node(double vd)
+{
+    expr_node_t * r = make_constant_expr_node(CNT_DBL);
+    r->node.cst->val.vdouble = vd;
+    return r;
+}
+
 void print_expr_node(expr_node_t * n, FILE * f)
 {
     c_assert(n);
@@ -156,6 +163,9 @@ void print_constant_expr_node(cst_expr_node_t * n, FILE * f)
     {
     case CNT_INT:
 	fprintf(f, "%d", n->val.vint);
+	break;
+    case CNT_DBL:
+	fprintf(f, "%g", n->val.vdouble);
 	break;
     case CNT_STR:
 	fprintf(f, "\"%s\"", lexique_get(c_lexique, n->val.index_str));

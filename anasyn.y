@@ -18,6 +18,7 @@ extern lexique_t * c_lexique;
 %start programme
 
 %token <vint> T_CST_INT
+%token <vdouble> T_CST_DBL
 %token <index_lexique> T_CST_STR
 
 %token FIN_FICHIER
@@ -94,6 +95,7 @@ exp:
      appel                                            { printf("exp -> appel\n"); }
    | T_CST_INT                                        { $$ = make_constant_int_expr_node($1); }
    | T_CST_STR                                        { $$ = make_constant_str_expr_node($1); }
+   | T_CST_DBL                                        { $$ = make_constant_dbl_expr_node($1); }
    | OP_BRACKET_O exp OP_BRACKET_C                    { $$ = $2; }
    | OP_MINUS exp %prec OP_UNARY_MINUS                { $$ = make_unary_expr_node(UNT_MINUS, $2); }
    | exp OP_DIV exp                                   { $$ = make_binary_expr_node(BNT_DIV, $1, $3); }
@@ -257,8 +259,3 @@ programme:
 
 %%
 
-void yyerror(char * msg)
-{
-    fprintf(stderr, "error: %s\n", msg);
-    exit(1);
-}
