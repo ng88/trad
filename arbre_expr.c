@@ -68,7 +68,7 @@ expr_node_t * make_constant_str_expr_node(size_t index_str)
     return r;
 }
 
-expr_node_t * make_constant_idf_expr_node(char * vidf)
+expr_node_t * make_constant_idf_expr_node(idf_t vidf)
 {
     expr_node_t * r = make_constant_expr_node(CNT_IDF);
     r->node.cst->val.vidf = vidf;
@@ -103,6 +103,10 @@ void print_expr_node(expr_node_t * n, FILE * f)
 	break;
     case NT_CONST:
 	print_constant_expr_node(n->node.cst, f);
+	break;
+    case NT_CALL:
+	//TODO
+	c_warning2(0, "TODO");
 	break;
     }
 }
@@ -192,6 +196,10 @@ void free_expr_node(expr_node_t * n)
 	break;
     case NT_CONST:
 	free_constant_expr_node(n->node.cst);
+	break;
+    case NT_CALL:
+	//TODO
+	c_warning2(0, "TODO");
 	break;
     }
     free(n);

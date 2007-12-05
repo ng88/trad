@@ -7,9 +7,14 @@
 typedef union
 {
     int vint;
-    size_t index_lexique;
-    expr_node_t *expr;
     double vdouble;
+
+    size_t index_lexique;
+
+
+    expr_node_t * expr;
+    instr_node_t * instr;
+
 } anasyn_type_t;
 
 #define YYSTYPE anasyn_type_t
