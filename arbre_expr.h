@@ -3,6 +3,7 @@
 #define ARBRE_EXPR_H
 
 #include <stdio.h>
+#include "vector/vector.h"
 
 /** pour l'instant, mais ca devrait changer quand on fera
    les tdf...*/
@@ -115,6 +116,14 @@ typedef struct _cst_expr_node_t
 } cst_expr_node_t;
 
 
+/** Parametres effectifs */
+typedef struct _param_eff_expr_node_t
+{
+    /* on utilise un tableau,
+     c'est mieux pour les parametres*/
+    vector_t * params;
+} param_eff_expr_node_t;
+
 
 /** Noeud d'appel */
 typedef struct _call_expr_node_t
@@ -124,11 +133,11 @@ typedef struct _call_expr_node_t
 
 
 /** Noeud new */
-typedef struct _new_node_t
+typedef struct _new_expr_node_t
 {
     idf_t idf;
-//TODO param_eff
-} new_node_t;
+    param_eff_expr_node_t * params;
+} new_expr_node_t;
 
 
 
@@ -138,7 +147,7 @@ typedef struct _rvalue_node_t
     rvalue_node_type_t type;
     union
     {
-	new_node_t *  nnew;
+	new_expr_node_t * nnew;
 	expr_node_t * expr;
     } node;
 } rvalue_node_t;
@@ -157,12 +166,28 @@ expr_node_t * make_constant_idf_expr_node(idf_t vidf);
 expr_node_t * make_constant_int_expr_node(int vint);
 expr_node_t * make_constant_dbl_expr_node(double vd);
 
+param_eff_expr_node_t * make_param_eff_expr_node();
+new_expr_node_t *  make_new_expr_node(idf_t idf, param_eff_expr_node_t * p);
+rvalue_node_t * make_rvalue_node(rvalue_node_type_t t);
+rvalue_node_t * make_rvalue_expr_node(rvalue_node_type_t t, expr_node_t * n);
+rvalue_node_t * make_rvalue_new_node(rvalue_node_type_t t, new_expr_node_t * n);
+
+/** Ajout le parametre effectif e au noeud p
+ */
+void add_param_eff(param_eff_expr_node_t * p, expr_node_t * e);
+size_t param_eff_count(param_eff_expr_node_t * p);
+expr_node_t * param_eff_get(param_eff_expr_node_t * p, size_t index);
+
 /** Affiche un noeud d'expression */
 void print_expr_node(expr_node_t * e, FILE * f);
 
 void print_binary_expr_node(bin_expr_node_t * e, FILE * f);
 void print_unary_expr_node(una_expr_node_t * e, FILE * f);
 void print_constant_expr_node(cst_expr_node_t * e, FILE * f);
+
+void print_param_eff_expr_node(param_eff_expr_node_t * n);
+void print_new_expr_node(new_expr_node_t * n);
+void print_rvalue_node(rvalue_node_t * n);
 
 /** Libère n'importe quel noeud d'expression */
 void free_expr_node(expr_node_t * n);
@@ -171,5 +196,9 @@ void free_expr_node(expr_node_t * n);
 void free_binary_expr_node(bin_expr_node_t * n);
 void free_unary_expr_node(una_expr_node_t * n);
 void free_constant_expr_node(cst_expr_node_t * n);
+
+void free_param_eff_expr_node(param_eff_expr_node_t * n);
+void free_new_expr_node(new_expr_node_t * n);
+void free_rvalue_node(rvalue_node_t * n);
 
 #endif

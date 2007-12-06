@@ -9,7 +9,7 @@ extern lexique_t * c_lexique;
 
 expr_node_t * make_expr_node(expr_node_type_t t)
 {
-    expr_node_t * r = malloc(sizeof(expr_node_t));
+    expr_node_t * r = (expr_node_t *)malloc(sizeof(expr_node_t));
     c_assert2(r, "malloc failed");
 
     r->type = t;
@@ -24,8 +24,8 @@ expr_node_t * make_binary_expr_node(bin_expr_node_type_t t, expr_node_t * g, exp
 
     expr_node_t * r = make_expr_node(NT_BINARY);
 
-    r->node.bin = malloc(sizeof(bin_expr_node_t));
-    c_assert2( r->node.bin, "malloc failed");
+    r->node.bin = (bin_expr_node_t*)malloc(sizeof(bin_expr_node_t));
+    c_assert2(r->node.bin, "malloc failed");
 
     r->node.bin->type = t;
     r->node.bin->gauche = g;
@@ -40,8 +40,8 @@ expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f)
 
     expr_node_t * r = make_expr_node(NT_UNARY);
 
-    r->node.una = malloc(sizeof(una_expr_node_t));
-    c_assert2( r->node.una, "malloc failed");
+    r->node.una = (una_expr_node_t*)malloc(sizeof(una_expr_node_t));
+    c_assert2(r->node.una, "malloc failed");
 
     r->node.una->type = t;
     r->node.una->fils = f;
@@ -53,8 +53,8 @@ expr_node_t * make_constant_expr_node(cst_expr_node_type_t t)
 {
     expr_node_t * r = make_expr_node(NT_CONST);
 
-    r->node.cst = malloc(sizeof(cst_expr_node_t));
-    c_assert2( r->node.cst, "malloc failed");
+    r->node.cst = (cst_expr_node_t*)malloc(sizeof(cst_expr_node_t));
+    c_assert2(r->node.cst, "malloc failed");
 
     r->node.cst->type = t;
 
@@ -88,6 +88,85 @@ expr_node_t * make_constant_dbl_expr_node(double vd)
     r->node.cst->val.vdouble = vd;
     return r;
 }
+
+param_eff_expr_node_t * make_param_eff_expr_node()
+{
+    param_eff_expr_node_t * r =
+	(param_eff_expr_node_t *)malloc(sizeof(param_eff_expr_node_t));
+
+    c_assert2(r, "malloc failed");
+
+    r->params = create_vector(4);
+
+    return r;
+}
+
+void add_param_eff(param_eff_expr_node_t * p, expr_node_t * e)
+{
+    c_assert(p);
+    c_assert(e);
+
+    vector_add_element(p->params, e);
+}
+
+size_t param_eff_count(param_eff_expr_node_t * p)
+{
+    c_assert(p);
+    return vector_size(p->params);
+}
+
+expr_node_t * param_eff_get(param_eff_expr_node_t * p, size_t index)
+{
+    c_assert(p);
+    return (expr_node_t *)vector_get_element_at(p->params, index);
+}
+
+
+new_expr_node_t *  make_new_expr_node(idf_t idf, param_eff_expr_node_t * p)
+{
+    new_expr_node_t * r =
+	(new_expr_node_t *)malloc(sizeof(new_expr_node_t));
+
+    c_assert2(r, "malloc failed");
+
+    r->idf = idf;
+    r->params = p;
+
+    return r;
+}
+
+rvalue_node_t * make_rvalue_node(rvalue_node_type_t t)
+{
+    rvalue_node_t * r =
+	(rvalue_node_t*)malloc(sizeof(rvalue_node_t));
+
+    c_assert2(r, "malloc failed");
+
+    r->type = t;
+
+    return r;
+}
+
+rvalue_node_t * make_rvalue_expr_node(rvalue_node_type_t t, expr_node_t * n)
+{
+    rvalue_node_t * r = make_rvalue_node(RNT_EXPR);
+
+    r->node.expr = n;
+
+    return r;
+}
+
+rvalue_node_t * make_rvalue_new_node(rvalue_node_type_t t, new_expr_node_t * n)
+{
+    rvalue_node_t * r = make_rvalue_node(RNT_NEW);
+
+    r->node.nnew = n;
+
+    return r;
+}
+
+
+
 
 void print_expr_node(expr_node_t * n, FILE * f)
 {
