@@ -64,6 +64,9 @@ extern lexique_t * c_lexique;
 %token OP_MEMBER
 
 %type <expr> exp
+%type <params> param_eff
+%type <params> param_eff_non_vide
+%type <rval> rvalue
 
 /* Priorité des opérateurs */
 
@@ -123,13 +126,21 @@ appel_membre:
    ;
 
 param_eff_non_vide:
-     exp                                                           {printf("param_eff_non_vide -> exp\n");}
-   | param_eff OP_COMMA exp                                        {printf("param_eff_non_vide -> param_eff OP_COMMA exp\n");}
+     exp
+     {
+	 $$ = make_param_eff_expr_node();
+	 add_param_eff($$, $1);
+     }
+   | param_eff OP_COMMA exp
+     {
+	 $$ = $1;
+	 add_param_eff($$, $3);
+     }
    ;
 
 param_eff:
-     param_eff_non_vide                                            {printf("param_eff -> param_eff_non_vide\n");}
-   | /* vide */                                                    {printf("param_eff -> \n");}
+     param_eff_non_vide  { $$ = $1; }
+   | /* vide */          { $$ = make_param_eff_expr_node(); }
    ;
 
 instruction:
@@ -138,23 +149,32 @@ instruction:
    | affectation OP_SEMICOLON                                      {printf("instruction -> affectation OP_SEMICOLON\n");}
    | boucle                                                        {printf("instruction -> boucle\n");}
    | cond                                                          {printf("instruction -> cond\n");}
-   | MC_RETURN OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON    {printf("instruction -> MC_RETURN OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON\n");}
+   | MC_RETURN OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON
+     {
+	 
+     }
    ;
 
 affectation:
-     T_IDF OP_AFFECT rvalue                                       {printf("affectation -> T_IDF OP_AFFECT rvalue\n");}
+     T_IDF OP_AFFECT rvalue
+     {
+	 printf("rvalue=[");
+	 print_rvalue_node($3, stdout);
+	 printf("]\n");
+
+	 free_rvalue_node($3);
+     }
    ;
 
 rvalue:
      exp
      {
-	 printf("rvalue=[");
-	 print_expr_node($1, stdout);
-	 printf("]\n");
-
-	 free_expr_node($1);
+	 $$ = make_rvalue_expr_node($1);
      }
-   | MC_NEW T_IDF OP_BRACKET_O param_eff OP_BRACKET_C              {printf("rvalue -> MC_NEW T_IDF OP_BRACKET_O param_eff OP_BRACKET_C\n");}
+   | MC_NEW T_IDF OP_BRACKET_O param_eff OP_BRACKET_C
+     {
+	 $$ = make_rvalue_new_node("IDF", $4);
+     }
    ;
 
 d_var:

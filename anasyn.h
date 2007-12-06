@@ -15,6 +15,9 @@ typedef union
     expr_node_t * expr;
     instr_node_t * instr;
 
+    param_eff_expr_node_t * params;
+    rvalue_node_t * rval;
+
 } anasyn_type_t;
 
 #define YYSTYPE anasyn_type_t

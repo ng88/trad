@@ -96,7 +96,7 @@ param_eff_expr_node_t * make_param_eff_expr_node()
 
     c_assert2(r, "malloc failed");
 
-    r->params = create_vector(4);
+    r->params = create_vector(2);
 
     return r;
 }
@@ -112,12 +112,12 @@ void add_param_eff(param_eff_expr_node_t * p, expr_node_t * e)
 size_t param_eff_count(param_eff_expr_node_t * p)
 {
     c_assert(p);
-    return vector_size(p->params);
+    return p->params ? vector_size(p->params) : 0;
 }
 
 expr_node_t * param_eff_get(param_eff_expr_node_t * p, size_t index)
 {
-    c_assert(p);
+    c_assert(p && p->params);
     return (expr_node_t *)vector_get_element_at(p->params, index);
 }
 
@@ -147,7 +147,7 @@ rvalue_node_t * make_rvalue_node(rvalue_node_type_t t)
     return r;
 }
 
-rvalue_node_t * make_rvalue_expr_node(rvalue_node_type_t t, expr_node_t * n)
+rvalue_node_t * make_rvalue_expr_node(expr_node_t * n)
 {
     rvalue_node_t * r = make_rvalue_node(RNT_EXPR);
 
@@ -156,11 +156,11 @@ rvalue_node_t * make_rvalue_expr_node(rvalue_node_type_t t, expr_node_t * n)
     return r;
 }
 
-rvalue_node_t * make_rvalue_new_node(rvalue_node_type_t t, new_expr_node_t * n)
+rvalue_node_t * make_rvalue_new_node(idf_t idf, param_eff_expr_node_t * p)
 {
     rvalue_node_t * r = make_rvalue_node(RNT_NEW);
 
-    r->node.nnew = n;
+    r->node.nnew = make_new_expr_node(idf, p);
 
     return r;
 }
@@ -261,6 +261,51 @@ void print_constant_expr_node(cst_expr_node_t * n, FILE * f)
 
 
 
+void print_param_eff_expr_node(param_eff_expr_node_t * n, FILE * f)
+{
+    c_assert(n);
+
+    fputc('(', f);
+    int i;
+    int s = param_eff_count(n);
+    for(i = 0; i < s; ++i)
+    {
+	if(i)
+	    fputs(", ", f);
+
+	print_expr_node(param_eff_get(n, i), f);
+    }
+
+    fputc(')', f);
+}
+
+void print_new_expr_node(new_expr_node_t * n, FILE * f)
+{
+    c_assert(n);
+
+    fprintf(f, "new IDF");
+
+    print_param_eff_expr_node(n->params, f);
+}
+
+void print_rvalue_node(rvalue_node_t * n, FILE * f)
+{
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case RNT_NEW:
+	print_new_expr_node(n->node.nnew, f);
+	break;
+    case RNT_EXPR:
+	print_expr_node(n->node.expr, f);
+	break;
+    }
+}
+
+
+
+
 void free_expr_node(expr_node_t * n)
 {
     c_assert(n);
@@ -308,3 +353,45 @@ void free_constant_expr_node(cst_expr_node_t * n)
 
     free(n);
 }
+
+
+void free_param_eff_expr_node(param_eff_expr_node_t * n)
+{
+    c_assert(n);
+
+    int i;
+    int s = param_eff_count(n);
+    for(i = 0; i < s; ++i)
+	free_expr_node(param_eff_get(n, i));
+
+    free_vector(n->params, 0);
+
+    free(n);
+}
+
+void free_new_expr_node(new_expr_node_t * n)
+{
+    c_assert(n);
+
+    free_param_eff_expr_node(n->params);
+
+    free(n);
+}
+
+void free_rvalue_node(rvalue_node_t * n)
+{
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case RNT_NEW:
+	free_new_expr_node(n->node.nnew);
+	break;
+    case RNT_EXPR:
+	free_expr_node(n->node.expr);
+	break;
+    }
+
+    free(n);
+}
+

@@ -169,8 +169,8 @@ expr_node_t * make_constant_dbl_expr_node(double vd);
 param_eff_expr_node_t * make_param_eff_expr_node();
 new_expr_node_t *  make_new_expr_node(idf_t idf, param_eff_expr_node_t * p);
 rvalue_node_t * make_rvalue_node(rvalue_node_type_t t);
-rvalue_node_t * make_rvalue_expr_node(rvalue_node_type_t t, expr_node_t * n);
-rvalue_node_t * make_rvalue_new_node(rvalue_node_type_t t, new_expr_node_t * n);
+rvalue_node_t * make_rvalue_expr_node(expr_node_t * n);
+rvalue_node_t * make_rvalue_new_node(idf_t idf, param_eff_expr_node_t * p);
 
 /** Ajout le parametre effectif e au noeud p
  */
@@ -185,9 +185,9 @@ void print_binary_expr_node(bin_expr_node_t * e, FILE * f);
 void print_unary_expr_node(una_expr_node_t * e, FILE * f);
 void print_constant_expr_node(cst_expr_node_t * e, FILE * f);
 
-void print_param_eff_expr_node(param_eff_expr_node_t * n);
-void print_new_expr_node(new_expr_node_t * n);
-void print_rvalue_node(rvalue_node_t * n);
+void print_param_eff_expr_node(param_eff_expr_node_t * n, FILE * f);
+void print_new_expr_node(new_expr_node_t * n, FILE * f);
+void print_rvalue_node(rvalue_node_t * n, FILE * f);
 
 /** Libère n'importe quel noeud d'expression */
 void free_expr_node(expr_node_t * n);
