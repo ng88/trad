@@ -3,6 +3,7 @@
 #define LEXIQUE_H
 
 #include "hashtable/hashtable.h"
+#include "vector/vector.h"
 
 #define KEY_NOT_FOUND ((size_t)-1)
 
@@ -12,9 +13,8 @@ typedef struct
     struct hashtable * hashtbl;
 
     /** Pour un accès rapide */
-    char ** table;
-    size_t size;
-    size_t capacity;
+    vector_t * tbl;
+
 } lexique_t;
 
 

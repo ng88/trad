@@ -1,4 +1,4 @@
-#include "lexique.h"
+#include "../../lexique.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -33,5 +33,21 @@ void test_lexique()
     printf("search(chaine n°150) == %d\n", lexique_search(l, "chaine n°150"));
     printf("search(blabla) == %d\n", lexique_search(l, "blala"));
 
+
+    int s = lexique_count(l);
+    printf("CONTENU -- %d elements\n", s);
+
+    for(i = 0; i < s; ++i)
+    {
+	printf("lexique[%d] = %s\n", i, lexique_get(l, i));
+    }
+
     free_lexique(l);
+}
+
+
+int main()
+{
+    test_lexique();
+    return 0;
 }
