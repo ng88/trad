@@ -117,36 +117,78 @@ instr_node_t * get_bloc_instr(bloc_instr_node_t * b, size_t index)
 
 void free_instr_node(instr_node_t * n)
 {
+    c_assert(n);
+    switch(n->type)
+    {
+    case INT_LOOP: free_loop_instr_node(n->node.loop); break;
+    case INT_CALL: free_call_instr_node(n->node.call); break;
+    case INT_COND: free_cond_instr_node(n->node.cond); break;
+    case INT_RETURN: free_return_instr_node(n->node.ret); break;
+    case INT_SUPER: free_super_instr_node(n->node.super); break;
+    case INT_AFFECT: free_affect_instr_node(n->node.aff); break;
+    }
+    free(n);
 }
 
 
 void free_loop_instr_node(loop_instr_node_t * n)
 {
+    c_assert(n);
+    free_expr_node(n->cond);
+    free_bloc_instr_node(n->body);
+    free(n);
 }
 
 void free_cond_instr_node(cond_instr_node_t * n)
 {
+    c_assert(n);
+    free_expr_node(n->cond);
+    free_bloc_instr_node(n->btrue);
+    if(n->bfalse) free_bloc_instr_node(n->bfalse);
+    free(n);
 }
 
 void free_call_instr_node(call_instr_node_t * n)
 {
+    c_assert(n);
+    free_call_expr_node(n->c);
+    free(n);
 }
 
 void free_return_instr_node(return_instr_node_t * n)
 {
+    c_assert(n);
+    free_expr_node(n->expr);
+    free(n);
 }
 
 void free_super_instr_node(super_instr_node_t * n)
 {
+    c_assert(n);
+    free_param_eff_expr_node(n->params);
+    free(n);
 }
 
 void free_affect_instr_node(affect_instr_node_t* n)
 {
+    c_assert(n);
+    free_rvalue_node(n->rvalue);
+    free(n);
 }
 
 
 void free_bloc_instr_node(bloc_instr_node_t * n)
 {
+    c_assert(n);
+    c_warning2(0, "TODO TDS");
+
+    int i;
+    int s = count_instr_bloc(n);
+    for(i = 0; i < s; ++s)
+	free_instr_node(get_bloc_instr(n, i));
+
+    free_vector(n->instrs, 0);
+    free(n);
 }
 
 

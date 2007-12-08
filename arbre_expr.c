@@ -395,3 +395,9 @@ void free_rvalue_node(rvalue_node_t * n)
     free(n);
 }
 
+void free_call_expr_node(call_expr_node_t * c)
+{
+    c_assert(c);
+    c_warning2(0, "TODO CALL");
+    free(c);
+}
