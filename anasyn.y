@@ -67,6 +67,14 @@ extern lexique_t * c_lexique;
 %type <params> param_eff
 %type <params> param_eff_non_vide
 %type <rval> rvalue
+%type <instr> instruction
+%type <instr> boucle
+%type <instr> cond
+%type <instr> affectation
+%type <bloc> bloc_inst
+%type <bloc> else
+%type <bloc> liste_instruction_non_vide
+%type <bloc> liste_instruction
 
 /* Priorité des opérateurs */
 
@@ -95,7 +103,7 @@ etat:
 
 exp:
      // T_IDF inclu dans appel
-     appel                                            { printf("exp -> appel\n"); }
+     appel                                            { $$ = make_call_expr_node(); }
    | T_CST_INT                                        { $$ = make_constant_int_expr_node($1); }
    | T_CST_STR                                        { $$ = make_constant_str_expr_node($1); }
    | T_CST_DBL                                        { $$ = make_constant_dbl_expr_node($1); }
@@ -144,26 +152,16 @@ param_eff:
    ;
 
 instruction:
-     MC_SUPER OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON     {printf("instruction -> MC_SUPER OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON\n");}
-   | appel OP_SEMICOLON                                            {printf("instruction -> appel OP_SEMICOLON\n");}
-   | affectation OP_SEMICOLON                                      {printf("instruction -> affectation OP_SEMICOLON\n");}
-   | boucle                                                        {printf("instruction -> boucle\n");}
-   | cond                                                          {printf("instruction -> cond\n");}
-   | MC_RETURN OP_BRACKET_O exp OP_BRACKET_C OP_SEMICOLON
-     {
-	 
-     }
+     MC_SUPER OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON { $$ = make_super_instr_node($3); }
+   | appel OP_SEMICOLON                                        { $$ = make_call_instr_node(make_call_expr_node()->node.call); /*crade, temporaire*/ }
+   | affectation OP_SEMICOLON                                  { $$ = $1; }
+   | boucle                                                    { $$ = $1; }
+   | cond                                                      { $$ = $1; }
+   | MC_RETURN OP_BRACKET_O exp OP_BRACKET_C OP_SEMICOLON      { $$ = make_return_instr_node($3); }
    ;
 
 affectation:
-     T_IDF OP_AFFECT rvalue
-     {
-	 printf("rvalue=[");
-	 print_rvalue_node($3, stdout);
-	 printf("]\n");
-
-	 free_rvalue_node($3);
-     }
+     T_IDF OP_AFFECT rvalue { $$ = make_affect_instr_node("IDF", $3); }
    ;
 
 rvalue:
@@ -192,32 +190,49 @@ liste_var_non_vide:
    ;
 
 liste_instruction_non_vide:
-     instruction                                                   {printf("liste_instruction_non_vide -> instruction\n");}
-   | liste_instruction_non_vide instruction                        {printf("liste_instruction_non_vide -> liste_instruction_non_vide instruction\n");}
+     instruction
+     {
+	 $$ = make_bloc_instr_node();
+	 add_instr_bloc($$, $1);
+     }
+   | liste_instruction_non_vide instruction
+     {
+	 add_instr_bloc($1, $2);
+     }
    ;
 
 liste_instruction:
-     liste_instruction_non_vide                                    {printf("liste_instruction -> liste_instruction_non_vide\n");}
-| /* vide */                                                       {printf("liste_instruction -> \n");}
+     liste_instruction_non_vide   { $$ = $1; }
+   | /* vide */                   { $$ = make_bloc_instr_node(); }               
    ;
 
 bloc_inst:
-        instruction                                                {printf("bloc_inst -> instruction\n");}
-     | OP_BRACE_O liste_var_non_vide liste_instruction OP_BRACE_C  {printf("bloc_inst -> OP_BRACE_O liste_var_non_vide liste_instruction OP_BRACE_C\n");}
-     | OP_BRACE_O liste_instruction OP_BRACE_C                     {printf("bloc_inst -> OP_BRACE_O liste_instruction OP_BRACE_C\n");}
+       instruction
+       {
+	   $$ = make_bloc_instr_node();
+	   add_instr_bloc($$, $1);
+       }
+     | OP_BRACE_O liste_var_non_vide liste_instruction OP_BRACE_C
+       {
+	   $$ = $3;
+       }
+     | OP_BRACE_O liste_instruction OP_BRACE_C
+       {
+	   $$ = $2;
+       }
      ;
 
 boucle:
-       MC_WHILE exp MC_DO bloc_inst                                {printf("boucle -> MC_WHILE exp MC_DO bloc_inst\n");}
+       MC_WHILE exp MC_DO bloc_inst     { $$ = make_loop_instr_node($2, $4); }
      ;
 
 cond:
-       MC_IF exp MC_THEN bloc_inst else MC_ENDIF                   {printf("cond -> MC_IF exp MC_THEN bloc_inst else MC_ENDIF\n");}
+       MC_IF exp MC_THEN bloc_inst else MC_ENDIF   { $$ = make_cond_instr_node($2, $4, $5); }
      ;
 
 else:
-       MC_ELSE bloc_inst                                           {printf("else -> MC_ELSE bloc_inst \n");}
-     | /* vide */                                                  {printf("else -> \n");}
+       MC_ELSE bloc_inst     { $$ = $2; }
+     | /* vide */            { $$ = NULL; }
      ;
 
 d_var_class:
@@ -233,7 +248,13 @@ d_fonction:
     ;
 
 d_procedure:
-      etat MC_VOID T_IDF param bloc_inst                           {printf("d_procedure -> etat MC_VOID T_IDF param bloc_inst\n");}
+      etat MC_VOID T_IDF param bloc_inst
+      {
+	  printf("DEBUT\n");
+	  print_bloc_instr_node($5, stdout, 1);
+	  free_bloc_instr_node($5);
+	  printf("\nFIN\n");
+      }
     ;
 
 param:

@@ -49,6 +49,19 @@ expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f)
     return r ;
 }
 
+
+expr_node_t * make_call_expr_node()
+{
+    expr_node_t * r = make_expr_node(NT_CALL);
+
+    r->node.call = (call_expr_node_t*)malloc(sizeof(call_expr_node_t));
+    c_assert2(r->node.call, "malloc failed");
+
+    c_warning2(0, "TODO MAKE CALL");
+
+    return r ;
+}
+
 expr_node_t * make_constant_expr_node(cst_expr_node_type_t t)
 {
     expr_node_t * r = make_expr_node(NT_CONST);

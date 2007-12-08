@@ -18,11 +18,14 @@ typedef union
     param_eff_expr_node_t * params;
     rvalue_node_t * rval;
 
+    bloc_instr_node_t * bloc;
+
 } anasyn_type_t;
 
 #define YYSTYPE anasyn_type_t
 
 
+extern FILE *yyin, *yyout;
 
 void yyerror(char * c);
 int yyparse();

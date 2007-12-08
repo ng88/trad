@@ -160,6 +160,7 @@ expr_node_t * make_expr_node(expr_node_type_t t);
 
 expr_node_t * make_binary_expr_node(bin_expr_node_type_t t, expr_node_t * g, expr_node_t * d);
 expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f);
+expr_node_t * make_call_expr_node();
 expr_node_t * make_constant_expr_node(cst_expr_node_type_t t);
 expr_node_t * make_constant_str_expr_node(size_t index_str);
 expr_node_t * make_constant_idf_expr_node(idf_t vidf);
