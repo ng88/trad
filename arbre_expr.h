@@ -64,6 +64,18 @@ typedef enum
     RNT_EXPR,
 } rvalue_node_type_t;
 
+typedef enum
+{
+    DCENT_IDF,
+    DCENT_FN,
+} direct_call_expr_node_type_t;
+
+typedef enum
+{
+    CENT_DIRECT,
+    CENT_MEMBER,
+} call_expr_node_type_t;
+
 
 
 struct _bin_expr_node_t;
@@ -125,10 +137,45 @@ typedef struct _param_eff_expr_node_t
 } param_eff_expr_node_t;
 
 
-/** Noeud d'appel */
+
+/** Noeud d'appel de fonction */
+typedef struct _fn_call_expr_node_t
+{
+    idf_t  name;
+    param_eff_expr_node_t * params;
+} fn_call_expr_node_t;
+
+/** Appel direct (champs ou fonction) */
+typedef struct _direct_call_expr_node_t
+{
+    direct_call_expr_node_type_t type;
+    union
+    {
+	idf_t  vidf;
+	fn_call_expr_node_t * fnc;
+    } node;
+} direct_call_expr_node_t;
+
+/** Noeud de l'operateur membre . (ie instance.membre) */
+typedef struct _member_expr_node_t
+{
+    /* represente p.f */
+    struct _call_expr_node_t * p;
+    direct_call_expr_node_t * f;
+} member_expr_node_t;
+
+/** Noeud d'appel général */
 typedef struct _call_expr_node_t
 {
+    call_expr_node_type_t type;
+    union
+    {
+	direct_call_expr_node_t * dc;
+	member_expr_node_t * mem;
+    } node;
 } call_expr_node_t;
+
+
 
 
 
@@ -138,7 +185,6 @@ typedef struct _new_expr_node_t
     idf_t idf;
     param_eff_expr_node_t * params;
 } new_expr_node_t;
-
 
 
 /** Noeud rvalue */
@@ -167,11 +213,22 @@ expr_node_t * make_constant_idf_expr_node(idf_t vidf);
 expr_node_t * make_constant_int_expr_node(int vint);
 expr_node_t * make_constant_dbl_expr_node(double vd);
 
+
+//call_expr_node_t * make_call_expr_node(call_expr_node_type_t t);
+call_expr_node_t * make_call_from_direct_call_expr_node(direct_call_expr_node_t * dc);
+call_expr_node_t * make_call_from_member_expr_node(call_expr_node_t * p, direct_call_expr_node_t * f);
+
+direct_call_expr_node_t * make_direct_call_expr_node(direct_call_expr_node_type_t t);
+direct_call_expr_node_t * make_idf_direct_call_expr_node(idf_t  vidf);
+direct_call_expr_node_t * make_fn_direct_call_expr_node(idf_t  vidf, param_eff_expr_node_t * p);
+
+
 param_eff_expr_node_t * make_param_eff_expr_node();
 new_expr_node_t *  make_new_expr_node(idf_t idf, param_eff_expr_node_t * p);
 rvalue_node_t * make_rvalue_node(rvalue_node_type_t t);
 rvalue_node_t * make_rvalue_expr_node(expr_node_t * n);
 rvalue_node_t * make_rvalue_new_node(idf_t idf, param_eff_expr_node_t * p);
+
 
 /** Ajout le parametre effectif e au noeud p
  */
@@ -179,18 +236,6 @@ void add_param_eff(param_eff_expr_node_t * p, expr_node_t * e);
 size_t param_eff_count(param_eff_expr_node_t * p);
 expr_node_t * param_eff_get(param_eff_expr_node_t * p, size_t index);
 
-/** Affiche un noeud d'expression */
-void print_expr_node(expr_node_t * e, FILE * f);
-
-void print_binary_expr_node(bin_expr_node_t * e, FILE * f);
-void print_unary_expr_node(una_expr_node_t * e, FILE * f);
-void print_constant_expr_node(cst_expr_node_t * e, FILE * f);
-
-void print_param_eff_expr_node(param_eff_expr_node_t * n, FILE * f);
-void print_new_expr_node(new_expr_node_t * n, FILE * f);
-void print_rvalue_node(rvalue_node_t * n, FILE * f);
-
-void print_call_expr_node(call_expr_node_t * c, FILE * f);
 
 /** Libère n'importe quel noeud d'expression */
 void free_expr_node(expr_node_t * n);

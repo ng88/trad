@@ -8,6 +8,8 @@
 #include <string.h>
 #include "anasyn.h"
 
+#include "arbre_printer.h"
+
 #include "lexique.h"
 extern lexique_t * c_lexique;
 

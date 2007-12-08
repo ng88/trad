@@ -122,20 +122,6 @@ size_t count_instr_bloc(bloc_instr_node_t * b);
 instr_node_t * get_bloc_instr(bloc_instr_node_t * b, size_t index);
 
 
-/** Affichage des noeuds d'instructions
- */
-void print_instr_node(instr_node_t * n, FILE * f, int indent);
-
-void print_loop_instr_node(loop_instr_node_t * n, FILE * f, int indent);
-void print_cond_instr_node(cond_instr_node_t * n, FILE * f, int indent);
-void print_call_instr_node(call_instr_node_t * n, FILE * f, int indent);
-void print_return_instr_node(return_instr_node_t * n, FILE * f, int indent);
-void print_super_instr_node(super_instr_node_t * n, FILE * f, int indent);
-void print_affect_instr_node(affect_instr_node_t* n, FILE * f, int indent);
-
-void print_bloc_instr_node(bloc_instr_node_t * n, FILE * f, int indent);
-
-void print_indent(FILE * f, int indent);
 
 /** Destruction des noeuds d'instructions
  */
