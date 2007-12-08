@@ -68,7 +68,7 @@ void free_vector(vector_t * v, int free_elt)
 
     if(free_elt)
     {
-	int i;
+	unsigned int i;
 	for(i = 0; i < v->size; ++i)
 	    free(v->table[i]);
     }

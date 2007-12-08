@@ -112,7 +112,7 @@ void add_param_eff(param_eff_expr_node_t * p, expr_node_t * e)
 size_t param_eff_count(param_eff_expr_node_t * p)
 {
     c_assert(p);
-    return p->params ? vector_size(p->params) : 0;
+    return vector_size(p->params);
 }
 
 expr_node_t * param_eff_get(param_eff_expr_node_t * p, size_t index)

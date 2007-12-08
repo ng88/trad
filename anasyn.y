@@ -149,7 +149,7 @@ instruction:
    | affectation OP_SEMICOLON                                      {printf("instruction -> affectation OP_SEMICOLON\n");}
    | boucle                                                        {printf("instruction -> boucle\n");}
    | cond                                                          {printf("instruction -> cond\n");}
-   | MC_RETURN OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON
+   | MC_RETURN OP_BRACKET_O exp OP_BRACKET_C OP_SEMICOLON
      {
 	 
      }
