@@ -50,18 +50,6 @@ expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f)
 }
 
 
-expr_node_t * make_call_expr_node()
-{
-    expr_node_t * r = make_expr_node(NT_CALL);
-
-    r->node.call = (call_expr_node_t*)malloc(sizeof(call_expr_node_t));
-    c_assert2(r->node.call, "malloc failed");
-
-    c_warning2(0, "TODO MAKE CALL");
-
-    return r ;
-}
-
 expr_node_t * make_constant_expr_node(cst_expr_node_type_t t)
 {
     expr_node_t * r = make_expr_node(NT_CONST);
@@ -101,6 +89,80 @@ expr_node_t * make_constant_dbl_expr_node(double vd)
     r->node.cst->val.vdouble = vd;
     return r;
 }
+
+
+expr_node_t * make_expr_from_call_expr_node(call_expr_node_t * e)
+{
+    c_assert(e);
+
+    expr_node_t * r = make_expr_node(NT_CALL);
+    r->node.call = e;
+
+    return r ;
+}
+
+
+call_expr_node_t * make_call_expr_node(call_expr_node_type_t t)
+{
+    call_expr_node_t* r = (call_expr_node_t*)malloc(sizeof(call_expr_node_t));
+    c_assert2(r, "malloc failed");
+    r->type = t;
+    return r;
+}
+
+call_expr_node_t * make_call_from_direct_call_expr_node(direct_call_expr_node_t * dc)
+{
+    c_assert(dc);
+    call_expr_node_t * r = make_call_expr_node(CENT_DIRECT);
+    r->node.dc = dc;
+    return r;
+}
+
+call_expr_node_t * make_call_from_member_expr_node(call_expr_node_t * p,
+						   direct_call_expr_node_t * f)
+{
+    c_assert(p);
+    c_assert(f);
+    call_expr_node_t * r = make_call_expr_node(CENT_MEMBER);
+
+    r->node.mem = (member_expr_node_t*)malloc(sizeof(member_expr_node_t));
+    c_assert2(r->node.mem, "malloc failed");
+
+    r->node.mem->p = p;
+    r->node.mem->f = f;
+
+    return r;
+}
+
+direct_call_expr_node_t * make_direct_call_expr_node(direct_call_expr_node_type_t t)
+{
+    direct_call_expr_node_t* r =
+	(direct_call_expr_node_t*)malloc(sizeof(direct_call_expr_node_t));
+    c_assert2(r, "malloc failed");
+    r->type = t;
+    return r;
+}
+
+direct_call_expr_node_t * make_idf_direct_call_expr_node(idf_t  vidf)
+{
+    direct_call_expr_node_t * r = make_direct_call_expr_node(DCENT_IDF);
+    r->node.vidf = vidf;
+    return r;
+}
+
+direct_call_expr_node_t * make_fn_direct_call_expr_node(idf_t  vidf, param_eff_expr_node_t * p)
+{
+    direct_call_expr_node_t * r = make_direct_call_expr_node(DCENT_FN);
+ 
+    r->node.fnc = (fn_call_expr_node_t*)malloc(sizeof(fn_call_expr_node_t));
+    c_assert2(r->node.fnc, "malloc failed");
+
+    r->node.fnc->name = vidf;
+    r->node.fnc->params = p;
+
+    return r;
+}
+
 
 param_eff_expr_node_t * make_param_eff_expr_node()
 {
@@ -195,8 +257,7 @@ void free_expr_node(expr_node_t * n)
 	free_constant_expr_node(n->node.cst);
 	break;
     case NT_CALL:
-	//TODO
-	c_warning2(0, "TODO CALL");
+	free_call_expr_node(n->node.call);
 	break;
     }
     free(n);
@@ -268,9 +329,55 @@ void free_rvalue_node(rvalue_node_t * n)
     free(n);
 }
 
-void free_call_expr_node(call_expr_node_t * c)
+void free_direct_call_expr_node(direct_call_expr_node_t * n);
+void free_member_expr_node(member_expr_node_t * n);
+void free_fn_call_expr_node(fn_call_expr_node_t * n);
+
+void free_call_expr_node(call_expr_node_t * n)
 {
-    c_assert(c);
-    c_warning2(0, "TODO CALL");
-    free(c);
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case CENT_MEMBER:
+	free_member_expr_node(n->node.mem);
+	break;
+    case CENT_DIRECT:
+	free_direct_call_expr_node(n->node.dc);
+	break;
+    }
+
+    free(n);
+}
+
+void free_direct_call_expr_node(direct_call_expr_node_t * n)
+{
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case DCENT_FN:
+	free_fn_call_expr_node(n->node.fnc);
+	break;
+    case DCENT_IDF:
+	
+	break;
+    }
+
+    free(n);
+}
+
+void free_member_expr_node(member_expr_node_t * n)
+{
+    c_assert(n);
+    free_call_expr_node(n->p);
+    free_direct_call_expr_node(n->f);
+    free(n);
+}
+
+void free_fn_call_expr_node(fn_call_expr_node_t * n)
+{
+    c_assert(n);
+    free_param_eff_expr_node(n->params);
+    free(n);
 }

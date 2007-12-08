@@ -77,6 +77,8 @@ extern lexique_t * c_lexique;
 %type <bloc> else
 %type <bloc> liste_instruction_non_vide
 %type <bloc> liste_instruction
+%type <direct_call> appel_membre
+%type <call> appel
 
 /* Priorité des opérateurs */
 
@@ -105,7 +107,7 @@ etat:
 
 exp:
      // T_IDF inclu dans appel
-     appel                                            { $$ = make_call_expr_node(); }
+     appel                                            { $$ = make_expr_from_call_expr_node($1); }
    | T_CST_INT                                        { $$ = make_constant_int_expr_node($1); }
    | T_CST_STR                                        { $$ = make_constant_str_expr_node($1); }
    | T_CST_DBL                                        { $$ = make_constant_dbl_expr_node($1); }
@@ -126,13 +128,13 @@ exp:
    ;
 
 appel:
-     appel_membre                                                  {printf("appel -> appel_membre\n");}
-   | appel OP_MEMBER appel_membre                                  {printf("appel -> appel OP_MEMBER appel_membre\n");}
+     appel_membre                   { $$ = make_call_from_direct_call_expr_node($1); }
+   | appel OP_MEMBER appel_membre   { $$ = make_call_from_member_expr_node($1, $3);  }
    ;
 
 appel_membre:
-     T_IDF OP_BRACKET_O param_eff OP_BRACKET_C                     {printf("appel_membre -> T_IDF OP_BRACKET_O param_eff OP_BRACKET_C\n");}
-   | T_IDF                                                         {printf("appel_membre -> T_IDF\n");} 
+     T_IDF OP_BRACKET_O param_eff OP_BRACKET_C { $$ = make_fn_direct_call_expr_node("IDF", $3); }
+   | T_IDF                                     { $$ = make_idf_direct_call_expr_node("IDF"); }
    ;
 
 param_eff_non_vide:
@@ -155,7 +157,7 @@ param_eff:
 
 instruction:
      MC_SUPER OP_BRACKET_O param_eff OP_BRACKET_C OP_SEMICOLON { $$ = make_super_instr_node($3); }
-   | appel OP_SEMICOLON                                        { $$ = make_call_instr_node(make_call_expr_node()->node.call); /*crade, temporaire*/ }
+   | appel OP_SEMICOLON                                        { $$ = make_call_instr_node($1); }
    | affectation OP_SEMICOLON                                  { $$ = $1; }
    | boucle                                                    { $$ = $1; }
    | cond                                                      { $$ = $1; }

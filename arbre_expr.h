@@ -206,15 +206,15 @@ expr_node_t * make_expr_node(expr_node_type_t t);
 
 expr_node_t * make_binary_expr_node(bin_expr_node_type_t t, expr_node_t * g, expr_node_t * d);
 expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f);
-expr_node_t * make_call_expr_node();
 expr_node_t * make_constant_expr_node(cst_expr_node_type_t t);
 expr_node_t * make_constant_str_expr_node(size_t index_str);
 expr_node_t * make_constant_idf_expr_node(idf_t vidf);
 expr_node_t * make_constant_int_expr_node(int vint);
 expr_node_t * make_constant_dbl_expr_node(double vd);
+expr_node_t * make_expr_from_call_expr_node(call_expr_node_t * e);
 
 
-//call_expr_node_t * make_call_expr_node(call_expr_node_type_t t);
+call_expr_node_t * make_call_expr_node(call_expr_node_type_t t);
 call_expr_node_t * make_call_from_direct_call_expr_node(direct_call_expr_node_t * dc);
 call_expr_node_t * make_call_from_member_expr_node(call_expr_node_t * p, direct_call_expr_node_t * f);
 

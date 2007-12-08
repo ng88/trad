@@ -20,6 +20,10 @@ typedef union
 
     bloc_instr_node_t * bloc;
 
+    call_expr_node_t * call;
+
+    direct_call_expr_node_t * direct_call;
+
 } anasyn_type_t;
 
 #define YYSTYPE anasyn_type_t
