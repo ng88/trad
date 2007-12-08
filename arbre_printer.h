@@ -21,7 +21,9 @@ void print_new_expr_node(new_expr_node_t * n, FILE * f);
 void print_rvalue_node(rvalue_node_t * n, FILE * f);
 
 void print_call_expr_node(call_expr_node_t * c, FILE * f);
-
+void print_direct_call_expr_node(direct_call_expr_node_t * n, FILE * f);
+void print_member_expr_node(member_expr_node_t * n, FILE * f);
+void print_fn_call_expr_node(fn_call_expr_node_t * n, FILE * f);
 
 /** Affichage des noeuds d'instructions
  */

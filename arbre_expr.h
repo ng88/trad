@@ -250,5 +250,8 @@ void free_new_expr_node(new_expr_node_t * n);
 void free_rvalue_node(rvalue_node_t * n);
 
 void free_call_expr_node(call_expr_node_t * c);
+void free_direct_call_expr_node(direct_call_expr_node_t * n);
+void free_member_expr_node(member_expr_node_t * n);
+void free_fn_call_expr_node(fn_call_expr_node_t * n);
 
 #endif

@@ -144,12 +144,72 @@ void print_rvalue_node(rvalue_node_t * n, FILE * f)
     }
 }
 
-void print_call_expr_node(call_expr_node_t * c, FILE * f)
+void print_call_expr_node(call_expr_node_t * n, FILE * f)
 {
-    c_assert(c);
-    c_warning2(0, "TODO CALL");
-    fputs("TODO CALL", f);
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case CENT_DIRECT:
+	print_direct_call_expr_node(n->node.dc, f);
+	break;
+    case CENT_MEMBER:
+	print_member_expr_node(n->node.mem, f);
+	break;
+    }
 }
+
+void print_direct_call_expr_node(direct_call_expr_node_t * n, FILE * f)
+{
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case DCENT_FN:
+	print_fn_call_expr_node(n->node.fnc, f);
+	break;
+    case DCENT_IDF:
+	fputs("IDF", f);
+	break;
+    }
+}
+
+void print_member_expr_node(member_expr_node_t * n, FILE * f)
+{
+    c_assert(n);
+    fputc('(', f);
+    print_call_expr_node(n->p, f);
+    fputc('.', f);
+    print_direct_call_expr_node(n->f, f);
+    fputc(')', f);
+}
+
+void print_fn_call_expr_node(fn_call_expr_node_t * n, FILE * f)
+{
+    c_assert(n);
+    fputs("IDF", f);
+    print_param_eff_expr_node(n->params, f);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -262,8 +322,6 @@ void print_indent(FILE * f, int indent)
     for(i = 0; i < indent; ++i)
 	fputc('\t', f);
 }
-
-
 
 
 
