@@ -102,6 +102,7 @@ private    {  return MC_PRIVATE; }
 public     {  return MC_PUBLIC; }
 integer    {  return MC_INTEGER; }
 string     {  return MC_STRING; }
+real       {  return MC_REAL; }
 void       {  return MC_VOID; }
 super      {  return MC_SUPER; }
 return     {  return MC_RETURN; }

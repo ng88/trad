@@ -29,6 +29,7 @@ extern lexique_t * c_lexique;
 %token MC_INHERIT
 %token MC_PRIVATE
 %token MC_PUBLIC
+%token MC_REAL
 %token MC_INTEGER
 %token MC_STRING
 %token MC_VOID
@@ -97,6 +98,7 @@ extern lexique_t * c_lexique;
 type:
       MC_INTEGER                                                  {printf("type -> MC_INTEGER \n");}
     | MC_STRING                                                   {printf("type -> MC_STRING\n");}
+    | MC_REAL                                                     {printf("type -> MC_REAL\n");}
     | T_IDF                                                       {printf("type -> T_IDF\n");}
     ;
 
