@@ -115,6 +115,107 @@ instr_node_t * get_bloc_instr(bloc_instr_node_t * b, size_t index)
 }
 
 
+
+
+void print_instr_node(instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+
+    print_indent(f, indent);
+
+    switch(n->type)
+    {
+    case INT_LOOP: print_loop_instr_node(n->node.loop, f, indent); break;
+    case INT_CALL: print_call_instr_node(n->node.call, f, indent); break;
+    case INT_COND: print_cond_instr_node(n->node.cond, f, indent); break;
+    case INT_RETURN: print_return_instr_node(n->node.ret, f, indent); break;
+    case INT_SUPER: print_super_instr_node(n->node.super, f, indent); break;
+    case INT_AFFECT: print_affect_instr_node(n->node.aff, f, indent); break;
+    }
+
+    fputs(";\n", f);
+}
+
+void print_loop_instr_node(loop_instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+    fputs("while ", f);
+    print_expr_node(n->cond, f);
+    fputs("do\n", f);
+    print_bloc_instr_node(n->body, f, indent);
+
+}
+
+void print_cond_instr_node(cond_instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+    fputs("if ", f);
+    print_expr_node(n->cond, f);
+    fputs("then\n", f);
+    print_bloc_instr_node(n->btrue, f, indent);
+    if(n->bfalse)
+    {
+	print_indent(f, indent);
+	fputs("else\n", f);
+	print_bloc_instr_node(n->bfalse, f, indent);
+    }
+}
+
+void print_call_instr_node(call_instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+    print_call_expr_node(n->c, f);
+}
+
+void print_return_instr_node(return_instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+    fputs("return ", f);
+    print_expr_node(n->expr, f);
+}
+
+void print_super_instr_node(super_instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+    fputs("super", f);
+    print_param_eff_expr_node(n->params, f);
+}
+
+void print_affect_instr_node(affect_instr_node_t* n, FILE * f, int indent)
+{
+    c_assert(n);
+    //TODO
+    fputs("IDF := ", f);
+    print_rvalue_node(n->rvalue, f);
+}
+
+
+void print_bloc_instr_node(bloc_instr_node_t * n, FILE * f, int indent)
+{
+    c_assert(n);
+
+    print_indent(f, indent);
+    fputs("{\n", f);
+
+    indent++;
+
+    int i;
+    int s = count_instr_bloc(n);
+    for(i = 0; i < s; ++s)
+	print_instr_node(get_bloc_instr(n, i), f, indent);
+
+    print_indent(f, indent - 1);
+    fputs("}\n", f);
+}
+
+void print_indent(FILE * f, int indent)
+{
+    int i;
+    for(i = 0; i < indent; ++i)
+	fputc('\t', f);
+}
+
+
 void free_instr_node(instr_node_t * n)
 {
     c_assert(n);

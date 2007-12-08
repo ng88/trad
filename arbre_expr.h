@@ -189,6 +189,8 @@ void print_param_eff_expr_node(param_eff_expr_node_t * n, FILE * f);
 void print_new_expr_node(new_expr_node_t * n, FILE * f);
 void print_rvalue_node(rvalue_node_t * n, FILE * f);
 
+void print_call_expr_node(call_expr_node_t * c, FILE * f);
+
 /** Libère n'importe quel noeud d'expression */
 void free_expr_node(expr_node_t * n);
 

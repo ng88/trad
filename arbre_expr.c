@@ -254,7 +254,7 @@ void print_constant_expr_node(cst_expr_node_t * n, FILE * f)
 	fprintf(f, "\"%s\"", lexique_get(c_lexique, n->val.index_str));
 	break;
     case CNT_IDF:
-	fprintf(f, "IDF");
+	fputs("IDF", f);
 	break;
     }
 }
@@ -283,7 +283,7 @@ void print_new_expr_node(new_expr_node_t * n, FILE * f)
 {
     c_assert(n);
 
-    fprintf(f, "new IDF");
+    fputs("new IDF", f);
 
     print_param_eff_expr_node(n->params, f);
 }
@@ -303,6 +303,12 @@ void print_rvalue_node(rvalue_node_t * n, FILE * f)
     }
 }
 
+void print_call_expr_node(call_expr_node_t * c, FILE * f)
+{
+    c_assert(c);
+    c_warning2(0, "TODO CALL");
+    fputs("TODO CALL", f);
+}
 
 
 
@@ -323,7 +329,7 @@ void free_expr_node(expr_node_t * n)
 	break;
     case NT_CALL:
 	//TODO
-	c_warning2(0, "TODO");
+	c_warning2(0, "TODO CALL");
 	break;
     }
     free(n);
