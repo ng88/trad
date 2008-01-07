@@ -33,9 +33,9 @@
 
 
 #define __assert(cond, line, file, str, cond_str) \
-          { if(!cond) { fprintf(stderr, "assertion error on `" cond_str "' in " file  " at line %d: %s\n", line, str); abort(); } }
+          do { if(!cond) { fprintf(stderr, "assertion error on `" cond_str "' in " file  " at line %d: %s\n", line, str); abort(); } } while(0)
 #define __warning(cond, line, file, str, cond_str) \
-          { if(!cond) { fprintf(stderr, "warning on `" cond_str "' in " file  " at line %d: %s\n", line, str) ; } }
+          do { if(!cond) { fprintf(stderr, "warning on `" cond_str "' in " file  " at line %d: %s\n", line, str) ; } } while(0)
 
 #else
 

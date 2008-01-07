@@ -128,7 +128,7 @@ void add_instr_bloc(bloc_instr_node_t * b, instr_node_t * i)
 
 size_t count_instr_bloc(bloc_instr_node_t * b)
 {
-    c_assert(b)
+    c_assert(b);
     return vector_size(b->instrs);
 }
 
