@@ -30,4 +30,8 @@ size_t vector_capacity(vector_t * v);
  */
 void free_vector(vector_t * v, int free_elt);
 
+
+#define BOX_UINT(i) ((vector_elt_t)(i))
+#define UNBOX_UINT(i) ((unsigned int)(i))
+
 #endif

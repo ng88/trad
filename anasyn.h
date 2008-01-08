@@ -2,6 +2,7 @@
 #define ANASYN_H
 
 #include "arbre.h"
+#include "vector/vector.h"
 #include <stdlib.h>
 
 typedef union
@@ -23,6 +24,17 @@ typedef union
     call_expr_node_t * call;
 
     direct_call_expr_node_t * direct_call;
+
+    vector_t * idf_list;
+
+    var_type_t * type;
+
+    struct
+    {
+	vector_t * idf_list;
+	var_type_t * type;
+    } idf_list_type;
+
 
 } anasyn_type_t;
 

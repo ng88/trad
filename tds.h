@@ -123,8 +123,10 @@ tds_entry_t * make_tds_entry(size_t name_index, var_type_t *t, object_type_t ot)
 function_infos_t * make_function_infos(class_node_t * cl);
 proc_infos_t * make_proc_infos(class_node_t * cl);
 class_infos_t * make_class_infos();
-var_type_t * make_var_type(bool type_prim);
 
+var_type_t * make_var_type(bool type_prim);
+var_type_t * make_var_prim_type(primitive_type_t t);
+var_type_t * make_var_user_type(size_t idf);
 
 
 void free_tds(tds_t * t);

@@ -10,7 +10,6 @@ extern lexique_t * c_lexique;
 
 int main(int argc, char ** argv)
 {
-
     c_lexique = create_lexique();
 
     if(argc == 2)

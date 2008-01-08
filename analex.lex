@@ -123,6 +123,8 @@ VAR        {  return MC_VAR; }
 		 yyerror("identificateur trop long");
 	     }
 
+	     yylval.index_lexique = lexique_add_sole(c_lexique, strdup(yytext));
+                                            
 	     return T_IDF;
          }
 

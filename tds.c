@@ -79,6 +79,21 @@ var_type_t * make_var_type(bool type_prim)
     return r;
 }
 
+var_type_t * make_var_prim_type(primitive_type_t t)
+{
+    var_type_t * r = make_var_type(true);
+    r->type.prim = t;
+    return r;
+}
+
+var_type_t * make_var_user_type(size_t idf)
+{
+    var_type_t * r = make_var_type(false);
+    r->type.uclass = NULL;
+    c_warning2(0, "TODO recuperation effective du type");
+    return r;
+}
+
 
 void free_function_infos(function_infos_t *e)
 {

@@ -22,6 +22,7 @@ extern lexique_t * c_lexique;
 %token <vint> T_CST_INT
 %token <vdouble> T_CST_DBL
 %token <index_lexique> T_CST_STR
+%token <index_lexique> T_IDF
 
 %token FIN_FICHIER
 %token MC_CLASS
@@ -43,7 +44,7 @@ extern lexique_t * c_lexique;
 %token MC_ELSE
 %token MC_ENDIF
 %token MC_VAR
-%token T_IDF
+
 %token OP_UNARY_MINUS
 %token OP_EQ
 %token OP_NE
@@ -80,6 +81,10 @@ extern lexique_t * c_lexique;
 %type <bloc> liste_instruction
 %type <direct_call> appel_membre
 %type <call> appel
+%type <idf_list> liste_idf
+%type <type> type
+%type <idf_list_type> d_var_class
+%type <idf_list_type> d_var
 
 /* Priorité des opérateurs */
 
@@ -96,10 +101,10 @@ extern lexique_t * c_lexique;
 
 
 type:
-      MC_INTEGER                                                  {printf("type -> MC_INTEGER \n");}
-    | MC_STRING                                                   {printf("type -> MC_STRING\n");}
-    | MC_REAL                                                     {printf("type -> MC_REAL\n");}
-    | T_IDF                                                       {printf("type -> T_IDF\n");}
+      MC_INTEGER { $$ = make_var_prim_type(PT_INT); }
+    | MC_STRING  { $$ = make_var_prim_type(PT_STRING); }
+    | MC_REAL    { $$ = make_var_prim_type(PT_REAL); }
+    | T_IDF      { $$ = make_var_user_type($1); }
     ;
 
 etat:
@@ -182,12 +187,24 @@ rvalue:
    ;
 
 d_var:
-     MC_VAR type liste_idf OP_SEMICOLON                            {printf("d_var -> MC_VAR type liste_idf OP_SEMICOLON\n");}
+     MC_VAR type liste_idf OP_SEMICOLON
+     {
+	 $$.idf_list = $3;
+	 $$.type = $2;
+     }
    ;
 
 liste_idf: 
-     T_IDF                                                         {printf("liste_idf -> T_IDF\n");}
-   | liste_idf OP_COMMA T_IDF                                      {printf("liste_idf -> liste_idf OP_COMMA T_IDF\n");}
+     T_IDF
+     {
+	 $$ = create_vector(2);
+	 vector_add_element($$, BOX_UINT($1));
+     }
+   | liste_idf OP_COMMA T_IDF 
+     {
+	 $$ = $1;
+	 vector_add_element($$, BOX_UINT($3));
+     }
    ;
 
 liste_var_non_vide:
@@ -242,8 +259,12 @@ else:
      ;
 
 d_var_class:
-      etat type liste_idf OP_SEMICOLON                             {printf("d_var_class -> etat type liste_idf OP_SEMICOLON\n");}
-    ;
+      etat type liste_idf OP_SEMICOLON
+     {
+	 $$.idf_list = $3;
+	 $$.type = $2;
+     }
+     ;
 
 d_construct:
       etat T_IDF param bloc_inst                                   {printf("d_construct -> etat T_IDF param bloc_inst\n");}
