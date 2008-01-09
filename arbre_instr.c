@@ -111,7 +111,6 @@ bloc_instr_node_t * make_bloc_instr_node()
 
     c_assert2(r, "malloc failed");
 
-    c_warning2(0, "TODO TDS");
     r->tds = NULL;
     r->instrs = create_vector(8);
 
@@ -208,7 +207,9 @@ void free_affect_instr_node(affect_instr_node_t* n)
 void free_bloc_instr_node(bloc_instr_node_t * n)
 {
     c_assert(n);
-    c_warning2(0, "TODO TDS");
+
+    if(n->tds)
+	free_tds(n->tds);
 
     int i;
     int s = count_instr_bloc(n);

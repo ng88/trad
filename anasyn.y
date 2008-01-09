@@ -85,6 +85,7 @@ extern lexique_t * c_lexique;
 %type <type> type
 %type <idf_list_type> d_var_class
 %type <idf_list_type> d_var
+%type <tds> liste_var_non_vide
 
 /* Priorité des opérateurs */
 
@@ -208,8 +209,18 @@ liste_idf:
    ;
 
 liste_var_non_vide:
-     d_var                                                         {printf("liste_var_non_vide -> d_var\n");}
-   | liste_var_non_vide d_var                                      {printf("liste_var_non_vide -> liste_var_non_vide d_var\n");}
+     d_var
+     {
+	 $$ = make_tds(NULL);
+	 tds_add_entries($$, $1.idf_list, $1.type, OBJ_LOCAL_VAR);
+	 free_vector($1.idf_list, 0);
+     }
+   | liste_var_non_vide d_var
+     {
+	 $$ = $1;
+	 tds_add_entries($$, $2.idf_list, $2.type, OBJ_LOCAL_VAR);
+	 free_vector($2.idf_list, 0);
+     }
    ;
 
 liste_instruction_non_vide:
@@ -238,6 +249,7 @@ bloc_inst:
      | OP_BRACE_O liste_var_non_vide liste_instruction OP_BRACE_C
        {
 	   $$ = $3;
+	   $$->tds = $2;
        }
      | OP_BRACE_O liste_instruction OP_BRACE_C
        {

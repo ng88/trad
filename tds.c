@@ -24,6 +24,20 @@ void tds_add_entry(tds_t * t, tds_entry_t * e)
     vector_add_element(t->entries, e);
 }
 
+void tds_add_entries(tds_t * tds, vector_t * indices, var_type_t *t, object_type_t ot)
+{
+    c_assert(tds && indices && t);
+    size_t s = vector_size(indices);
+    size_t i;
+    t->ref += s - 1;
+    for(i = 0; i < s; ++i)
+    {
+	size_t index = UNBOX_UINT(vector_get_element_at(indices, i));
+	tds_add_entry(tds, make_tds_entry(index, t, ot));
+    }
+
+}
+
 
 tds_entry_t * make_tds_entry(size_t name_index, var_type_t * t, object_type_t ot)
 {
@@ -76,6 +90,7 @@ var_type_t * make_var_type(bool type_prim)
     var_type_t * r = (var_type_t *)malloc(sizeof(var_type_t));
     c_assert2(r, "malloc failed");
     r->type_prim = type_prim;
+    r->ref = 1;
     return r;
 }
 
@@ -117,7 +132,11 @@ void free_class_infos(class_infos_t * e)
 
 void free_var_type(var_type_t * t)
 {
-    free(t);
+    c_assert(t);
+    t->ref--;
+
+    if(t->ref == 0)
+	free(t);
 }
 
 void free_tds(tds_t * t)

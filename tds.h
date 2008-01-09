@@ -43,6 +43,9 @@ typedef struct
 
     /** Est-ce un type primitif ?*/
     bool type_prim;
+
+    /** Nombre de reference, pour la destruction*/
+    unsigned char ref;
 } var_type_t;
 
 /** Infos sur les fonctions
@@ -114,7 +117,12 @@ typedef struct _tds_t
 tds_t * make_tds(tds_t * parent);
 
 void tds_add_entry(tds_t * tds, tds_entry_t * e);
+/** Ajout multiple*/
+void tds_add_entries(tds_t * tds,vector_t * indices, var_type_t *t,object_type_t ot);
+
 #define tds_get_entry(tds, i) (tds_entry_t*)vector_get_element_at((tds)->entries, (i))
+#define tds_count(tds) vector_size((tds)->entries)
+
 tds_entry_t * tds_search_from_name(tds_t * tds, char * name);
 tds_entry_t * tds_search_from_index(tds_t * tds, size_t index);
 

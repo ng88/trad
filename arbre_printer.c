@@ -305,6 +305,9 @@ void print_bloc_instr_node(bloc_instr_node_t * n, FILE * f, int indent)
     print_indent(f, indent);
     fputs("{\n", f);
 
+    if(n->tds)
+	print_tds(n->tds, f, indent);
+
     indent++;
 
     int i;
@@ -324,4 +327,68 @@ void print_indent(FILE * f, int indent)
 }
 
 
+void print_tds(tds_t * t, FILE * f, int indent)
+{
+    c_assert(t);
+    size_t s = tds_count(t);
+    size_t i;
+
+    indent++;
+
+    print_indent(f, indent);
+    fputs("Local symbol table: \n", f);
+
+    for(i = 0; i < s; ++i)
+	print_tds_entry(tds_get_entry(t, i), f, indent);
+
+}
+
+
+void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
+{
+    c_assert(t);
+
+    print_indent(f, indent);
+    fprintf(f, "Symbol `%s', type=",
+	   lexique_get(c_lexique, t->name_index)
+	);
+    print_var_type(t->type, f);
+
+    char * ot = "???";
+    switch(t->otype)
+    {
+    case OBJ_CLASS: ot = "class"; break;
+    case OBJ_PROC: ot = "proc"; break;
+    case OBJ_FUNC: ot = "func"; break;
+    case OBJ_LOCAL_VAR: ot = "local var"; break;
+    }
+
+    fprintf(f, " (%s)\n", ot);
+
+}
+
+
+
+void print_var_type(var_type_t * t, FILE * f)
+{
+    c_assert(t);
+
+    char * st = "???";
+
+    if(t->type_prim)
+    {
+	switch(t->type.prim)
+	{
+	case PT_STRING: st = "string"; break;
+	case PT_INT: st = "integer"; break;
+	case PT_REAL: st = "real"; break;
+	}
+    }
+    else
+    {
+    }
+
+    fputs(st, f);
+
+}
 

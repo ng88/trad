@@ -5,6 +5,12 @@
 #include "vector/vector.h"
 #include <stdlib.h>
 
+typedef struct
+{
+    vector_t * idf_list;
+    var_type_t * type;
+} idf_list_type_t;
+
 typedef union
 {
     int vint;
@@ -29,11 +35,9 @@ typedef union
 
     var_type_t * type;
 
-    struct
-    {
-	vector_t * idf_list;
-	var_type_t * type;
-    } idf_list_type;
+    idf_list_type_t idf_list_type;
+
+    tds_t * tds;
 
 
 } anasyn_type_t;

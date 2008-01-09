@@ -40,5 +40,10 @@ void print_bloc_instr_node(bloc_instr_node_t * n, FILE * f, int indent);
 
 void print_indent(FILE * f, int indent);
 
+/** Affichage TDS
+ */
+void print_tds(tds_t * t, FILE * f, int indent);
+void print_tds_entry(tds_entry_t * t, FILE * f, int indent);
+void print_var_type(var_type_t * t, FILE * f);
 
 #endif
