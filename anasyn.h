@@ -40,6 +40,10 @@ typedef union
 
     tds_t * tds;
 
+    class_node_t * mclass;
+    function_node_t * mfn;
+    
+
 
 } anasyn_type_t;
 
@@ -49,6 +53,9 @@ typedef union
 extern FILE *yyin, *yyout;
 extern lexique_t * c_lexique;
 extern stack_t * block_stack;
+
+tds_t * get_tds();
+function_node_t * get_main_function();
 
 void yyerror(char * c);
 int yyparse();

@@ -14,8 +14,11 @@
 
 /* contient la pile des blocs ouverts */
 stack_t * block_stack = NULL;
-
 class_node_t * _current_class = NULL;
+ function_node_t * _main = NULL;
+/* tds de base */
+tds_t * base_tds = NULL;
+
 
 bloc_instr_node_t * current_block();
 tds_t * last_tds();
@@ -87,6 +90,7 @@ class_node_t * current_class();
 %type <bloc> else
 %type <bloc> liste_instruction_non_vide
 %type <bloc> liste_instruction
+%type <bloc> bloc_inst2
 %type <direct_call> appel_membre
 %type <call> appel
 %type <idf_list> liste_idf
@@ -94,7 +98,8 @@ class_node_t * current_class();
 %type <idf_list_type> d_var_class
 %type <idf_list_type> d_var
 %type <tds> liste_var_non_vide
-%type <bloc> bloc_inst2
+%type <mclass> class
+
 /* Priorité des opérateurs */
 
 %left OP_AND OP_OR
@@ -346,13 +351,35 @@ liste_declaration:
      ;
 
 class:
-        MC_CLASS T_IDF liste_declaration MC_END                     {printf("class -> MC_CLASS T_IDF liste_declaration MC_END\n");}
-     |  MC_CLASS T_IDF MC_INHERIT T_IDF liste_declaration MC_END    {printf("class -> MC_CLASS T_IDF MC_INHERIT T_IDF liste_declaration MC_END\n");}
+        MC_CLASS T_IDF
+        {
+	    _current_class = make_class_node($2, get_tds());
+        }
+        liste_declaration MC_END { $$ = current_class(); }
+
+     |  MC_CLASS T_IDF MC_INHERIT T_IDF
+        {
+	    _current_class = make_class_node($2, get_tds());
+
+          //TODO erreur si NULL
+
+	    _current_class->super = 
+		entry_get_class(tds_search_from_index(get_tds(), $4, OBJ_CLASS));
+
+	}
+        liste_declaration MC_END { $$ = current_class(); }
      ;
 
 l_class:
-	l_class class                                               {printf("l_class -> l_class class\n");}
-     |  class                                                       {printf("l_class -> class\n");}
+	l_class class
+        {
+	    tds_add_entry(get_tds(), make_tds_class_entry($2));
+	}
+     |  class
+        {
+	    tds_add_entry(get_tds(), make_tds_class_entry($1));
+	}
+
      ;
 
 programme:
@@ -388,7 +415,7 @@ tds_t * last_tds()
 	ret = ret->prev;
     }
 
-    return NULL;
+    return get_tds();
 }
 
 class_node_t * current_class()
@@ -397,15 +424,28 @@ class_node_t * current_class()
     return _current_class;
 }
 
+tds_t * get_tds()
+{
+    c_assert(base_tds);
+    return base_tds;
+}
+
+function_node_t * get_main_function()
+{
+    return _main;
+}
+
 
 void yyinit()
 {
     c_lexique = create_lexique();
     block_stack = create_stack();
+    base_tds = make_tds(NULL);
 }
 
 void yyfree()
 {
+    free_tds(base_tds);
     stack_free(block_stack, 0);
     free_lexique(c_lexique);
 }

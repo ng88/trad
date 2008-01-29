@@ -21,14 +21,14 @@ function_node_t * make_function_node(size_t name_index, scope_t scope)
     return r;
 }
 
-class_node_t * make_class_node(size_t name_index)
+class_node_t * make_class_node(size_t name_index, tds_t * parent)
 {
     class_node_t * r = (class_node_t *)malloc(sizeof(class_node_t));
     c_assert2(r, "malloc failed");
 
     r->super = NULL;
     r->name_index = name_index;
-    r->tds = make_tds(NULL);
+    r->tds = make_tds(parent);
 
     return r;
 }

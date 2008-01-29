@@ -40,6 +40,59 @@ void tds_add_entries(tds_t * tds, vector_t * indices, var_type_t *t, object_type
 }
 
 
+
+tds_entry_t * make_tds_class_entry(struct _class_node_t * cl)
+{
+    c_assert(cl);
+
+    tds_entry_t * e = make_tds_entry(cl->name_index, NULL, OBJ_CLASS);
+    e->infos.cl = cl;
+
+    return e;
+}
+
+tds_entry_t * make_tds_function_entry(struct _function_node_t * fn)
+{
+    c_assert(fn);
+
+    tds_entry_t * e = make_tds_entry(fn->name_index, NULL, OBJ_FUNC);
+    e->infos.fn = fn;
+
+    return e;
+}
+
+tds_entry_t * make_tds_procedure_entry(struct _function_node_t * fn)
+{
+    c_assert(fn);
+
+    tds_entry_t * e = make_tds_entry(fn->name_index, NULL, OBJ_PROC);
+    e->infos.fn = fn;
+
+    return e;
+}
+
+tds_entry_t * make_tds_constructor_entry(struct _function_node_t * fn)
+{
+    c_assert(fn);
+
+    tds_entry_t * e = make_tds_entry(fn->name_index, NULL, OBJ_CTOR);
+    e->infos.fn = fn;
+
+    return e;
+}
+
+
+
+tds_entry_t * make_tds_field_entry(size_t name_index, var_type_t *t, scope_t scope)
+{
+    c_assert(t);
+
+    tds_entry_t * e = make_tds_entry(name_index, t, OBJ_FIELD);
+    e->infos.field_scope = scope;
+
+    return e;
+}
+
 tds_entry_t * make_tds_entry(size_t name_index, var_type_t * t, object_type_t ot)
 {
     c_assert2(name_index < lexique_count(c_lexique), "invalid index");
@@ -80,6 +133,15 @@ var_type_t * make_var_user_type(size_t idf)
     return r;
 }
 
+struct _class_node_t * entry_get_class(tds_entry_t * e)
+{
+    return e ? e->infos.cl : NULL;
+}
+
+struct _function_node_t * entry_get_function(tds_entry_t * e)
+{
+    return e ? e->infos.fn : NULL;
+}
 
 
 
@@ -122,12 +184,13 @@ void free_tds_entry(tds_entry_t * e)
     case OBJ_FIELD: break;
     }
 
-    free_var_type(e->type);
+    if(e->type)
+	free_var_type(e->type);
 
     free(e);
 }
 
-tds_entry_t * tds_search_from_name(tds_t * tds, char * name)
+tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask)
 {
     c_assert(name);
 
@@ -141,10 +204,10 @@ tds_entry_t * tds_search_from_name(tds_t * tds, char * name)
     if(r == KEY_NOT_FOUND)
 	return NULL;
     else
-	return tds_search_from_index(tds, r);
+	return tds_search_from_index(tds, r, ot_mask);
 }
 
-tds_entry_t * tds_search_from_index(tds_t * tds, size_t index)
+tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask)
 {
     c_assert(tds);
     c_assert(index < lexique_count(c_lexique));
@@ -155,12 +218,12 @@ tds_entry_t * tds_search_from_index(tds_t * tds, size_t index)
     for(i = 0; i < s; ++i)
     {
 	tds_entry_t * e = tds_get_entry(tds, i);
-	if(e->name_index == index)
+	if((e->otype & ot_mask) && e->name_index == index)
 	    return e;
     }
 
     if(tds->parent)
-	return tds_search_from_index(tds->parent, index);
+	return tds_search_from_index(tds->parent, index, ot_mask);
     else
 	return NULL;
 }
