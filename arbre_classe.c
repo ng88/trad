@@ -5,7 +5,7 @@
 
 
 
-function_node_t * make_function_node(size_t name_index)
+function_node_t * make_function_node(size_t name_index, scope_t scope)
 {
     function_node_t * r = (function_node_t *)malloc(sizeof(function_node_t));
     c_assert2(r, "malloc failed");
@@ -16,6 +16,7 @@ function_node_t * make_function_node(size_t name_index)
     r->parent = NULL;
     r->name_index = name_index;
     r->block = NULL;
+    r->scope = scope;
 
     return r;
 }
@@ -27,7 +28,7 @@ class_node_t * make_class_node(size_t name_index)
 
     r->super = NULL;
     r->name_index = name_index;
-    r->block = NULL;
+    r->tds = make_tds(NULL);
 
     return r;
 }
@@ -45,7 +46,7 @@ void free_function_node(function_node_t *e)
 void free_class_node(class_node_t * e)
 {
     c_assert(e);
-    free_bloc_instr_node(e->block);
+    free_tds(e->tds);
     free(e);
 }
 

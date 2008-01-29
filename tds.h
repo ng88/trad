@@ -30,6 +30,15 @@ typedef enum
     OBJ_FIELD,
 } object_type_t;
 
+/** Portee
+ */
+typedef enum
+{
+    ST_PRIVATE = 0,
+    ST_PUBLIC,
+} scope_t;
+
+
 struct _class_node_t;
 struct _function_node_t;
 
@@ -71,6 +80,7 @@ typedef struct _tds_entry_t
     {
 	struct _function_node_t * fn;
 	struct _class_node_t *    cl;
+	scope_t                   field_scope;
     } infos;
 
 } tds_entry_t;

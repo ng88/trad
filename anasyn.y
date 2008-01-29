@@ -15,8 +15,11 @@
 /* contient la pile des blocs ouverts */
 stack_t * block_stack = NULL;
 
+class_node_t * _current_class = NULL;
+
 bloc_instr_node_t * current_block();
 tds_t * last_tds();
+class_node_t * current_class();
 
 %}
 
@@ -386,6 +389,12 @@ tds_t * last_tds()
     }
 
     return NULL;
+}
+
+class_node_t * current_class()
+{
+    c_assert(_current_class);
+    return _current_class;
 }
 
 

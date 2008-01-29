@@ -15,7 +15,7 @@ typedef struct _class_node_t
 
     size_t name_index;
 
-    bloc_instr_node_t * block;
+    tds_t * tds;
 
 } class_node_t;
 
@@ -24,6 +24,8 @@ typedef struct _class_node_t
 typedef struct _function_node_t
 {
     class_node_t * parent;
+
+    scope_t scope;
 
     size_t name_index;
 
@@ -37,7 +39,7 @@ typedef struct _function_node_t
 
 
 
-function_node_t * make_function_node(size_t name_index);
+function_node_t * make_function_node(size_t name_index, scope_t scope);
 class_node_t * make_class_node(size_t name_index);
 
 void free_function_node(function_node_t *e);
