@@ -351,16 +351,16 @@ void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
     switch(t->otype)
     {
     case OBJ_CLASS:
-	print_class_node(o->infos.cl, f, indent);
+	print_class_node(t->infos.cl, f, indent);
 	break;
     case OBJ_PROC:
     case OBJ_FUNC:
     case OBJ_CTOR:
-	print_function_node(o->infos.fn, f, indent);
+	print_function_node(t->infos.fn, f, indent);
 	break;
     case OBJ_FIELD:
 	print_indent(f, indent);
-	print_scope(t->infos.field_scope);
+	print_scope(t->infos.field_scope, f);
 	fprintf(f, " field `%s', type=",
 		lexique_get(c_lexique, t->name_index)
 	    );

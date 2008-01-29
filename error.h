@@ -1,6 +1,9 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#define UNKNOWN_LINE -1
+
+
 typedef enum
 {
     ET_BAD_STRING,
@@ -16,7 +19,7 @@ typedef enum
 
 
 
-void raise_error(size_t line, error_t code, ...);
+void raise_error(error_t code, ...);
 
 char * get_error_msg(error_t code);
 

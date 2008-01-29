@@ -2,6 +2,7 @@
 #include "tds.h"
 #include "assert.h"
 #include "arbre_classe.h"
+#include "error.h"
 
 extern lexique_t * c_lexique;
 
@@ -125,11 +126,10 @@ var_type_t * make_var_prim_type(primitive_type_t t)
     return r;
 }
 
-var_type_t * make_var_user_type(size_t idf)
+var_type_t * make_var_user_type(tds_t * t, size_t idf)
 {
     var_type_t * r = make_var_type(false);
-    r->type.uclass = NULL;
-    c_warning2(0, "TODO recuperation effective du type");
+    r->type.uclass = resolve_class_identifier(t, idf);
     return r;
 }
 
@@ -245,11 +245,25 @@ char * get_var_type(var_type_t * t)
     }
     else
     {
-	c_assert(t->uclass);
-	st = lexique_get(c_lexique, t->uclass->name_index);
+	c_assert(t->type.uclass);
+	st = lexique_get(c_lexique, t->type.uclass->name_index);
     }
 
     return st;
 
 }
+
+struct _class_node_t * resolve_class_identifier(tds_t * tds, size_t name_index)
+{
+    c_assert(tds);
+
+    struct _class_node_t * r =
+	entry_get_class(tds_search_from_index(tds, name_index, OBJ_CLASS));
+
+    if(!r)
+	raise_error(ET_CLASS_NOT_FOUND, lexique_get(c_lexique, name_index));
+
+    return r;
+}
+
 

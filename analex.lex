@@ -62,7 +62,7 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
 \"[^"\n]*\n                         { 
                                         yytext[ yyleng - 1 ] = 0;
                                         
-					printf("erreur chaine\n");
+					raise_error(ET_BAD_STRING);
                                         
                                         return T_CST_STR;
                                     }
@@ -119,9 +119,7 @@ VAR        {  return MC_VAR; }
 
 {idf}    {
              if(strlen(yytext) > 20)
-	     {
-		 yyerror("identificateur trop long");
-	     }
+		 raise_error(ET_IDF_TOO_LONG, yytext);
 
 	     yylval.index_lexique = lexique_add_sole(c_lexique, strdup(yytext));
                                             
@@ -140,7 +138,7 @@ VAR        {  return MC_VAR; }
 
 void yyerror(char * msg)
 {
-    raise_error(yylineno, ET_SYNTAX_ERROR, yytext, msg);
+    raise_error(ET_SYNTAX_ERROR, yytext, msg);
     /*fprintf(stderr, "line %d near `%s': %s\n", yylineno, yytext, msg);
       exit(1);*/
 }

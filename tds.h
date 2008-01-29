@@ -120,7 +120,9 @@ void tds_add_entries(tds_t * tds,vector_t * indices, var_type_t *t,object_type_t
 
 tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask);
 tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask);
-resolve
+
+
+struct _class_node_t * resolve_class_identifier(tds_t * tds, size_t name_index);
 
 tds_entry_t * make_tds_class_entry(struct _class_node_t * cl);
 tds_entry_t * make_tds_function_entry(struct _function_node_t * fn);
@@ -132,7 +134,7 @@ tds_entry_t * make_tds_entry(size_t name_index, var_type_t *t, object_type_t ot)
 
 var_type_t * make_var_type(bool type_prim);
 var_type_t * make_var_prim_type(primitive_type_t t);
-var_type_t * make_var_user_type(size_t idf);
+var_type_t * make_var_user_type(tds_t * tds, size_t idf);
 
 struct _class_node_t * entry_get_class(tds_entry_t * e);
 struct _function_node_t * entry_get_function(tds_entry_t * e);

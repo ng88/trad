@@ -1,6 +1,9 @@
 
+class A
+end
 
 class MaClasse
+    inherit A
 
 
 

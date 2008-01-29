@@ -118,7 +118,7 @@ type:
       MC_INTEGER { $$ = make_var_prim_type(PT_INT); }
     | MC_STRING  { $$ = make_var_prim_type(PT_STRING); }
     | MC_REAL    { $$ = make_var_prim_type(PT_REAL); }
-    | T_IDF      { $$ = make_var_user_type($1); }
+    | T_IDF      { $$ = make_var_user_type(get_tds(), $1); }
     ;
 
 etat:
@@ -361,10 +361,7 @@ class:
         {
 	    _current_class = make_class_node($2, get_tds());
 
-          //TODO erreur si NULL
-
-	    _current_class->super = 
-		entry_get_class(tds_search_from_index(get_tds(), $4, OBJ_CLASS));
+	    _current_class->super = resolve_class_identifier(get_tds(), $4);
 
 	}
         liste_declaration MC_END { $$ = current_class(); }
