@@ -30,7 +30,8 @@ $(EXE): $(OBJS)
 	$(STRIP) $@ > /dev/null
 
 main.o: anasyn.tab.o lex.yy.o
-anasyn.tab.o: anasyn.h arbre_printer.h lexique.h
+error.o: error.h
+anasyn.tab.o: anasyn.h arbre_printer.h lexique.h error.h
 arbre.o: arbre_expr.h arbre_instr.h arbre_classe.h assert.h arbre.h
 arbre_classe.o: tds.h assert.h arbre_classe.h
 arbre_expr.o: vector/vector.h assert.h arbre_expr.h lexique.h

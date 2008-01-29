@@ -348,49 +348,99 @@ void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
 {
     c_assert(t);
 
-    print_indent(f, indent);
-    fprintf(f, "Symbol `%s', type=",
-	   lexique_get(c_lexique, t->name_index)
-	);
-    print_var_type(t->type, f);
-
-    char * ot = "???";
     switch(t->otype)
     {
-    case OBJ_CLASS: ot = "class"; break;
-    case OBJ_PROC: ot = "proc"; break;
-    case OBJ_FUNC: ot = "func"; break;
-    case OBJ_LOCAL_VAR: ot = "local var"; break;
-    case OBJ_CTOR: ot = "ctor"; break;
-    case OBJ_FIELD: ot = "field"; break;
+    case OBJ_CLASS:
+	print_class_node(o->infos.cl, f, indent);
+	break;
+    case OBJ_PROC:
+    case OBJ_FUNC:
+    case OBJ_CTOR:
+	print_function_node(o->infos.fn, f, indent);
+	break;
+    case OBJ_FIELD:
+	print_indent(f, indent);
+	print_scope(t->infos.field_scope);
+	fprintf(f, " field `%s', type=",
+		lexique_get(c_lexique, t->name_index)
+	    );
+	print_var_type(t->type, f);
+	fputs("\n", f);
+	break;
+    case OBJ_LOCAL_VAR:
+	print_indent(f, indent);
+	fprintf(f, "Symbol `%s', type=",
+		lexique_get(c_lexique, t->name_index)
+	    );
+	print_var_type(t->type, f);
+	fputs(" (local var)\n", f);
+	break;
     }
 
-    fprintf(f, " (%s)\n", ot);
-
 }
-
-
 
 void print_var_type(var_type_t * t, FILE * f)
 {
-    c_assert(t);
-
-    char * st = "???";
-
-    if(t->type_prim)
-    {
-	switch(t->type.prim)
-	{
-	case PT_STRING: st = "string"; break;
-	case PT_INT: st = "integer"; break;
-	case PT_REAL: st = "real"; break;
-	}
-    }
-    else
-    {
-    }
-
-    fputs(st, f);
-
+    fputs(get_var_type(t), f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+void print_class_node(class_node_t * cl, FILE * f, int indent)
+{
+    c_assert(cl);
+
+    print_indent(f, indent);
+    fprintf(f, "class %s inherits %s\n",
+	    lexique_get(c_lexique, cl->name_index),
+	    cl->super ? lexique_get(c_lexique, cl->super->name_index) : "<object>"
+	    );
+
+    print_indent(f, indent);
+    fputs("begin\n", f);
+
+    indent++;
+
+    print_tds(cl->tds, f, indent);
+
+
+    print_indent(f, indent);
+    fputs("end\n", f);
+}
+
+void print_function_node(function_node_t * cl, FILE * f, int indent)
+{
+}
+
+
+void print_scope(scope_t s, FILE * f)
+{
+    switch(s)
+    {
+    case ST_PRIVATE: fputs("private", f); break;
+    case ST_PUBLIC: fputs("public", f); break;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -179,8 +179,8 @@ void free_tds_entry(tds_entry_t * e)
     case OBJ_CLASS: break;
     case OBJ_CTOR:
     case OBJ_PROC:
-    case OBJ_FUNC: break;
-    case OBJ_LOCAL_VAR: break;
+    case OBJ_FUNC: free_function_node(e->infos.fn); break;
+    case OBJ_LOCAL_VAR: free_class_node(e->infos.cl); break;
     case OBJ_FIELD: break;
     }
 
@@ -226,5 +226,30 @@ tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_
 	return tds_search_from_index(tds->parent, index, ot_mask);
     else
 	return NULL;
+}
+
+char * get_var_type(var_type_t * t)
+{
+    c_assert(t);
+
+    char * st = "???";
+
+    if(t->type_prim)
+    {
+	switch(t->type.prim)
+	{
+	case PT_STRING: st = "string"; break;
+	case PT_INT: st = "integer"; break;
+	case PT_REAL: st = "real"; break;
+	}
+    }
+    else
+    {
+	c_assert(t->uclass);
+	st = lexique_get(c_lexique, t->uclass->name_index);
+    }
+
+    return st;
+
 }
 

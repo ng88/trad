@@ -316,10 +316,10 @@ d_fonction:
 d_procedure:
       etat MC_VOID T_IDF param bloc_inst
       {
-	  printf("DEBUT\n");
+	  /*printf("DEBUT\n");
 	  print_bloc_instr_node($5, stdout, 1);
 	  free_bloc_instr_node($5);
-	  printf("\nFIN\n");
+	  printf("\nFIN\n");*/
       }
     ;
 
@@ -439,6 +439,9 @@ function_node_t * get_main_function()
 void yyinit()
 {
     c_lexique = create_lexique();
+    /* used for printing constructor name */
+    lexique_add(c_lexique, "constructor");
+
     block_stack = create_stack();
     base_tds = make_tds(NULL);
 }

@@ -8,6 +8,7 @@
 /** Declarations pour les arbres les classes.
  */
 
+#define CTOR_NAME 0
 
 typedef struct _class_node_t
 {
@@ -40,6 +41,8 @@ typedef struct _function_node_t
 
 
 function_node_t * make_function_node(size_t name_index, scope_t scope);
+function_node_t * make_procedure_node(size_t name_index, scope_t scope);
+function_node_t * make_constructor_node(scope_t scope);
 class_node_t * make_class_node(size_t name_index, tds_t * parent);
 
 void free_function_node(function_node_t *e);

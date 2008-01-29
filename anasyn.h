@@ -2,6 +2,7 @@
 #define ANASYN_H
 
 #include "arbre.h"
+#include "error.h"
 #include "vector/vector.h"
 #include "stack/stack.h"
 #include <stdlib.h>

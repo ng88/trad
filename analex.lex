@@ -140,8 +140,9 @@ VAR        {  return MC_VAR; }
 
 void yyerror(char * msg)
 {
-    fprintf(stderr, "line %d near `%s': %s\n", yylineno, yytext, msg);
-    exit(1);
+    raise_error(yylineno, ET_SYNTAX_ERROR, yytext, msg);
+    /*fprintf(stderr, "line %d near `%s': %s\n", yylineno, yytext, msg);
+      exit(1);*/
 }
 
 

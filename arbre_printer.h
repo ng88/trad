@@ -46,4 +46,12 @@ void print_tds(tds_t * t, FILE * f, int indent);
 void print_tds_entry(tds_entry_t * t, FILE * f, int indent);
 void print_var_type(var_type_t * t, FILE * f);
 
+
+/** Affichage classe & fonction
+ */
+void print_class_node(class_node_t * cl, FILE * f, int indent);
+void print_function_node(function_node_t * cl, FILE * f, int indent);
+
+void print_scope(scope_t s, FILE * f);
+
 #endif
