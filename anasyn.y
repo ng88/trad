@@ -9,9 +9,14 @@
 #include "anasyn.h"
 
 #include "arbre_printer.h"
-
+#include "assert.h"
 #include "lexique.h"
-extern lexique_t * c_lexique;
+
+/* contient la pile des blocs ouverts */
+stack_t * block_stack = NULL;
+
+bloc_instr_node_t * current_block();
+tds_t * last_tds();
 
 %}
 
@@ -86,7 +91,7 @@ extern lexique_t * c_lexique;
 %type <idf_list_type> d_var_class
 %type <idf_list_type> d_var
 %type <tds> liste_var_non_vide
-
+%type <bloc> bloc_inst2
 /* Priorité des opérateurs */
 
 %left OP_AND OP_OR
@@ -211,7 +216,7 @@ liste_idf:
 liste_var_non_vide:
      d_var
      {
-	 $$ = make_tds(NULL);
+	 $$ = current_block()->tds;
 	 tds_add_entries($$, $1.idf_list, $1.type, OBJ_LOCAL_VAR);
 	 free_vector($1.idf_list, 0);
      }
@@ -226,7 +231,7 @@ liste_var_non_vide:
 liste_instruction_non_vide:
      instruction
      {
-	 $$ = make_bloc_instr_node();
+	 $$ = current_block();
 	 add_instr_bloc($$, $1);
      }
    | liste_instruction_non_vide instruction
@@ -237,13 +242,26 @@ liste_instruction_non_vide:
 
 liste_instruction:
      liste_instruction_non_vide   { $$ = $1; }
-   | /* vide */                   { $$ = make_bloc_instr_node(); }               
+   | /* vide */                   { $$ = current_block(); }
    ;
 
 bloc_inst:
+   { /*  regle permettant simplement la creation, l'empilement et le depilemement du bloc courant . */
+
+       $$ = make_bloc_instr_node();
+       $$->tds = make_tds(last_tds());
+
+       stack_push(block_stack, $$);
+   }
+   bloc_inst2
+   {
+       stack_pop(block_stack);
+   };
+
+bloc_inst2:
        instruction
        {
-	   $$ = make_bloc_instr_node();
+	   $$ = current_block();
 	   add_instr_bloc($$, $1);
        }
      | OP_BRACE_O liste_var_non_vide liste_instruction OP_BRACE_C
@@ -253,6 +271,7 @@ bloc_inst:
        }
      | OP_BRACE_O liste_instruction OP_BRACE_C
        {
+	   /* pas de tds donc pas dans la pile des blocks */ 
 	   $$ = $2;
        }
      ;
@@ -338,4 +357,47 @@ programme:
      ;
 
 %%
+
+bloc_instr_node_t * current_block()
+{
+    c_assert(block_stack && !stack_empty(block_stack));
+
+    c_warning(stack_top(block_stack));
+
+    return (bloc_instr_node_t *)stack_top(block_stack);
+}
+
+tds_t * last_tds()
+{
+    c_assert(block_stack);
+
+
+    stack_node_t * ret = block_stack->top;
+
+    while(ret)
+    {
+	bloc_instr_node_t * block =
+	    (bloc_instr_node_t *)ret->val;
+
+	if(block && block->tds)
+	    return block->tds;
+
+	ret = ret->prev;
+    }
+
+    return NULL;
+}
+
+
+void yyinit()
+{
+    c_lexique = create_lexique();
+    block_stack = create_stack();
+}
+
+void yyfree()
+{
+    stack_free(block_stack, 0);
+    free_lexique(c_lexique);
+}
 

@@ -3,6 +3,7 @@
 
 #include "arbre.h"
 #include "vector/vector.h"
+#include "stack/stack.h"
 #include <stdlib.h>
 
 typedef struct
@@ -46,9 +47,14 @@ typedef union
 
 
 extern FILE *yyin, *yyout;
+extern lexique_t * c_lexique;
+extern stack_t * block_stack;
 
 void yyerror(char * c);
 int yyparse();
 int yylex();
+
+void yyinit();
+void yyfree();
 
 #endif

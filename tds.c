@@ -1,6 +1,7 @@
 
 #include "tds.h"
 #include "assert.h"
+#include "arbre_classe.h"
 
 extern lexique_t * c_lexique;
 
@@ -54,36 +55,6 @@ tds_entry_t * make_tds_entry(size_t name_index, var_type_t * t, object_type_t ot
     return r;
 }
 
-function_infos_t * make_function_infos(class_node_t * cl)
-{
-    function_infos_t * r = (function_infos_t *)malloc(sizeof(function_infos_t));
-    c_assert2(r, "malloc failed");
-
-    r->cl = cl;
-    r->params = create_vector(2);
-    r->return_type = NULL;
-
-    return r;
-}
-
-proc_infos_t * make_proc_infos(class_node_t * cl)
-{
-    proc_infos_t * r = (proc_infos_t *)malloc(sizeof(proc_infos_t));
-    c_assert2(r, "malloc failed");
-
-    r->cl = cl;
-    r->params = create_vector(2);
-
-    return r;
-}
-
-class_infos_t * make_class_infos()
-{
-    class_infos_t * r = (class_infos_t *)malloc(sizeof(class_infos_t));
-    c_assert2(r, "malloc failed");
-
-    return r;
-}
 
 var_type_t * make_var_type(bool type_prim)
 {
@@ -110,25 +81,7 @@ var_type_t * make_var_user_type(size_t idf)
 }
 
 
-void free_function_infos(function_infos_t *e)
-{
-    c_assert(e);
-    free_vector(e->params, 0);
-    free(e);
-}
 
-void free_proc_infos(proc_infos_t *e)
-{
-    c_assert(e);
-    free_vector(e->params, 0);
-    free(e);
-}
-
-void free_class_infos(class_infos_t * e)
-{
-    c_assert(e);
-    free(e);
-}
 
 void free_var_type(var_type_t * t)
 {
@@ -161,10 +114,12 @@ void free_tds_entry(tds_entry_t * e)
 
     switch(e->otype)
     {
-    case OBJ_CLASS: free_class_infos(e->infos.cl); break;
-    case OBJ_PROC: free_proc_infos(e->infos.pr); break;
-    case OBJ_FUNC:free_function_infos(e->infos.fn); break;
+    case OBJ_CLASS: break;
+    case OBJ_CTOR:
+    case OBJ_PROC:
+    case OBJ_FUNC: break;
     case OBJ_LOCAL_VAR: break;
+    case OBJ_FIELD: break;
     }
 
     free_var_type(e->type);

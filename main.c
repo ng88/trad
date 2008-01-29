@@ -5,12 +5,10 @@
 
 #include "lexique.h"
 
-extern lexique_t * c_lexique;
-
 
 int main(int argc, char ** argv)
 {
-    c_lexique = create_lexique();
+    yyinit();
 
     if(argc == 2)
 	yyin = fopen(argv[1], "r");
@@ -19,7 +17,7 @@ int main(int argc, char ** argv)
 
     fclose(yyin);
 
-    free_lexique(c_lexique);
+    yyfree();
 
     return EXIT_SUCCESS;
 }

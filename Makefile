@@ -16,7 +16,7 @@ endif
 CC=gcc
 CFLAGS=-W -Wall -Wno-unused $(DEBUGFLAGS) $(ASSERTFLAGS)
 LDFLAGS=-lm
-SRC=$(wildcard *.c) $(wildcard hashtable/*.c) $(wildcard vector/*.c) lex.yy.c anasyn.tab.c
+SRC=$(wildcard *.c) $(wildcard hashtable/*.c) $(wildcard stack/*.c) $(wildcard vector/*.c) lex.yy.c anasyn.tab.c
 OBJS=$(SRC:.c=.o)
 EXE=monCompilo
 
@@ -32,14 +32,14 @@ $(EXE): $(OBJS)
 main.o: anasyn.tab.o lex.yy.o
 anasyn.tab.o: anasyn.h arbre_printer.h lexique.h
 arbre.o: arbre_expr.h arbre_instr.h arbre_classe.h assert.h arbre.h
-arbre_classe.o: assert.h arbre_classe.h
+arbre_classe.o: tds.h assert.h arbre_classe.h
 arbre_expr.o: vector/vector.h assert.h arbre_expr.h lexique.h
 arbre_instr.o: arbre_expr.h tds.h assert.h arbre_instr.h lexique.h
 arbre_printer.o: arbre.h assert.h arbre_printer.h lexique.h
 lex.yy.o: anasyn.h anasyn.tab.h lexique.h
 lexique.o: hashtable/hashtable.h vector/vector.h lexique.h assert.h
 main.o: anasyn.tab.h anasyn.h lexique.h
-tds.o: lexique.h vector/vector.h bool.h tds.h assert.h
+tds.o: lexique.h vector/vector.h bool.h tds.h assert.h arbre_classe.h
 hashtable/hashtable.o: hashtable/hashtable.h hashtable/hashtable_private.h
 hashtable/hashtable_itr.o: hashtable/hashtable.h hashtable/hashtable_private.h hashtable/hashtable_itr.h
 vector/vector.o: vector/vector.h assert.h

@@ -361,6 +361,8 @@ void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
     case OBJ_PROC: ot = "proc"; break;
     case OBJ_FUNC: ot = "func"; break;
     case OBJ_LOCAL_VAR: ot = "local var"; break;
+    case OBJ_CTOR: ot = "ctor"; break;
+    case OBJ_FIELD: ot = "field"; break;
     }
 
     fprintf(f, " (%s)\n", ot);

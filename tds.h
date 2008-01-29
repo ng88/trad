@@ -25,11 +25,14 @@ typedef enum
     OBJ_CLASS,
     OBJ_PROC,
     OBJ_FUNC,
+    OBJ_CTOR,
     OBJ_LOCAL_VAR,
+    OBJ_FIELD,
 } object_type_t;
 
+struct _class_node_t;
+struct _function_node_t;
 
-typedef char class_node_t; // en attendant...
 
 /** Type d'une variable 
  */
@@ -38,7 +41,7 @@ typedef struct
     union
     {
 	primitive_type_t prim;
-	class_node_t * uclass;
+	struct _class_node_t * uclass;
     } type;
 
     /** Est-ce un type primitif ?*/
@@ -47,29 +50,6 @@ typedef struct
     /** Nombre de reference, pour la destruction*/
     unsigned char ref;
 } var_type_t;
-
-/** Infos sur les fonctions
- */
-typedef struct
-{
-    vector_t * params;
-    var_type_t * return_type;
-    class_node_t * cl;
-} function_infos_t;
-
-/** Infos sur les procedures
- */
-typedef struct
-{
-    vector_t * params;
-    class_node_t * cl;
-} proc_infos_t;
-
-/** Infos sur les classes
- */
-typedef struct
-{
-} class_infos_t;
 
 
 
@@ -89,9 +69,8 @@ typedef struct _tds_entry_t
     /** Informations spécifiques, en fonction du type d'objet */
     union
     {
-	function_infos_t * fn;
-	proc_infos_t *     pr;
-	class_infos_t *    cl;
+	struct _function_node_t * fn;
+	struct _class_node_t *    cl;
     } infos;
 
 } tds_entry_t;
@@ -128,10 +107,6 @@ tds_entry_t * tds_search_from_index(tds_t * tds, size_t index);
 
 tds_entry_t * make_tds_entry(size_t name_index, var_type_t *t, object_type_t ot);
 
-function_infos_t * make_function_infos(class_node_t * cl);
-proc_infos_t * make_proc_infos(class_node_t * cl);
-class_infos_t * make_class_infos();
-
 var_type_t * make_var_type(bool type_prim);
 var_type_t * make_var_prim_type(primitive_type_t t);
 var_type_t * make_var_user_type(size_t idf);
@@ -139,9 +114,6 @@ var_type_t * make_var_user_type(size_t idf);
 
 void free_tds(tds_t * t);
 void free_tds_entry(tds_entry_t * e);
-void free_function_infos(function_infos_t *e);
-void free_proc_infos(proc_infos_t *e);
-void free_class_infos(class_infos_t * e);
 void free_var_type(var_type_t * t);
 
 #endif
