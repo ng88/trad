@@ -62,7 +62,7 @@ void yyerror(char * c);
 int yyparse();
 int yylex();
 
-void yyinit();
-void yyfree();
+void yy_m_init();
+void yy_m_free();
 
 #endif

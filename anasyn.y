@@ -256,10 +256,10 @@ liste_instruction:
 bloc_inst:
    { /*  regle permettant simplement la creation, l'empilement et le depilemement du bloc courant . */
 
-       $$ = make_bloc_instr_node();
-       $$->tds = make_tds(last_tds());
+       bloc_instr_node_t * n = make_bloc_instr_node();
+       n->tds = make_tds(last_tds());
 
-       stack_push(block_stack, $$);
+       stack_push(block_stack, n);
    }
    bloc_inst2
    {
@@ -433,7 +433,7 @@ function_node_t * get_main_function()
 }
 
 
-void yyinit()
+void yy_m_init()
 {
     c_lexique = create_lexique();
     /* used for printing constructor name */
@@ -443,7 +443,7 @@ void yyinit()
     base_tds = make_tds(NULL);
 }
 
-void yyfree()
+void yy_m_free()
 {
     free_tds(base_tds);
     stack_free(block_stack, 0);

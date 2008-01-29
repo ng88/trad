@@ -8,7 +8,7 @@
 
 int main(int argc, char ** argv)
 {
-    yyinit();
+    yy_m_init();
 
     if(argc == 2)
 	yyin = fopen(argv[1], "r");
@@ -17,7 +17,7 @@ int main(int argc, char ** argv)
 
     fclose(yyin);
 
-    yyfree();
+    yy_m_free();
 
     return EXIT_SUCCESS;
 }
