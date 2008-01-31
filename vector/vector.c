@@ -4,6 +4,9 @@
 
 vector_t * create_vector(size_t init_capacity)
 {
+    if(init_capacity < 2)
+	init_capacity = 2;
+
     vector_t * v = (vector_t *)malloc(sizeof(vector_t));
 
     c_assert2(v, "malloc failed");

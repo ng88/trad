@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include "vector/vector.h"
 
-/** pour l'instant, mais ca devrait changer quand on fera
-   les tdf...*/
-typedef char* idf_t;
+typedef size_t idf_t;
 
 /** Declarations pour les arbres d'expressions
  */

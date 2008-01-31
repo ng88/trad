@@ -159,7 +159,7 @@ void free_tds(tds_t * t)
     c_assert(t);
 
     size_t i;
-    size_t s = vector_size(t->entries);
+    size_t s = tds_count(t);
 
     for(i = 0; i < s; ++i)
 	free_tds_entry(tds_get_entry(t, i));
@@ -277,6 +277,7 @@ param_dec_t * make_param_dec(size_t name, var_type_t * t)
     c_assert(p);
 
     p->type = t;
+    p->type->ref++;
     p->name_index = name;
 
     return p;
@@ -287,7 +288,7 @@ void free_param_dec(param_dec_t * p)
 {
     c_assert(p);
 
-    free(p->type);
+    free_var_type(p->type);
     free(p);
 }
 
@@ -306,8 +307,8 @@ void tds_add_params(function_node_t * f, vector_t * params)
 
 	tds_add_entry(f->block->tds,
 		      make_tds_entry(p->name_index,
-				     p->type
-				     , OBJ_PARAM));
+				     p->type,
+				     OBJ_PARAM));
     }
 }
 

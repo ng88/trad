@@ -94,8 +94,8 @@ void print_constant_expr_node(cst_expr_node_t * n, FILE * f)
     case CNT_STR:
 	fprintf(f, "\"%s\"", lexique_get(c_lexique, n->val.index_str));
 	break;
-    case CNT_IDF:
-	fputs("IDF", f);
+    case CNT_IDF:	
+	fputs(lexique_get(c_lexique, n->val.vidf), f);
 	break;
     }
 }
@@ -169,7 +169,7 @@ void print_direct_call_expr_node(direct_call_expr_node_t * n, FILE * f)
 	print_fn_call_expr_node(n->node.fnc, f);
 	break;
     case DCENT_IDF:
-	fputs("IDF", f);
+	fputs(lexique_get(c_lexique, n->node.vidf), f);
 	break;
     }
 }
@@ -187,7 +187,7 @@ void print_member_expr_node(member_expr_node_t * n, FILE * f)
 void print_fn_call_expr_node(fn_call_expr_node_t * n, FILE * f)
 {
     c_assert(n);
-    fputs("IDF", f);
+    fputs(lexique_get(c_lexique, n->name), f);
     print_param_eff_expr_node(n->params, f);
 }
 
@@ -291,8 +291,8 @@ void print_super_instr_node(super_instr_node_t * n, FILE * f, int indent)
 void print_affect_instr_node(affect_instr_node_t* n, FILE * f, int indent)
 {
     c_assert(n);
-    //TODO
-    fputs("IDF := ", f);
+    fputs(lexique_get(c_lexique, n->lvalue), f);
+    fputs(" := ", f);
     print_rvalue_node(n->rvalue, f);
     fputc(';', f);
 }
@@ -305,10 +305,10 @@ void print_bloc_instr_node(bloc_instr_node_t * n, FILE * f, int indent)
     print_indent(f, indent);
     fputs("{\n", f);
 
+    indent++;
+
     if(n->tds)
 	print_tds(n->tds, f, indent);
-
-    indent++;
 
     int i;
     int s = count_instr_bloc(n);
@@ -332,9 +332,6 @@ void print_tds(tds_t * t, FILE * f, int indent)
     c_assert(t);
     size_t s = tds_count(t);
     size_t i;
-
-    print_indent(f, indent);
-    fputs("Local symbol table: \n", f);
 
     for(i = 0; i < s; ++i)
 	print_tds_entry(tds_get_entry(t, i), f, indent);
@@ -372,7 +369,12 @@ void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
 		lexique_get(c_lexique, t->name_index)
 	    );
 	print_var_type(t->type, f);
-	fputs(" (local var)\n", f);
+
+	if(t->otype == OBJ_LOCAL_VAR)
+	    fputs(" (local var)\n", f);
+	else
+	    fputs(" (parameter)\n", f);
+
 	break;
     }
 
@@ -409,6 +411,7 @@ void print_class_node(class_node_t * cl, FILE * f, int indent)
 
     print_tds(cl->tds, f, indent + 1);
 
+    fputs("\n", f);
     print_indent(f, indent);
     fputs("end\n", f);
 }
@@ -435,7 +438,7 @@ void print_function_node(function_node_t * fn, FILE * f, int indent)
 
     fputs(")\n", f);
 
-    print_bloc_instr_node(fn->block, f, indent + 1);
+    print_bloc_instr_node(fn->block, f, indent);
 
 }
 
@@ -455,7 +458,6 @@ void print_type_list(vector_t * params, FILE * f)
 	    (param_dec_t *)vector_get_element_at(params, i);
 
 	print_var_type(p->type, f);
-	fprintf(f, " p%d", i);
     }
 }
 

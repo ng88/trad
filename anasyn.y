@@ -160,8 +160,8 @@ appel:
    ;
 
 appel_membre:
-     T_IDF OP_BRACKET_O param_eff OP_BRACKET_C { $$ = make_fn_direct_call_expr_node("IDF", $3); }
-   | T_IDF                                     { $$ = make_idf_direct_call_expr_node("IDF"); }
+     T_IDF OP_BRACKET_O param_eff OP_BRACKET_C { $$ = make_fn_direct_call_expr_node($1, $3); }
+   | T_IDF                                     { $$ = make_idf_direct_call_expr_node($1); }
    ;
 
 param_eff_non_vide:
@@ -192,7 +192,7 @@ instruction:
    ;
 
 affectation:
-     T_IDF OP_AFFECT rvalue { $$ = make_affect_instr_node("IDF", $3); }
+     T_IDF OP_AFFECT rvalue { $$ = make_affect_instr_node($1, $3); }
    ;
 
 rvalue:
@@ -202,7 +202,7 @@ rvalue:
      }
    | MC_NEW T_IDF OP_BRACKET_O param_eff OP_BRACKET_C
      {
-	 $$ = make_rvalue_new_node("IDF", $4);
+	 $$ = make_rvalue_new_node($2, $4);
      }
    ;
 
@@ -269,7 +269,7 @@ bloc_inst:
    }
    bloc_inst2
    {
-       stack_pop(block_stack);
+       $$ = stack_pop(block_stack);
    };
 
 bloc_inst2:
@@ -345,7 +345,7 @@ d_procedure:
 	$$ = make_procedure_node($3, $1, $4, $5);
 
 	tds_add_entry(current_class()->tds,
-		      make_tds_procedure_entry($$));
+	      make_tds_procedure_entry($$));
 
 	tds_add_params($$, $4);
     }
