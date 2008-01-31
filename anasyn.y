@@ -99,6 +99,12 @@ class_node_t * current_class();
 %type <idf_list_type> d_var
 %type <tds> liste_var_non_vide
 %type <mclass> class
+%type <mfn> d_construct
+%type <mfn> d_fonction
+%type <mfn> d_procedure
+%type <scope> etat
+%type <type_list> param
+%type <type_list> liste_type_idf
 
 /* Priorité des opérateurs */
 
@@ -122,8 +128,8 @@ type:
     ;
 
 etat:
-     MC_PRIVATE                                                   {printf("etat ->\n");}
-     | MC_PUBLIC                                                  {printf("etat ->\n");} 
+       MC_PRIVATE { $$ = ST_PRIVATE; }
+     | MC_PUBLIC  { $$ = ST_PUBLIC; }
    ;
 
 exp:
@@ -306,48 +312,84 @@ d_var_class:
      ;
 
 d_construct:
-      etat T_IDF param bloc_inst                                   {printf("d_construct -> etat T_IDF param bloc_inst\n");}
+      etat T_IDF param bloc_inst
+    {
+	if($2 != CTOR_NAME)
+	    raise_error(ET_CTOR_BAD_NAME);
+
+	$$ = make_constructor_node($1, $3, $4);
+
+	tds_add_entry(current_class()->tds,
+		      make_tds_constructor_entry($$));
+
+	tds_add_params($$, $3);
+    }
     ;
 
 d_fonction:
-      etat type T_IDF param bloc_inst                              {printf("d_fonction -> etat type T_IDF param bloc_inst\n");}
+      etat type T_IDF param bloc_inst
+    {
+	$$ = make_function_node($3, $1, $4, $5);
+	$$->ret_type = $2;
+
+	tds_add_entry(current_class()->tds,
+		      make_tds_function_entry($$));
+
+	tds_add_params($$, $4);
+    }
     ;
 
 d_procedure:
       etat MC_VOID T_IDF param bloc_inst
-      {
-	  /*printf("DEBUT\n");
-	  print_bloc_instr_node($5, stdout, 1);
-	  free_bloc_instr_node($5);
-	  printf("\nFIN\n");*/
-      }
+    {
+	$$ = make_procedure_node($3, $1, $4, $5);
+
+	tds_add_entry(current_class()->tds,
+		      make_tds_procedure_entry($$));
+
+	tds_add_params($$, $4);
+    }
     ;
 
 param:
-      OP_BRACKET_O liste_type_idf OP_BRACKET_C                     {printf("param -> OP_BRACKET_O liste_type_idf OP_BRACKET_C\n");}
-    | OP_BRACKET_O OP_BRACKET_C                                    {printf("param -> OP_BRACKET_O OP_BRACKET_C\n");}
+      OP_BRACKET_O liste_type_idf OP_BRACKET_C
+      {
+	  $$ = $2;
+      }
+    | OP_BRACKET_O OP_BRACKET_C
+      {
+	  $$ = create_vector(1);
+      }
     ;
 
 liste_type_idf: 
-      type T_IDF                                                   {printf("liste_type_idf -> type T_IDF\n");}
-    | liste_type_idf OP_COMMA type T_IDF                           {printf("liste_type_idf -> liste_type_idf OP_COMMA type T_IDF\n");}
+      type T_IDF
+      {
+	  $$ = create_vector(2);
+	  vector_add_element($$, make_param_dec($2, $1));
+      }
+    | liste_type_idf OP_COMMA type T_IDF
+      {
+	  $$ = $1;
+	  vector_add_element($$, make_param_dec($4, $3));
+      }
     ;
 
 declaration:
-      d_var_class                                                  {printf("declaration -> d_var_class\n");}
-    | d_construct                                                  {printf("declaration -> d_construct\n");}
-    | d_fonction                                                   {printf("declaration -> d_fonction\n");}
-    | d_procedure                                                  {printf("declaration -> d_procedure\n");}
+      d_var_class
+    | d_construct
+    | d_fonction
+    | d_procedure
     ;
 
 liste_declaration_non_vide:
-      declaration                                                  {printf("liste_declaration_non_vide -> declaration\n");}
-    | liste_declaration_non_vide declaration                       {printf("liste_declaration_non_vide -> liste_declaration_non_vide declaration\n");}
+      declaration
+    | liste_declaration_non_vide declaration
     ;
 
 liste_declaration:
-       liste_declaration_non_vide                                  {printf("liste_declaration -> liste_declaration_non_vide\n");}
-     | /* vide */                                                  {printf("liste_declaration -> \n");} 
+       liste_declaration_non_vide
+     | /* vide */
      ;
 
 class:

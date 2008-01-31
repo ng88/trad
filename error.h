@@ -15,6 +15,7 @@ typedef enum
     ET_FUNC_NOT_FOUND,
     ET_CTOR_NOT_FOUND,
     ET_NO_CTOR_FOUND,
+    ET_CTOR_BAD_NAME,
 } error_t;
 
 

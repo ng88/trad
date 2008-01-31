@@ -28,12 +28,14 @@ typedef enum
     OBJ_FUNC = 4,
     OBJ_CTOR = 8,
     OBJ_LOCAL_VAR = 16,
-    OBJ_FIELD = 32,
+    OBJ_PARAM = 32,
+    OBJ_FIELD = 64,
 } object_type_t;
 
 #define OBJ_NONE 0
 #define OBJ_ALL (OBJ_CLASS | OBJ_PROC | OBJ_FUNC | \
-                 OBJ_CTOR | OBJ_LOCAL_VAR | OBJ_FIELD)
+                 OBJ_CTOR | OBJ_LOCAL_VAR | \
+		 OBJ_FIELD | OBJ_PARAM)
 
 /** Portee
  */
@@ -65,6 +67,11 @@ typedef struct
     unsigned char ref;
 } var_type_t;
 
+typedef struct
+{
+    size_t name_index;
+    var_type_t * type;
+} param_dec_t;
 
 
 /** Une entree dans la TDS
@@ -131,6 +138,7 @@ tds_entry_t * make_tds_constructor_entry(struct _function_node_t * fn);
 tds_entry_t * make_tds_field_entry(size_t name_index, var_type_t *t, scope_t s);
 tds_entry_t * make_tds_entry(size_t name_index, var_type_t *t, object_type_t ot);
 
+void tds_add_params(struct _function_node_t * f, vector_t * params);
 
 var_type_t * make_var_type(bool type_prim);
 var_type_t * make_var_prim_type(primitive_type_t t);
@@ -139,6 +147,8 @@ var_type_t * make_var_user_type(tds_t * tds, size_t idf);
 struct _class_node_t * entry_get_class(tds_entry_t * e);
 struct _function_node_t * entry_get_function(tds_entry_t * e);
 
+param_dec_t * make_param_dec(size_t name, var_type_t * t);
+void free_param_dec(param_dec_t * p);
 
 char * get_var_type(var_type_t * t);
 

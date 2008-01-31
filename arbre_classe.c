@@ -5,30 +5,30 @@
 
 
 
-function_node_t * make_function_node(size_t name_index, scope_t scope)
+function_node_t * make_function_node(size_t name_index, scope_t scope, vector_t * params, bloc_instr_node_t * block)
 {
     function_node_t * r = (function_node_t *)malloc(sizeof(function_node_t));
     c_assert2(r, "malloc failed");
 
     
-    r->params = create_vector(2);
+    r->params = params;
     r->ret_type = NULL;
     r->parent = NULL;
     r->name_index = name_index;
-    r->block = NULL;
+    r->block = block;
     r->scope = scope;
 
     return r;
 }
 
-function_node_t * make_procedure_node(size_t name_index, scope_t scope)
+function_node_t * make_procedure_node(size_t name_index, scope_t scope, vector_t * params, bloc_instr_node_t * block)
 {
-    return make_function_node(name_index, scope);
+    return make_function_node(name_index, scope, params, block);
 }
 
-function_node_t * make_constructor_node(scope_t scope)
+function_node_t * make_constructor_node(scope_t scope, vector_t * params, bloc_instr_node_t * block)
 {
-    return make_function_node(CTOR_NAME, scope);
+    return make_function_node(CTOR_NAME, scope, params, block);
 }
 
 

@@ -35,6 +35,8 @@ typedef union
 
     vector_t * idf_list;
 
+    vector_t * type_list;
+
     var_type_t * type;
 
     idf_list_type_t idf_list_type;
@@ -43,8 +45,8 @@ typedef union
 
     class_node_t * mclass;
     function_node_t * mfn;
-    
 
+    scope_t scope;
 
 } anasyn_type_t;
 

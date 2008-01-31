@@ -40,6 +40,7 @@ char * get_error_msg(error_t code)
     case ET_FUNC_NOT_FOUND: return "fonction non trouvee";
     case ET_CTOR_NOT_FOUND: return "constructeur non trouve";
     case ET_NO_CTOR_FOUND: return "la classe '%s' ne comporte aucun constructeur";
+    case ET_CTOR_BAD_NAME: return "le constructeur doit porter le nom de la classe dans laquelle il est declare";
     }
 
     return "unknow";

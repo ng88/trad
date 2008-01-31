@@ -33,6 +33,7 @@ typedef struct _function_node_t
     bloc_instr_node_t * block;
 
     var_type_t * ret_type;
+
     vector_t * params;
 
 } function_node_t;
@@ -40,10 +41,22 @@ typedef struct _function_node_t
 
 
 
-function_node_t * make_function_node(size_t name_index, scope_t scope);
-function_node_t * make_procedure_node(size_t name_index, scope_t scope);
-function_node_t * make_constructor_node(scope_t scope);
-class_node_t * make_class_node(size_t name_index, tds_t * parent);
+function_node_t * make_function_node(size_t name_index,
+				     scope_t scope,
+				     vector_t * params,
+				     bloc_instr_node_t * block);
+
+function_node_t * make_procedure_node(size_t name_index,
+				      scope_t scope,
+				      vector_t *  params,
+				      bloc_instr_node_t * block);
+
+function_node_t * make_constructor_node(scope_t scope,
+					vector_t *  params,
+					bloc_instr_node_t * block);
+
+class_node_t * make_class_node(size_t name_index,
+			       tds_t * parent);
 
 void free_function_node(function_node_t *e);
 void free_class_node(class_node_t * e);

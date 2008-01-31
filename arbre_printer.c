@@ -333,8 +333,6 @@ void print_tds(tds_t * t, FILE * f, int indent)
     size_t s = tds_count(t);
     size_t i;
 
-    indent++;
-
     print_indent(f, indent);
     fputs("Local symbol table: \n", f);
 
@@ -367,6 +365,7 @@ void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
 	print_var_type(t->type, f);
 	fputs("\n", f);
 	break;
+    case OBJ_PARAM:
     case OBJ_LOCAL_VAR:
 	print_indent(f, indent);
 	fprintf(f, "Symbol `%s', type=",
@@ -432,7 +431,11 @@ void print_function_node(function_node_t * fn, FILE * f, int indent)
 		lexique_get(c_lexique, fn->name_index));
 
 
-		
+    print_type_list(fn->params, f);
+
+    fputs(")\n", f);
+
+    print_bloc_instr_node(fn->block, f, indent + 1);
 
 }
 
@@ -448,7 +451,10 @@ void print_type_list(vector_t * params, FILE * f)
 	if(i)
 	    fputs(", ", f);
 
-	print_var_type(vector_get_element_at(params, 0), f);
+	param_dec_t * p =
+	    (param_dec_t *)vector_get_element_at(params, i);
+
+	print_var_type(p->type, f);
 	fprintf(f, " p%d", i);
     }
 }

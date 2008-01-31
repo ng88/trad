@@ -1,7 +1,7 @@
 
 #include "tds.h"
 #include "assert.h"
-#include "arbre_classe.h"
+#include "arbre.h"
 #include "error.h"
 
 extern lexique_t * c_lexique;
@@ -176,11 +176,12 @@ void free_tds_entry(tds_entry_t * e)
 
     switch(e->otype)
     {
-    case OBJ_CLASS: break;
+    case OBJ_CLASS: free_class_node(e->infos.cl); break;
     case OBJ_CTOR:
     case OBJ_PROC:
     case OBJ_FUNC: free_function_node(e->infos.fn); break;
-    case OBJ_LOCAL_VAR: free_class_node(e->infos.cl); break;
+    case OBJ_PARAM:
+    case OBJ_LOCAL_VAR: break;
     case OBJ_FIELD: break;
     }
 
@@ -264,6 +265,50 @@ struct _class_node_t * resolve_class_identifier(tds_t * tds, size_t name_index)
 	raise_error(ET_CLASS_NOT_FOUND, lexique_get(c_lexique, name_index));
 
     return r;
+}
+
+
+param_dec_t * make_param_dec(size_t name, var_type_t * t)
+{
+    c_assert(t);
+
+    param_dec_t * p = (param_dec_t *)malloc(sizeof(param_dec_t));
+
+    c_assert(p);
+
+    p->type = t;
+    p->name_index = name;
+
+    return p;
+}
+
+
+void free_param_dec(param_dec_t * p)
+{
+    c_assert(p);
+
+    free(p->type);
+    free(p);
+}
+
+
+void tds_add_params(function_node_t * f, vector_t * params)
+{
+    c_assert(f && params && f->block && f->block->tds);
+
+    size_t s = vector_size(params);
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+    {
+	param_dec_t * p =
+	    (param_dec_t *)vector_get_element_at(params, i);
+
+	tds_add_entry(f->block->tds,
+		      make_tds_entry(p->name_index,
+				     p->type
+				     , OBJ_PARAM));
+    }
 }
 
 
