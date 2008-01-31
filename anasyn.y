@@ -437,7 +437,7 @@ void yy_m_init()
 {
     c_lexique = create_lexique();
     /* used for printing constructor name */
-    lexique_add(c_lexique, "constructor");
+    lexique_add(c_lexique, strdup("constructor"));
 
     block_stack = create_stack();
     base_tds = make_tds(NULL);

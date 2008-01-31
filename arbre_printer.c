@@ -408,17 +408,49 @@ void print_class_node(class_node_t * cl, FILE * f, int indent)
     print_indent(f, indent);
     fputs("begin\n", f);
 
-    indent++;
-
-    print_tds(cl->tds, f, indent);
-
+    print_tds(cl->tds, f, indent + 1);
 
     print_indent(f, indent);
     fputs("end\n", f);
 }
 
-void print_function_node(function_node_t * cl, FILE * f, int indent)
+void print_function_node(function_node_t * fn, FILE * f, int indent)
 {
+    c_assert(fn);
+
+    print_indent(f, indent);
+    print_scope(fn->scope, f);
+
+
+    if(fn->name_index == CTOR_NAME)
+	fputs("constructor(", f);
+    else if(fn->ret_type)
+	fprintf(f, " function %s(", 
+		lexique_get(c_lexique, fn->name_index));
+    else
+	fprintf(f, " procedure %s(", 
+		lexique_get(c_lexique, fn->name_index));
+
+
+		
+
+}
+
+void print_type_list(vector_t * params, FILE * f)
+{
+    c_assert(params);
+
+    size_t n = vector_size(params);
+    size_t i;
+
+    for(i = 0; i < n; ++i)
+    {
+	if(i)
+	    fputs(", ", f);
+
+	print_var_type(vector_get_element_at(params, 0), f);
+	fprintf(f, " p%d", i);
+    }
 }
 
 

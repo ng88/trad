@@ -5,6 +5,8 @@
 
 #include "lexique.h"
 
+#include "arbre_printer.h"
+
 
 int main(int argc, char ** argv)
 {
@@ -14,6 +16,8 @@ int main(int argc, char ** argv)
 	yyin = fopen(argv[1], "r");
 
     yyparse();
+
+    print_tds(get_tds(), stdout, 0);
 
     fclose(yyin);
 

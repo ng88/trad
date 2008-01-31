@@ -224,7 +224,13 @@ hashtable_destroy(struct hashtable *h, int free_values)
         {
             e = table[i];
             while (NULL != e)
-            { f = e; e = e->next; freekey(f->k); free(f->v); free(f); }
+            {
+		f = e;
+		e = e->next;
+		freekey(f->k);
+		free(f->v);
+		free(f);
+	    }
         }
     }
     else
