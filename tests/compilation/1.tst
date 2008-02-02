@@ -1,10 +1,17 @@
 
+class Test
+	public string a, b, c;
+end
+
 class A
+	inherit Test
+	public integer c, d;
 end
 
 class MaClasse
     inherit A
 
+	public MaClasse next;
 
     public void main()
     {

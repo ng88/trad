@@ -310,6 +310,8 @@ d_var_class:
      {
 	 $$.idf_list = $3;
 	 $$.type = $2;
+	 
+	 tds_add_field_entries(get_tds(), $3, $2, $1);
      }
      ;
 

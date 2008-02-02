@@ -40,6 +40,18 @@ void tds_add_entries(tds_t * tds, vector_t * indices, var_type_t *t, object_type
 
 }
 
+void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t scope)
+{
+    c_assert(tds && indices && t);
+    size_t s = vector_size(indices);
+    size_t i;
+    t->ref += s - 1;
+    for(i = 0; i < s; ++i)
+    {
+	size_t index = UNBOX_UINT(vector_get_element_at(indices, i));
+	tds_add_entry(tds, make_tds_field_entry(index, t, scope));
+    }
+}
 
 
 tds_entry_t * make_tds_class_entry(struct _class_node_t * cl)

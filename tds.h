@@ -120,6 +120,7 @@ tds_t * make_tds(tds_t * parent);
 void tds_add_entry(tds_t * tds, tds_entry_t * e);
 /** Ajout multiple*/
 void tds_add_entries(tds_t * tds,vector_t * indices, var_type_t *t,object_type_t ot);
+void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t s);
 
 #define tds_get_entry(tds, i) (tds_entry_t*)vector_get_element_at((tds)->entries, (i))
 #define tds_count(tds) vector_size((tds)->entries)
