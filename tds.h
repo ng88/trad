@@ -123,7 +123,7 @@ void tds_add_entries(tds_t * tds,vector_t * indices, var_type_t *t,object_type_t
 void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t s);
 
 #define tds_get_entry(tds, i) ((tds_entry_t*)vector_get_element_at((tds)->entries, (i)))
-#define tds_count(tds) vector_size((tds)->entries)
+#define tds_count(tds) (vector_size((tds)->entries))
 
 
 tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask);
