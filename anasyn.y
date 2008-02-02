@@ -311,14 +311,14 @@ d_var_class:
 	 $$.idf_list = $3;
 	 $$.type = $2;
 	 
-	 tds_add_field_entries(get_tds(), $3, $2, $1);
+	 tds_add_field_entries(current_class()->tds, $3, $2, $1);
      }
      ;
 
 d_construct:
       etat T_IDF param bloc_inst
     {
-	if($2 != CTOR_NAME)
+	if($2 != current_class()->name_index)
 	    raise_error(ET_CTOR_BAD_NAME);
 
 	$$ = make_constructor_node($1, $3, $4);
@@ -327,6 +327,8 @@ d_construct:
 		      make_tds_constructor_entry($$));
 
 	tds_add_params($$, $3);
+
+	$$->parent = current_class();
     }
     ;
 
@@ -340,6 +342,8 @@ d_fonction:
 		      make_tds_function_entry($$));
 
 	tds_add_params($$, $4);
+
+	$$->parent = current_class();
     }
     ;
 
@@ -360,6 +364,8 @@ d_procedure:
 	    else
 		_main = $$;
 	}
+
+	$$->parent = current_class();
 
     }
     ;

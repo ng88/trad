@@ -1,11 +1,21 @@
 
 class Test
 	public string a, b, c;
+	private real j, k;
+
+	public Test()
+	{
+	}
 end
 
 class A
 	inherit Test
 	public integer c, d;
+
+	public A(integer a, real d)
+	{
+		c := a * d;
+	}
 end
 
 class MaClasse
@@ -18,6 +28,16 @@ class MaClasse
 	VAR MaClasse a;
 	a := new MaClasse();
 	a.maproc("salut", "test");
+    }
+
+    public MaClasse next()
+    {
+	return(next);
+    }
+
+    public integer ajout(integer a, integer b)
+    {
+	return(a+b);
     }
 
     private void maproc(string arg1, string arg2)

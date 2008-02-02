@@ -424,7 +424,7 @@ void print_function_node(function_node_t * fn, FILE * f, int indent)
 
 
     if(fn->name_index == CTOR_NAME)
-	fputs("constructor(", f);
+	fputs(" constructor(", f);
     else if(fn->ret_type)
 	fprintf(f, " function %s(", 
 		lexique_get(c_lexique, fn->name_index));
