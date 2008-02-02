@@ -41,6 +41,9 @@ char * get_error_msg(error_t code)
     case ET_CTOR_NOT_FOUND: return "constructeur non trouve";
     case ET_NO_CTOR_FOUND: return "la classe '%s' ne comporte aucun constructeur";
     case ET_CTOR_BAD_NAME: return "le constructeur doit porter le nom de la classe dans laquelle il est declare";
+
+    case ET_MAIN_AMBIGUITY: return "une procedure main a deja ete declaree, il ne peut y avoir qu'un seul point d'entree";
+    case ET_MAIN_NOT_FOUND: return "point d'entree non trouve, vous devez definir une procedure main()";
     }
 
     return "unknow";

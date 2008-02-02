@@ -16,6 +16,9 @@ typedef enum
     ET_CTOR_NOT_FOUND,
     ET_NO_CTOR_FOUND,
     ET_CTOR_BAD_NAME,
+
+    ET_MAIN_AMBIGUITY,
+    ET_MAIN_NOT_FOUND,
 } error_t;
 
 

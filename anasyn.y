@@ -12,6 +12,8 @@
 #include "assert.h"
 #include "lexique.h"
 
+#define MAIN_NAME 1
+
 /* contient la pile des blocs ouverts */
 stack_t * block_stack = NULL;
 class_node_t * _current_class = NULL;
@@ -348,6 +350,15 @@ d_procedure:
 	      make_tds_procedure_entry($$));
 
 	tds_add_params($$, $4);
+
+	if($3 == MAIN_NAME && vector_size($4) == 0)
+	{
+	    if(_main)
+		raise_error(ET_MAIN_AMBIGUITY);
+	    else
+		_main = $$;
+	}
+
     }
     ;
 
@@ -396,12 +407,16 @@ class:
         MC_CLASS T_IDF
         {
 	    _current_class = make_class_node($2, get_tds());
+	    tds_add_entry(get_tds(),
+			  make_tds_class_entry(_current_class));
         }
         liste_declaration MC_END { $$ = current_class(); }
 
      |  MC_CLASS T_IDF MC_INHERIT T_IDF
         {
 	    _current_class = make_class_node($2, get_tds());
+	    tds_add_entry(get_tds(),
+			  make_tds_class_entry(_current_class));
 
 	    _current_class->super = resolve_class_identifier(get_tds(), $4);
 
@@ -411,14 +426,7 @@ class:
 
 l_class:
 	l_class class
-        {
-	    tds_add_entry(get_tds(), make_tds_class_entry($2));
-	}
      |  class
-        {
-	    tds_add_entry(get_tds(), make_tds_class_entry($1));
-	}
-
      ;
 
 programme:
@@ -480,6 +488,7 @@ void yy_m_init()
     c_lexique = create_lexique();
     /* used for printing constructor name */
     lexique_add(c_lexique, strdup("constructor"));
+    lexique_add(c_lexique, strdup("main"));
 
     block_stack = create_stack();
     base_tds = make_tds(NULL);

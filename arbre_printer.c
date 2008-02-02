@@ -124,7 +124,8 @@ void print_new_expr_node(new_expr_node_t * n, FILE * f)
 {
     c_assert(n);
 
-    fputs("new IDF", f);
+    fputs("new ", f);
+    fputs(lexique_get(c_lexique, n->idf), f);
 
     print_param_eff_expr_node(n->params, f);
 }
@@ -254,12 +255,10 @@ void print_cond_instr_node(cond_instr_node_t * n, FILE * f, int indent)
     print_bloc_instr_node(n->btrue, f, indent);
     if(n->bfalse)
     {
-	fputc('\n', f);
 	print_indent(f, indent);
 	fputs("else\n", f);
 	print_bloc_instr_node(n->bfalse, f, indent);
     }
-    fputc('\n', f);
     print_indent(f, indent);
     fputs("endif", f);
 }
@@ -316,7 +315,7 @@ void print_bloc_instr_node(bloc_instr_node_t * n, FILE * f, int indent)
 	print_instr_node(get_bloc_instr(n, i), f, indent);
 
     print_indent(f, indent - 1);
-    fputs("}", f);
+    fputs("}\n", f);
 }
 
 void print_indent(FILE * f, int indent)

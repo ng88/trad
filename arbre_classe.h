@@ -38,6 +38,7 @@ typedef struct _function_node_t
 
 } function_node_t;
 
+typedef tds_t tree_base_t;
 
 
 
