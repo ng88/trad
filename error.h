@@ -28,6 +28,8 @@ typedef enum
 
     ET_RETURN_IN_PROC,
     ET_NO_RETURN_IN_FUNC,
+
+    ET_VAR_NO_DEC,
 } error_t;
 
 

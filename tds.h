@@ -39,6 +39,8 @@ typedef enum
 
 #define OBJ_FNP (OBJ_PROC | OBJ_FUNC | OBJ_CTOR)
 
+#define OBJ_VAR (OBJ_LOCAL_VAR | OBJ_PARAM | OBJ_FIELD)
+
 /** Portee
  */
 typedef enum

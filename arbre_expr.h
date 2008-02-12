@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "vector/vector.h"
+#include "tds.h"
 
 typedef size_t idf_t;
 
@@ -141,6 +142,7 @@ typedef struct _fn_call_expr_node_t
 {
     idf_t  name;
     param_eff_expr_node_t * params;
+    tds_entry_t * fn_resolved;
 } fn_call_expr_node_t;
 
 /** Appel direct (champs ou fonction) */
@@ -153,6 +155,7 @@ typedef struct _direct_call_expr_node_t
 	fn_call_expr_node_t * fnc;
     } node;
 } direct_call_expr_node_t;
+
 
 /** Noeud de l'operateur membre . (ie instance.membre) */
 typedef struct _member_expr_node_t

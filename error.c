@@ -51,7 +51,9 @@ char * get_error_msg(error_t code)
     case ET_FIELD_ALREADY_EXISTS: return "un champs nomme `%s' existe deja";
     case ET_LVAR_ALREADY_EXISTS: return "une variable nommee `%s' existe deja";
     case ET_RETURN_IN_PROC: return "la procedure `%s' contient une instruction 'return', elle ne devrait pas";
-    case ET_NO_RETURN_IN_FUNC: return "la fonction `%s' ne contient pas d'instruction 'return', elle devrait";
+    case ET_NO_RETURN_IN_FUNC: return "tous les chemins de la fonction `%s' ne comportent pas de 'return'";
+
+    case ET_VAR_NO_DEC: return "la variable `%s' n'est pas declaree";
 }
 
     return "unknow";

@@ -18,8 +18,12 @@ typedef struct
 {
     class_node_t * current_cl;
     function_node_t * current_fn;
+    tds_t * current_tds;
+
+    var_type_t * type;
 
     bool contains_return;
+
 } resolve_env_t;
 
 void resolve_expr_node(expr_node_t * e, resolve_env_t * f);
@@ -51,7 +55,7 @@ void resolve_bloc_instr_node(bloc_instr_node_t * n, resolve_env_t * f);
 
 void resolve_tds(tds_t * t, resolve_env_t * f);
 void resolve_tds_entry(tds_entry_t * t, resolve_env_t * f);
-void resolve_var_type(var_type_t * t, resolve_env_t * f);
+
 
 void resolve_class_node(class_node_t * cl, resolve_env_t * f);
 void resolve_function_node(function_node_t * cl, resolve_env_t * f);
@@ -60,6 +64,11 @@ void resolve_type_list(vector_t * params, resolve_env_t * f);
 void resolve_scope(scope_t s, resolve_env_t * f);
 
 void resolve_start(tree_base_t * b);
+
+
+void resolve_var_type_assignement(var_type_t * from, var_type_t * to);
+
+tds_entry_t * resolve_var_type(size_t index, resolve_env_t * f);
 
 #endif
 

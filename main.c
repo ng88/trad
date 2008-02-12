@@ -31,7 +31,7 @@ int main(int argc, char ** argv)
     {
 	yylineno = -1;
 
-	resolve_start(get_tds());
+	//resolve_start(get_tds());
 
 	compile_env_t * e = make_compile_env(dest);
 

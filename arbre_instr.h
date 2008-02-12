@@ -63,6 +63,7 @@ typedef struct _super_instr_node_t
 typedef struct _affect_instr_node_t
 {
     idf_t           lvalue;
+    tds_entry_t *   lvalue_resolved;
     rvalue_node_t * rvalue;
 } affect_instr_node_t;
 

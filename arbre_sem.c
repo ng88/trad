@@ -56,6 +56,8 @@ void resolve_loop_instr_node(loop_instr_node_t * n, resolve_env_t * f)
 {
     c_assert(n);
 
+   /* pas la peine de verifier le type de la condition */
+
     resolve_expr_node(n->cond, f);
     resolve_bloc_instr_node(n->body, f);
 
@@ -67,9 +69,9 @@ void resolve_cond_instr_node(cond_instr_node_t * n, resolve_env_t * f)
 {
     c_assert(n);
 
-//verif ici
-    resolve_expr_node(n->cond, f);
+/* pas la peine de verifier le type de la condition */
 
+    resolve_expr_node(n->cond, f);
     f->contains_return = false;
 
     resolve_bloc_instr_node(n->btrue, f);
@@ -99,10 +101,12 @@ void resolve_call_instr_node(call_instr_node_t * n, resolve_env_t * f)
 
 void resolve_return_instr_node(return_instr_node_t * n, resolve_env_t * f)
 {
-    c_assert(n);
+    c_assert(n && f->current_fn);
     resolve_expr_node(n->expr, f);
     f->contains_return = true;
-//verif ici
+
+    if(f->current_fn->ret_type)
+	resolve_var_type_assignement(f->type, f->current_fn->ret_type);
 }
 
 void resolve_super_instr_node(super_instr_node_t * n, resolve_env_t * f)
@@ -112,12 +116,16 @@ void resolve_super_instr_node(super_instr_node_t * n, resolve_env_t * f)
     resolve_param_eff_expr_node(n->params, f);
 }
 
-void resolve_affect_instr_node(affect_instr_node_t* n, resolve_env_t * f)
+void resolve_affect_instr_node(affect_instr_node_t * n, resolve_env_t * f)
 {
     c_assert(n);
     f->contains_return = false;
-//verif ici
+
     resolve_rvalue_node(n->rvalue, f);
+
+    n->lvalue_resolved = resolve_var_type(n->lvalue, f);
+
+    resolve_var_type_assignement(f->type, n->lvalue_resolved->type);
 }
 
 void resolve_bloc_instr_node(bloc_instr_node_t * n, resolve_env_t * f)
@@ -128,8 +136,13 @@ void resolve_bloc_instr_node(bloc_instr_node_t * n, resolve_env_t * f)
 
     bool loop_return = false;
 
+    tds_t * old_tds = f->current_tds;
+
     if(n->tds)
+    {
+	f->current_tds = n->tds;
 	resolve_tds(n->tds, f);
+    }
 
     int i;
     int s = count_instr_bloc(n);
@@ -143,7 +156,29 @@ void resolve_bloc_instr_node(bloc_instr_node_t * n, resolve_env_t * f)
     }
 
     f->contains_return = loop_return;
+    f->current_tds = old_tds;
 
+}
+
+void resolve_var_type_assignement(var_type_t * from, var_type_t * to)
+{
+    c_assert(from && to);
+
+    if(!can_assign_var_type(from, to))
+	raise_error(ET_TYPE_MISMATCH, get_var_type(from), 
+		    get_var_type(to));
+
+}
+
+tds_entry_t * resolve_var_type(size_t index, resolve_env_t * f)
+{
+    tds_entry_t * r = 
+	tds_search_from_index(f->current_tds, index, OBJ_VAR, true);
+
+    if(!r)
+	raise_error(ET_VAR_NO_DEC, lexique_get(c_lexique, index));
+
+    return r;
 }
 
 
@@ -182,13 +217,12 @@ void resolve_tds_entry(tds_entry_t * t, resolve_env_t * f)
 
 }
 
-void resolve_var_type(var_type_t * t, resolve_env_t * f);
-
 void resolve_class_node(class_node_t * cl, resolve_env_t * f)
 {
     c_assert(cl);
 
     f->current_cl = cl;
+    f->current_tds = cl->tds;
 
     /* super deja resolu */
 
@@ -220,8 +254,6 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f)
 	    raise_error(ET_RETURN_IN_PROC, lexique_get(c_lexique, cl->name_index));
     }
 
-
-
 }
 
 void resolve_type_list(vector_t * params, resolve_env_t * f);
@@ -231,5 +263,6 @@ void resolve_scope(scope_t s, resolve_env_t * f);
 void resolve_start(tree_base_t * b)
 {
     resolve_env_t env;
+    env.current_tds = b;
     resolve_tds(b, &env);
 }
