@@ -37,6 +37,8 @@ typedef enum
                  OBJ_CTOR | OBJ_LOCAL_VAR | \
 		 OBJ_FIELD | OBJ_PARAM)
 
+#define OBJ_FNP (OBJ_PROC | OBJ_FUNC | OBJ_CTOR)
+
 /** Portee
  */
 typedef enum
@@ -125,10 +127,24 @@ void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t
 #define tds_get_entry(tds, i) ((tds_entry_t*)vector_get_element_at((tds)->entries, (i)))
 #define tds_count(tds) (vector_size((tds)->entries))
 
+/** Recherche depuis le nom, ot_mask est un masque indiquant le type des objets a chercher.
+ rec indique si c'est recursif ou pas. */
+tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask, bool rec);
 
-tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask);
-tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask);
+/** Recherche directe depuis l'index dans le lexique. */
+tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask, bool rec);
 
+/** Recherche une fonction du nom index et de type de parametres params. */
+tds_entry_t * tds_search_function(tds_t * tds, size_t index,  vector_t * params, bool rec);
+
+/** Indique si 2 listes de params sont les mm. */
+bool param_equals(vector_t * p1, vector_t * p2);
+
+/** Indique si 2 types sont strictement les mm. */
+bool var_type_equals(var_type_t * v1, var_type_t * v2);
+
+/** Indique si v2 peut etre assigne a du v1. */
+bool can_assign_var_type(var_type_t * v1, var_type_t * v2);
 
 struct _class_node_t * resolve_class_identifier(tds_t * tds, size_t name_index);
 

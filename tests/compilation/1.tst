@@ -21,7 +21,9 @@ end
 class MaClasse
     inherit A
 
-	public MaClasse next;
+    public MaClasse next;
+    
+    public MaClasse() {}
 
     public void main()
     {

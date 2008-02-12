@@ -26,7 +26,7 @@ void raise_error(error_t code, ...)
  }
 
 
-
+/* ca serait mieux avec un tableau... */
 char * get_error_msg(error_t code)
 {
     switch(code)
@@ -44,6 +44,12 @@ char * get_error_msg(error_t code)
 
     case ET_MAIN_AMBIGUITY: return "une procedure main a deja ete declaree, il ne peut y avoir qu'un seul point d'entree";
     case ET_MAIN_NOT_FOUND: return "point d'entree non trouve, vous devez definir une procedure main()";
+
+    case ET_CLASS_ALREADY_EXISTS: return "une classe nommee `%s' existe deja";
+    case ET_FUNC_ALREADY_EXISTS: return "une fonction nommee `%s' existe deja avec ce profil";
+    case ET_CTOR_ALREADY_EXISTS: return "un constructeur avec ce profil est deja defini pour `%s'";
+    case ET_FIELD_ALREADY_EXISTS: return "un champs nomme `%s' existe deja";
+    case ET_LVAR_ALREADY_EXISTS: return "une variable nommee `%s' existe deja";
     }
 
     return "unknow";

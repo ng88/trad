@@ -35,6 +35,10 @@ void tds_add_entries(tds_t * tds, vector_t * indices, var_type_t *t, object_type
     for(i = 0; i < s; ++i)
     {
 	size_t index = UNBOX_UINT(vector_get_element_at(indices, i));
+
+	if(tds_search_from_index(tds, index, ot, false))
+	    raise_error(ET_LVAR_ALREADY_EXISTS, lexique_get(c_lexique, index));
+
 	tds_add_entry(tds, make_tds_entry(index, t, ot));
     }
 
@@ -49,6 +53,10 @@ void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t
     for(i = 0; i < s; ++i)
     {
 	size_t index = UNBOX_UINT(vector_get_element_at(indices, i));
+
+	if(tds_search_from_index(tds, index, OBJ_FIELD, false))
+	    raise_error(ET_FIELD_ALREADY_EXISTS, lexique_get(c_lexique, index));
+
 	tds_add_entry(tds, make_tds_field_entry(index, t, scope));
     }
 }
@@ -203,7 +211,7 @@ void free_tds_entry(tds_entry_t * e)
     free(e);
 }
 
-tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask)
+tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_mask, bool rec)
 {
     c_assert(name);
 
@@ -217,10 +225,10 @@ tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_ma
     if(r == KEY_NOT_FOUND)
 	return NULL;
     else
-	return tds_search_from_index(tds, r, ot_mask);
+	return tds_search_from_index(tds, r, ot_mask, rec);
 }
 
-tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask)
+tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask, bool rec)
 {
     c_assert(tds);
     c_assert(index < lexique_count(c_lexique));
@@ -235,10 +243,79 @@ tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_
 	    return e;
     }
 
-    if(tds->parent)
-	return tds_search_from_index(tds->parent, index, ot_mask);
+    if(rec && tds->parent)
+	return tds_search_from_index(tds->parent, index, ot_mask, true);
     else
 	return NULL;
+}
+
+tds_entry_t * tds_search_function(tds_t * tds, size_t index, vector_t * params, bool rec)
+{
+    c_assert(tds);
+    c_assert(index < lexique_count(c_lexique));
+
+    size_t s = vector_size(tds->entries);
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+    {
+	tds_entry_t * e = tds_get_entry(tds, i);
+
+	if((e->otype & OBJ_FNP) && e->name_index == index
+	   && param_equals(params, e->infos.fn->params))
+	    return e;
+
+    }
+
+    if(rec && tds->parent)
+	return tds_search_function(tds->parent, index, params, true);
+    else
+	return NULL;
+}
+
+bool param_equals(vector_t * p1, vector_t * p2)
+{
+    c_assert(p1 && p2);
+
+    size_t n1 = vector_size(p1);
+    size_t n2 = vector_size(p2);
+
+    if(n1 != n2)
+	return false;
+
+    size_t i;
+
+    for(i = 0; i < n1; ++i)
+    {
+	param_dec_t * e1 =
+	    (param_dec_t *)vector_get_element_at(p1, i);
+	param_dec_t * e2 =
+	    (param_dec_t *)vector_get_element_at(p2, i);
+
+	if( !var_type_equals(e1->type, e2->type) )
+	    return false;
+    }
+
+    return true;
+}
+
+bool var_type_equals(var_type_t * v1, var_type_t * v2)
+{
+    c_assert(v1 && v2);
+
+    if(v1->type_prim && v2->type_prim)
+	return  v1->type.prim == v2->type.prim;
+    else if(!v1->type_prim && !v2->type_prim)
+	return  v1->type.uclass == v2->type.uclass;
+    else
+	return false;
+}
+
+bool can_assign_var_type(var_type_t * v1, var_type_t * v2)
+{
+    c_warning("TODO");
+
+    return var_type_equals(v1, v2);
 }
 
 char * get_var_type(var_type_t * t)
@@ -271,7 +348,7 @@ struct _class_node_t * resolve_class_identifier(tds_t * tds, size_t name_index)
     c_assert(tds);
 
     struct _class_node_t * r =
-	entry_get_class(tds_search_from_index(tds, name_index, OBJ_CLASS));
+	entry_get_class(tds_search_from_index(tds, name_index, OBJ_CLASS, true));
 
     if(!r)
 	raise_error(ET_CLASS_NOT_FOUND, lexique_get(c_lexique, name_index));

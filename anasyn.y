@@ -321,6 +321,9 @@ d_construct:
 	if($2 != current_class()->name_index)
 	    raise_error(ET_CTOR_BAD_NAME);
 
+	if(tds_search_function(current_class()->tds, CTOR_NAME, $3, false))
+	    raise_error(ET_CTOR_ALREADY_EXISTS, lexique_get(c_lexique, current_class()->name_index));
+
 	$$ = make_constructor_node($1, $3, $4);
 
 	tds_add_entry(current_class()->tds,
@@ -335,6 +338,10 @@ d_construct:
 d_fonction:
       etat type T_IDF param bloc_inst
     {
+
+	if(tds_search_function(current_class()->tds, $3, $4, false))
+	    raise_error(ET_FUNC_ALREADY_EXISTS, lexique_get(c_lexique, $3));
+
 	$$ = make_function_node($3, $1, $4, $5);
 	$$->ret_type = $2;
 
@@ -350,6 +357,10 @@ d_fonction:
 d_procedure:
       etat MC_VOID T_IDF param bloc_inst
     {
+
+	if(tds_search_function(current_class()->tds, $3, $4, false))
+	    raise_error(ET_FUNC_ALREADY_EXISTS, lexique_get(c_lexique, $3));
+
 	$$ = make_procedure_node($3, $1, $4, $5);
 
 	tds_add_entry(current_class()->tds,
@@ -414,6 +425,9 @@ liste_declaration:
 class:
         MC_CLASS T_IDF
         {
+	    if(tds_search_from_index(get_tds(), $2, OBJ_CLASS, false))
+		raise_error(ET_CLASS_ALREADY_EXISTS, lexique_get(c_lexique, $2));
+
 	    _current_class = make_class_node($2, get_tds());
 	    tds_add_entry(get_tds(),
 			  make_tds_class_entry(_current_class));
@@ -422,6 +436,9 @@ class:
 
      |  MC_CLASS T_IDF MC_INHERIT T_IDF
         {
+	    if(tds_search_from_index(get_tds(), $2, OBJ_CLASS, false))
+		raise_error(ET_CLASS_ALREADY_EXISTS, lexique_get(c_lexique, $2));
+
 	    _current_class = make_class_node($2, get_tds());
 	    tds_add_entry(get_tds(),
 			  make_tds_class_entry(_current_class));

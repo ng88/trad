@@ -7,6 +7,7 @@
 
 #include "arbre_printer.h"
 #include "arbre_compile.h"
+#include "arbre_sem.h"
 
 int main(int argc, char ** argv)
 {
@@ -26,6 +27,9 @@ int main(int argc, char ** argv)
 
     if(dest)
     {
+
+	resolve_tds(get_tds(), NULL);
+
 	compile_env_t * e = make_compile_env(dest);
 
 	compile_start(e, get_tds(), get_main_function());
