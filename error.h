@@ -25,6 +25,9 @@ typedef enum
     ET_FIELD_ALREADY_EXISTS,
     ET_LVAR_ALREADY_EXISTS,
     ET_CTOR_ALREADY_EXISTS,
+
+    ET_RETURN_IN_PROC,
+    ET_NO_RETURN_IN_FUNC,
 } error_t;
 
 

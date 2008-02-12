@@ -16,8 +16,10 @@
  */
 typedef struct
 {
-    /* rien pour le moment, peut servir
-     au cas où...*/
+    class_node_t * current_cl;
+    function_node_t * current_fn;
+
+    bool contains_return;
 } resolve_env_t;
 
 void resolve_expr_node(expr_node_t * e, resolve_env_t * f);
@@ -56,6 +58,8 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f);
 
 void resolve_type_list(vector_t * params, resolve_env_t * f);
 void resolve_scope(scope_t s, resolve_env_t * f);
+
+void resolve_start(tree_base_t * b);
 
 #endif
 
