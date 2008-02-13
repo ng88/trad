@@ -30,6 +30,9 @@ typedef enum
     ET_NO_RETURN_IN_FUNC,
 
     ET_VAR_NO_DEC,
+
+    ET_TYPE_BIN_ERR,
+    ET_TYPE_UNA_ERR,
 } error_t;
 
 

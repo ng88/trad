@@ -13,9 +13,10 @@
  */
 typedef enum
 {
-    PT_STRING,
-    PT_INT,
-    PT_REAL,
+    PT_INT = 0,
+    PT_REAL = 1,
+    PT_UNKNOW = 2,
+    PT_STRING = 3,
 } primitive_type_t;
 
 /** Types d'objet 
@@ -70,6 +71,10 @@ typedef struct
     /** Nombre de reference, pour la destruction*/
     unsigned char ref;
 } var_type_t;
+
+/** attention double evaluation de t */
+#define TYPE_IS_UNKNOWN(t)  ((t)->type_prim && (t)->type.prim == PT_UNKNOW)
+#define TYPE_SET_UNKNOWN(t) do { (t)->type_prim = true;(t)->type.prim = PT_UNKNOW; } while(0);
 
 typedef struct
 {

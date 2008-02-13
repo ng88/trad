@@ -31,6 +31,38 @@ void print_expr_node(expr_node_t * n, FILE * f)
     }
 }
 
+
+char * get_una_operator(una_expr_node_type_t t)
+{
+    switch(t)
+    {
+    case UNT_MINUS:    return "-" ; break;
+    }
+
+    return "?";
+}
+
+char * get_bin_operator(bin_expr_node_type_t t)
+{
+    switch(t)
+    {
+    case BNT_MUL:    return "*" ; break;
+    case BNT_DIV:    return "/" ; break;
+    case BNT_PLUS:   return "+" ; break;
+    case BNT_MINUS:  return "-" ; break;
+    case BNT_EQ:     return "=" ; break;
+    case BNT_NE:     return "!="; break;
+    case BNT_LE:     return "<="; break;
+    case BNT_GE:     return ">="; break;
+    case BNT_LT:     return "<"; break;
+    case BNT_GT:     return ">"; break;
+    case BNT_AND:    return "&"; break;
+    case BNT_OR:     return "||"; break;
+    }
+
+    return "?";
+}
+
 void print_binary_expr_node(bin_expr_node_t * n, FILE * f)
 {
     c_assert(n);
@@ -39,21 +71,7 @@ void print_binary_expr_node(bin_expr_node_t * n, FILE * f)
     print_expr_node(n->gauche, f);
     fputc(' ', f);
 
-    switch(n->type)
-    {
-    case BNT_MUL:    fputc('*', f); break;
-    case BNT_DIV:    fputc('/', f); break;
-    case BNT_PLUS:   fputc('+', f); break;
-    case BNT_MINUS:  fputc('-', f); break;
-    case BNT_EQ:     fputc('=', f); break;
-    case BNT_NE:     fputs("!=", f); break;
-    case BNT_LE:     fputs("<=", f); break;
-    case BNT_GE:     fputs(">=", f); break;
-    case BNT_LT:     fputc('<', f); break;
-    case BNT_GT:     fputc('>', f); break;
-    case BNT_AND:    fputc('&', f); break;
-    case BNT_OR:     fputs("||", f); break;
-    }
+    fputs(get_bin_operator(n->type), f);
 
     fputc(' ', f);
     print_expr_node(n->droit, f);
@@ -66,12 +84,7 @@ void print_unary_expr_node(una_expr_node_t * n, FILE * f)
 
     fputc('(', f);
 
-    switch(n->type)
-    {
-    case UNT_MINUS:
-	fputc('-', f);
-	break;
-    }
+    fputs(get_una_operator(n->type), f);
 
     fputc(' ', f);
     print_expr_node(n->fils, f);
@@ -80,7 +93,6 @@ void print_unary_expr_node(una_expr_node_t * n, FILE * f)
 
 void print_constant_expr_node(cst_expr_node_t * n, FILE * f)
 {
-
     c_assert(n);
 
     switch(n->type)

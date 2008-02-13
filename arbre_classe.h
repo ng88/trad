@@ -18,6 +18,8 @@ typedef struct _class_node_t
 
     tds_t * tds;
 
+    int line;
+
 } class_node_t;
 
 
@@ -35,6 +37,8 @@ typedef struct _function_node_t
     var_type_t * ret_type;
 
     vector_t * params;
+
+    int line;
 
 } function_node_t;
 

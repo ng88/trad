@@ -9,8 +9,6 @@
 #include "arbre_compile.h"
 #include "arbre_sem.h"
 
-extern int yylineno;
-
 int main(int argc, char ** argv)
 {
     yy_m_init();
@@ -29,9 +27,7 @@ int main(int argc, char ** argv)
 
     if(dest)
     {
-	yylineno = -1;
-
-	//resolve_start(get_tds());
+	resolve_start(get_tds());
 
 	compile_env_t * e = make_compile_env(dest);
 

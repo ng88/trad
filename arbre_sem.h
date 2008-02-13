@@ -20,7 +20,7 @@ typedef struct
     function_node_t * current_fn;
     tds_t * current_tds;
 
-    var_type_t * type;
+    var_type_t type;
 
     bool contains_return;
 
@@ -59,9 +59,6 @@ void resolve_tds_entry(tds_entry_t * t, resolve_env_t * f);
 
 void resolve_class_node(class_node_t * cl, resolve_env_t * f);
 void resolve_function_node(function_node_t * cl, resolve_env_t * f);
-
-void resolve_type_list(vector_t * params, resolve_env_t * f);
-void resolve_scope(scope_t s, resolve_env_t * f);
 
 void resolve_start(tree_base_t * b);
 

@@ -55,4 +55,9 @@ void print_function_node(function_node_t * cl, FILE * f, int indent);
 void print_type_list(vector_t * params, FILE * f);
 void print_scope(scope_t s, FILE * f);
 
+char * get_una_operator(una_expr_node_type_t t);
+char * get_bin_operator(bin_expr_node_type_t t);
+
+
+
 #endif

@@ -2,7 +2,7 @@
 
 #include "assert.h"
 #include "arbre_classe.h"
-
+#include "anasyn.h"
 
 
 function_node_t * make_function_node(size_t name_index, scope_t scope, vector_t * params, bloc_instr_node_t * block)
@@ -17,6 +17,7 @@ function_node_t * make_function_node(size_t name_index, scope_t scope, vector_t 
     r->name_index = name_index;
     r->block = block;
     r->scope = scope;
+    r->line = yylineno;
 
     return r;
 }
@@ -40,6 +41,7 @@ class_node_t * make_class_node(size_t name_index, tds_t * parent)
     r->super = NULL;
     r->name_index = name_index;
     r->tds = make_tds(parent);
+    r->line = yylineno;
 
     return r;
 }

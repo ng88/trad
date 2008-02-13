@@ -54,6 +54,10 @@ char * get_error_msg(error_t code)
     case ET_NO_RETURN_IN_FUNC: return "tous les chemins de la fonction `%s' ne comportent pas de 'return'";
 
     case ET_VAR_NO_DEC: return "la variable `%s' n'est pas declaree";
+
+    case ET_TYPE_BIN_ERR: return "type invalide, ne peut effectuer l'operation `%s' %s `%s'";
+    case ET_TYPE_UNA_ERR: return "type invalide, ne peut effectuer l'operation %s `%s'";
+
 }
 
     return "unknow";

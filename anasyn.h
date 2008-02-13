@@ -67,4 +67,7 @@ int yylex();
 void yy_m_init();
 void yy_m_free();
 
+
+extern int yylineno;
+
 #endif

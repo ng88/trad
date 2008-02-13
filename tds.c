@@ -315,6 +315,9 @@ bool can_assign_var_type(var_type_t * v1, var_type_t * v2)
 {
     c_warning("TODO");
 
+    if(TYPE_IS_UNKNOWN(v1) || TYPE_IS_UNKNOWN(v2))
+	return false;
+
     return var_type_equals(v1, v2);
 }
 
@@ -331,6 +334,7 @@ char * get_var_type(var_type_t * t)
 	case PT_STRING: st = "string"; break;
 	case PT_INT: st = "integer"; break;
 	case PT_REAL: st = "real"; break;
+	case PT_UNKNOW: st = "<unknow>"; break;
 	}
     }
     else

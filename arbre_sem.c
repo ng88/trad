@@ -1,22 +1,139 @@
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "assert.h"
 #include "arbre_sem.h"
 #include "error.h"
 
+#include "anasyn.h"
+#include "arbre_printer.h"
 #include "lexique.h"
+
 
 extern lexique_t * c_lexique;
 
+/** Matrice indiquant le type resultant d'une operation
+ binaire entre 2 type primitifs */
+
+static primitive_type_t BIN_TYPE_MATRIX[PT_UNKNOW + 1][PT_UNKNOW + 1] =
+                       {
+			   {PT_INT, PT_REAL, PT_UNKNOW},      /* PT_INT    */
+			   {PT_REAL, PT_REAL, PT_UNKNOW},     /* PT_REAL   */
+			   {PT_UNKNOW, PT_UNKNOW, PT_UNKNOW}, /* PT_UNKNOW */
+                       };
 
 void resolve_expr_node(expr_node_t * e, resolve_env_t * f)
 {
+    c_assert(e && f);
+
+    switch(e->type)
+    {
+    case NT_BINARY:
+	resolve_binary_expr_node(e->node.bin, f);
+	break;
+    case NT_UNARY:
+	resolve_unary_expr_node(e->node.una, f);
+	break;
+    case NT_CONST:
+	resolve_constant_expr_node(e->node.cst, f);
+	break;
+    case NT_CALL:
+	//TODO
+	c_warning2(0, "TODO");
+	break;
+    }
 }
 
-void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f);
-void resolve_unary_expr_node(una_expr_node_t * e, resolve_env_t * f);
-void resolve_constant_expr_node(cst_expr_node_t * e, resolve_env_t * f);
+void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f)
+{
+    c_assert(e && f);
+
+    var_type_t * gauche, * droit;
+    bool err = true;
+
+    TYPE_SET_UNKNOWN(&f->type);
+    resolve_expr_node(e->gauche, f);
+    gauche = &f->type;
+
+    TYPE_SET_UNKNOWN(&f->type);
+    resolve_expr_node(e->droit, f);
+    droit = &f->type;
+
+    /* ssi 2 types primitifs */
+    if(droit->type_prim && gauche->type_prim)
+    {
+	/* ssi on a 2 scalaires */
+	if(droit->type.prim != PT_STRING && 
+	   gauche->type.prim != PT_STRING)
+	{
+	    err = false;
+
+	    f->type.type_prim = true;
+	    f->type.type.prim = BIN_TYPE_MATRIX[gauche->type.prim][droit->type.prim];
+	}
+    }
+
+    if(err)
+	raise_error(ET_TYPE_BIN_ERR, get_var_type(gauche),
+		    get_bin_operator(e->type),
+		    get_var_type(droit));
+
+}
+
+void resolve_unary_expr_node(una_expr_node_t * e, resolve_env_t * f)
+{
+    c_assert(e && f);
+
+    var_type_t * fils;
+    bool err = true;
+
+    TYPE_SET_UNKNOWN(&f->type);
+    resolve_expr_node(e->fils, f);
+    fils = &f->type;
+
+    /* ssi type primitif */
+    if(fils->type_prim)
+    {
+	/* ssi on a 1 scalaire */
+	if(fils->type.prim != PT_STRING)
+	{
+	    err = false;
+
+	    f->type.type_prim = true;
+	    f->type.type.prim = fils->type.prim;
+	}
+    }
+
+    if(err)
+	raise_error(ET_TYPE_UNA_ERR,
+		    get_una_operator(e->type),
+		    get_var_type(fils));
+
+}
+
+void resolve_constant_expr_node(cst_expr_node_t * n, resolve_env_t * f)
+{
+    c_assert(n && f);
+
+    TYPE_SET_UNKNOWN(&f->type);
+
+    switch(n->type)
+    {
+    case CNT_INT:
+	f->type.type.prim = PT_INT;
+	break;
+    case CNT_DBL:
+	f->type.type.prim = PT_REAL;
+	break;
+    case CNT_STR:
+	f->type.type.prim = PT_STRING;
+	break;
+    case CNT_IDF:	
+	c_warning2(false, "TODO");
+	break;
+    }
+}
 
 void resolve_param_eff_expr_node(param_eff_expr_node_t * n, resolve_env_t * f)
 {
@@ -106,7 +223,7 @@ void resolve_return_instr_node(return_instr_node_t * n, resolve_env_t * f)
     f->contains_return = true;
 
     if(f->current_fn->ret_type)
-	resolve_var_type_assignement(f->type, f->current_fn->ret_type);
+	resolve_var_type_assignement(&f->type, f->current_fn->ret_type);
 }
 
 void resolve_super_instr_node(super_instr_node_t * n, resolve_env_t * f)
@@ -125,7 +242,7 @@ void resolve_affect_instr_node(affect_instr_node_t * n, resolve_env_t * f)
 
     n->lvalue_resolved = resolve_var_type(n->lvalue, f);
 
-    resolve_var_type_assignement(f->type, n->lvalue_resolved->type);
+    resolve_var_type_assignement(&f->type, n->lvalue_resolved->type);
 }
 
 void resolve_bloc_instr_node(bloc_instr_node_t * n, resolve_env_t * f)
@@ -223,6 +340,7 @@ void resolve_class_node(class_node_t * cl, resolve_env_t * f)
 
     f->current_cl = cl;
     f->current_tds = cl->tds;
+    yylineno = cl->line;
 
     /* super deja resolu */
 
@@ -239,6 +357,7 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f)
 
     /* parametre deja resolu */
 
+    yylineno = cl->line;
     f->current_fn = cl;
     f->contains_return = false;
     resolve_bloc_instr_node(cl->block, f);
@@ -253,16 +372,20 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f)
 	if(f->contains_return)
 	    raise_error(ET_RETURN_IN_PROC, lexique_get(c_lexique, cl->name_index));
     }
+    yylineno = -1;
 
 }
-
-void resolve_type_list(vector_t * params, resolve_env_t * f);
-void resolve_scope(scope_t s, resolve_env_t * f);
 
 
 void resolve_start(tree_base_t * b)
 {
+    yylineno = -1;
+
     resolve_env_t env;
+    memset(&env, 0, sizeof(env));
+
     env.current_tds = b;
+    TYPE_SET_UNKNOWN(&env.type);
+
     resolve_tds(b, &env);
 }
