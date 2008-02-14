@@ -196,8 +196,12 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
     case DCENT_FN:
        {
 
+	   vector_t * v = resolve_param_eff_list(n->node.fnc->params, f);
+
 	   n->resolved = 
-	       tds_search_function(tds, n->node.fnc->name, TODO, true);
+	       tds_search_function(tds, n->node.fnc->name, v, true);
+
+	   free_vector(v);
 
 	   if(!n->resolved)
 	       raise_error(ET_FUNC_NOT_FOUND,
@@ -216,6 +220,22 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 	   break;
        }
     }
+}
+
+vector_t * resolve_param_eff_list(param_eff_expr_node_t * n, resolve_env_t * f)
+{
+    c_assert(n && n->params);
+
+    size_t i;
+    size_t n = vector_size(n->params);
+    vector_t * v = create_vector(n);
+
+    for(i = 0; i < n; ++i)
+    {
+	
+    }
+
+    return v;
 }
 
 void resolve_member_expr_node(member_expr_node_t * n, resolve_env_t * f)
