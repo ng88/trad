@@ -33,6 +33,8 @@ typedef enum
 
     ET_TYPE_BIN_ERR,
     ET_TYPE_UNA_ERR,
+
+    ET_TYPE_MBR_ERR,
 } error_t;
 
 

@@ -37,7 +37,7 @@ char * get_error_msg(error_t code)
 
     case ET_TYPE_MISMATCH: return "ne peut pas assigner un objet de type'%s' avec le type '%s'";
     case ET_CLASS_NOT_FOUND: return "classe non trouvee '%s'";
-    case ET_FUNC_NOT_FOUND: return "fonction non trouvee";
+    case ET_FUNC_NOT_FOUND: return "aucune fonction/procedure nommee `%s' ne correspond au profil demande";
     case ET_CTOR_NOT_FOUND: return "constructeur non trouve";
     case ET_NO_CTOR_FOUND: return "la classe '%s' ne comporte aucun constructeur";
     case ET_CTOR_BAD_NAME: return "le constructeur doit porter le nom de la classe dans laquelle il est declare";
@@ -57,8 +57,8 @@ char * get_error_msg(error_t code)
 
     case ET_TYPE_BIN_ERR: return "type invalide, ne peut effectuer l'operation `%s' %s `%s'";
     case ET_TYPE_UNA_ERR: return "type invalide, ne peut effectuer l'operation %s `%s'";
-
-}
+    case ET_TYPE_MBR_ERR: return "l'operateur '.' ne peut pas s'utiliser sur un type primitif `%s', mais seulement sur un objet.";
+    }
 
     return "unknow";
 }

@@ -142,7 +142,7 @@ typedef struct _fn_call_expr_node_t
 {
     idf_t  name;
     param_eff_expr_node_t * params;
-    tds_entry_t * fn_resolved;
+
 } fn_call_expr_node_t;
 
 /** Appel direct (champs ou fonction) */
@@ -154,6 +154,8 @@ typedef struct _direct_call_expr_node_t
 	idf_t  vidf;
 	fn_call_expr_node_t * fnc;
     } node;
+
+    tds_entry_t * resolved;
 } direct_call_expr_node_t;
 
 
@@ -163,6 +165,7 @@ typedef struct _member_expr_node_t
     /* represente p.f */
     struct _call_expr_node_t * p;
     direct_call_expr_node_t * f;
+
 } member_expr_node_t;
 
 /** Noeud d'appel général */

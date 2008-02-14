@@ -140,6 +140,8 @@ direct_call_expr_node_t * make_direct_call_expr_node(direct_call_expr_node_type_
 	(direct_call_expr_node_t*)malloc(sizeof(direct_call_expr_node_t));
     c_assert2(r, "malloc failed");
     r->type = t;
+    r->resolved = NULL;
+
     return r;
 }
 

@@ -98,6 +98,7 @@ instr_node_t * make_affect_instr_node(idf_t lv, rvalue_node_t * rv)
     c_assert2(r->node.aff, "malloc failed");
 
     r->node.aff->lvalue = lv;
+    r->node.aff->lvalue_resolved = NULL;
     r->node.aff->rvalue = rv;
 
     return r;

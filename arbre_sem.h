@@ -21,6 +21,7 @@ typedef struct
     tds_t * current_tds;
 
     var_type_t type;
+    var_type_t context;
 
     bool contains_return;
 
@@ -32,15 +33,12 @@ void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f);
 void resolve_unary_expr_node(una_expr_node_t * e, resolve_env_t * f);
 void resolve_constant_expr_node(cst_expr_node_t * e, resolve_env_t * f);
 
-void resolve_param_eff_expr_node(param_eff_expr_node_t * n, resolve_env_t * f);
 void resolve_new_expr_node(new_expr_node_t * n, resolve_env_t * f);
 void resolve_rvalue_node(rvalue_node_t * n, resolve_env_t * f);
 
 void resolve_call_expr_node(call_expr_node_t * c, resolve_env_t * f);
 void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * f);
 void resolve_member_expr_node(member_expr_node_t * n, resolve_env_t * f);
-void resolve_fn_call_expr_node(fn_call_expr_node_t * n, resolve_env_t * f);
-
 
 void resolve_instr_node(instr_node_t * n, resolve_env_t * f);
 

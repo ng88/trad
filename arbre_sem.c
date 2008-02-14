@@ -39,8 +39,8 @@ void resolve_expr_node(expr_node_t * e, resolve_env_t * f)
 	resolve_constant_expr_node(e->node.cst, f);
 	break;
     case NT_CALL:
-	//TODO
-	c_warning2(0, "TODO");
+	TYPE_SET_UNKNOWN(&f->context);
+	resolve_call_expr_node(e->node.call, f);
 	break;
     }
 }
@@ -135,22 +135,112 @@ void resolve_constant_expr_node(cst_expr_node_t * n, resolve_env_t * f)
     }
 }
 
-void resolve_param_eff_expr_node(param_eff_expr_node_t * n, resolve_env_t * f)
-{
-}
-
-void resolve_new_expr_node(new_expr_node_t * n, resolve_env_t * f);
 void resolve_rvalue_node(rvalue_node_t * n, resolve_env_t * f)
 {
+    c_assert(n && f);
+
+    switch(n->type)
+    {
+    case RNT_NEW:
+	resolve_new_expr_node(n->node.nnew, f);
+	break;
+    case RNT_EXPR:
+	resolve_expr_node(n->node.expr, f);
+	break;
+    }
 }
 
 void resolve_call_expr_node(call_expr_node_t * c, resolve_env_t * f)
 {
+    c_assert(n);
+
+    switch(n->type)
+    {
+    case CENT_DIRECT:
+	resolve_direct_call_expr_node(n->node.dc, f);
+	break;
+    case CENT_MEMBER:
+	resolve_member_expr_node(n->node.mem, f);
+	break;
+    }
 }
 
-void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * f);
-void resolve_member_expr_node(member_expr_node_t * n, resolve_env_t * f);
-void resolve_fn_call_expr_node(fn_call_expr_node_t * n, resolve_env_t * f);
+void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * f)
+{
+    c_assert(n);
+
+    var_type_t context = n->context;
+
+    /* si pas de contexte alors on prend this */
+    if(TYPE_IS_UNKNOWN(&context))
+    {
+	context.type_prim = false;
+	context.type.uclass = f->current_class;
+    }
+
+    /* ssi on a un type primitif */
+    if(context.type_prim)
+    {
+	raise_error(ET_TYPE_MBR_ERR, get_var_type(&context));
+	return;
+    }
+
+    c_assert(context.type.uclass && !context.type_prim);
+
+    tds_t * tds = context.type.uclass->tds;
+
+    n->resolved = NULL;
+
+    switch(n->type)
+    {
+    case DCENT_FN:
+       {
+
+	   n->resolved = 
+	       tds_search_function(tds, n->node.fnc->name, TODO, true);
+
+	   if(!n->resolved)
+	       raise_error(ET_FUNC_NOT_FOUND,
+			   lexique_get(c_lexique, n->node.fnc->name));
+
+	   break;
+       }
+    case DCENT_IDF:
+       {
+	   n->resolved = 
+	       tds_search_from_index(tds, n->node.vidf, OBJ_VAR, true);
+
+	   if(!n->resolved)
+	       raise_error(ET_VAR_NO_DEC, lexique_get(c_lexique, n->node.vidf));
+
+	   break;
+       }
+    }
+}
+
+void resolve_member_expr_node(member_expr_node_t * n, resolve_env_t * f)
+{
+   /* operateur '.'  */
+
+   c_assert(n && f);
+
+   /* contexte = le type de la partie gauche */
+    
+
+    TYPE_SET_UNKNOWN(&f->type);
+    resolve_call_expr_node(n->p, f);
+    f->context = f->type;
+
+
+    TYPE_SET_UNKNOWN(&f->type);
+    resolve_direct_call_expr_node(n->f, f);
+
+}
+
+
+void resolve_new_expr_node(new_expr_node_t * n, resolve_env_t * f)
+{
+}
 
 
 void resolve_instr_node(instr_node_t * n, resolve_env_t * f)

@@ -445,6 +445,7 @@ class:
 
 	    _current_class->super = resolve_class_identifier(get_tds(), $4);
 
+	    _current_class->tds->parent = current_class->super->tds;
 	}
         liste_declaration MC_END { $$ = current_class(); }
      ;
