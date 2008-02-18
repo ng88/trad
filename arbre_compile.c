@@ -129,6 +129,7 @@ void compile_var_type(compile_env_t * e, var_type_t * t)
 	case PT_STRING: fputs("char *", e->dest); break;
 	case PT_INT: fputs("int", e->dest); break;
 	case PT_REAL: fputs("double", e->dest); break;
+	case PT_UNKNOW: c_assert2(false, "unknown type"); break;
 	}
     }
     else

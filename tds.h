@@ -141,11 +141,20 @@ tds_entry_t * tds_search_from_name(tds_t * tds, char * name, object_type_t ot_ma
 /** Recherche directe depuis l'index dans le lexique. */
 tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_mask, bool rec);
 
-/** Recherche une fonction du nom index et de type de parametres params. */
-tds_entry_t * tds_search_function(tds_t * tds, size_t index,  vector_t * params, bool rec);
+/** Recherche une fonction du nom index et de type de parametres params. 
+/!\ Attention, params est un vecteur de var_type_t * si v_mode == true
+                  ou un vecteur de param_dec_t * si v_mode == false
+*/
+tds_entry_t * tds_search_function(tds_t * tds, size_t index,  vector_t * params, bool rec, bool v_mode);
 
-/** Indique si 2 listes de params sont les mm. */
-bool param_equals(vector_t * p1, vector_t * p2);
+/** Verifie que le type des parametres de v correspond aux types
+ attendus pour fn
+
+/!\ Attention, v est un vecteur de var_type_t * si v_mode == true
+                  ou un vecteur de param_dec_t * si v_mode == false
+
+*/
+bool param_equals(struct _function_node_t * fn, vector_t * v, bool v_mode);
 
 /** Indique si 2 types sont strictement les mm. */
 bool var_type_equals(var_type_t * v1, var_type_t * v2);
@@ -167,6 +176,8 @@ void tds_add_params(struct _function_node_t * f, vector_t * params);
 var_type_t * make_var_type(bool type_prim);
 var_type_t * make_var_prim_type(primitive_type_t t);
 var_type_t * make_var_user_type(tds_t * tds, size_t idf);
+
+var_type_t * copy_var_type(var_type_t * n);
 
 struct _class_node_t * entry_get_class(tds_entry_t * e);
 struct _function_node_t * entry_get_function(tds_entry_t * e);

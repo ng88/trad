@@ -150,7 +150,7 @@ void resolve_rvalue_node(rvalue_node_t * n, resolve_env_t * f)
     }
 }
 
-void resolve_call_expr_node(call_expr_node_t * c, resolve_env_t * f)
+void resolve_call_expr_node(call_expr_node_t * n, resolve_env_t * f)
 {
     c_assert(n);
 
@@ -169,14 +169,19 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 {
     c_assert(n);
 
-    var_type_t context = n->context;
+    var_type_t context = f->context;
+
+    tds_t * tds;
 
     /* si pas de contexte alors on prend this */
     if(TYPE_IS_UNKNOWN(&context))
     {
 	context.type_prim = false;
-	context.type.uclass = f->current_class;
+	context.type.uclass = f->current_cl;
+	tds = f->current_tds;
     }
+    else
+	tds = context.type.uclass->tds;
 
     /* ssi on a un type primitif */
     if(context.type_prim)
@@ -187,7 +192,7 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 
     c_assert(context.type.uclass && !context.type_prim);
 
-    tds_t * tds = context.type.uclass->tds;
+    
 
     n->resolved = NULL;
 
@@ -199,9 +204,9 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 	   vector_t * v = resolve_param_eff_list(n->node.fnc->params, f);
 
 	   n->resolved = 
-	       tds_search_function(tds, n->node.fnc->name, v, true);
+	       tds_search_function(tds, n->node.fnc->name, v, true, true);
 
-	   free_vector(v);
+	   free_vector(v, 1);
 
 	   if(!n->resolved)
 	       raise_error(ET_FUNC_NOT_FOUND,
@@ -220,6 +225,11 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 	   break;
        }
     }
+
+    TYPE_SET_UNKNOWN(&f->type);
+
+    if(n->resolved && n->resolved->type)
+	f->type = *(n->resolved->type);
 }
 
 vector_t * resolve_param_eff_list(param_eff_expr_node_t * n, resolve_env_t * f)
@@ -227,12 +237,16 @@ vector_t * resolve_param_eff_list(param_eff_expr_node_t * n, resolve_env_t * f)
     c_assert(n && n->params);
 
     size_t i;
-    size_t n = vector_size(n->params);
-    vector_t * v = create_vector(n);
+    size_t tot = param_eff_count(n);
+    vector_t * v = create_vector(tot);
 
-    for(i = 0; i < n; ++i)
+    for(i = 0; i < tot; ++i)
     {
-	
+
+	TYPE_SET_UNKNOWN(&f->type);
+	resolve_expr_node(param_eff_get(n, i), f);
+
+	vector_add_element(v, copy_var_type(&f->type));
     }
 
     return v;
@@ -340,7 +354,18 @@ void resolve_super_instr_node(super_instr_node_t * n, resolve_env_t * f)
 {
     c_assert(n);
     f->contains_return = false;
-    resolve_param_eff_expr_node(n->params, f);
+
+    vector_t * v = resolve_param_eff_list(n->params, f);
+
+    n->resolved = 
+	tds_search_function(f->current_tds, CTOR_NAME, v, true, true);
+
+    free_vector(v, 1);
+
+    if(!n->resolved)
+	raise_error(ET_CTOR_NOT_FOUND,
+		    lexique_get(c_lexique, f->current_fn->name_index));
+   
 }
 
 void resolve_affect_instr_node(affect_instr_node_t * n, resolve_env_t * f)

@@ -57,6 +57,7 @@ typedef struct _return_instr_node_t
 typedef struct _super_instr_node_t
 {
     param_eff_expr_node_t * params;
+    tds_entry_t * resolved;
 } super_instr_node_t;
 
 

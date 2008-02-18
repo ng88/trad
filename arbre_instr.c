@@ -84,6 +84,7 @@ instr_node_t * make_super_instr_node(param_eff_expr_node_t * p)
     c_assert2(r->node.super, "malloc failed");
 
     r->node.super->params = p;
+    r->node.super->resolved = NULL;
 
     return r;
 }

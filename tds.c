@@ -76,7 +76,7 @@ tds_entry_t * make_tds_function_entry(struct _function_node_t * fn)
 {
     c_assert(fn);
 
-    tds_entry_t * e = make_tds_entry(fn->name_index, NULL, OBJ_FUNC);
+    tds_entry_t * e = make_tds_entry(fn->name_index, fn->ret_type, OBJ_FUNC);
     e->infos.fn = fn;
 
     return e;
@@ -152,6 +152,20 @@ var_type_t * make_var_user_type(tds_t * t, size_t idf)
     r->type.uclass = resolve_class_identifier(t, idf);
     return r;
 }
+
+var_type_t * copy_var_type(var_type_t * n)
+{
+    c_assert(n);
+    var_type_t * r = make_var_type(n->type_prim);
+
+    if(n->type_prim)
+	r->type.prim = n->type.prim;
+    else
+	r->type.uclass = n->type.uclass;
+
+    return r;
+}
+
 
 struct _class_node_t * entry_get_class(tds_entry_t * e)
 {
@@ -239,6 +253,7 @@ tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_
     for(i = 0; i < s; ++i)
     {
 	tds_entry_t * e = tds_get_entry(tds, i);
+
 	if((e->otype & ot_mask) && e->name_index == index)
 	    return e;
     }
@@ -249,7 +264,7 @@ tds_entry_t * tds_search_from_index(tds_t * tds, size_t index, object_type_t ot_
 	return NULL;
 }
 
-tds_entry_t * tds_search_function(tds_t * tds, size_t index, vector_t * params, bool rec)
+tds_entry_t * tds_search_function(tds_t * tds, size_t index, vector_t * params, bool rec, bool v_mode)
 {
     c_assert(tds);
     c_assert(index < lexique_count(c_lexique));
@@ -262,23 +277,24 @@ tds_entry_t * tds_search_function(tds_t * tds, size_t index, vector_t * params, 
 	tds_entry_t * e = tds_get_entry(tds, i);
 
 	if((e->otype & OBJ_FNP) && e->name_index == index
-	   && param_equals(params, e->infos.fn->params))
+	   && param_equals(e->infos.fn, params, v_mode))
 	    return e;
 
     }
 
     if(rec && tds->parent)
-	return tds_search_function(tds->parent, index, params, true);
+	return tds_search_function(tds->parent, index, params, true, v_mode);
     else
 	return NULL;
 }
 
-bool param_equals(vector_t * p1, vector_t * p2)
-{
-    c_assert(p1 && p2);
 
-    size_t n1 = vector_size(p1);
-    size_t n2 = vector_size(p2);
+bool param_equals(function_node_t * fn, vector_t * v, bool v_mode)
+{
+    c_assert(fn && v);
+
+    size_t n1 = vector_size(v);
+    size_t n2 = vector_size(fn->params);
 
     if(n1 != n2)
 	return false;
@@ -287,12 +303,17 @@ bool param_equals(vector_t * p1, vector_t * p2)
 
     for(i = 0; i < n1; ++i)
     {
-	param_dec_t * e1 =
-	    (param_dec_t *)vector_get_element_at(p1, i);
-	param_dec_t * e2 =
-	    (param_dec_t *)vector_get_element_at(p2, i);
+	var_type_t * e1;
 
-	if( !var_type_equals(e1->type, e2->type) )
+	if(v_mode)
+	    e1 = (var_type_t *)vector_get_element_at(v, i);
+	else
+	    e1 = ((param_dec_t *)vector_get_element_at(v, i))->type;
+
+	var_type_t * e2 =
+	    ((param_dec_t *)vector_get_element_at(fn->params, i))->type;
+
+	if( !var_type_equals(e1, e2) )
 	    return false;
     }
 
@@ -302,6 +323,10 @@ bool param_equals(vector_t * p1, vector_t * p2)
 bool var_type_equals(var_type_t * v1, var_type_t * v2)
 {
     c_assert(v1 && v2);
+
+
+    if(TYPE_IS_UNKNOWN(v1) || TYPE_IS_UNKNOWN(v2))
+	return false;
 
     if(v1->type_prim && v2->type_prim)
 	return  v1->type.prim == v2->type.prim;
@@ -315,8 +340,21 @@ bool can_assign_var_type(var_type_t * v1, var_type_t * v2)
 {
     c_warning("TODO");
 
+
     if(TYPE_IS_UNKNOWN(v1) || TYPE_IS_UNKNOWN(v2))
 	return false;
+
+   /* si 2 primitifs */
+    if(v1->type_prim && v2->type_prim)
+    {
+	/* si au moins une chaine il faut deux chaines */
+	if(v1->type.prim == PT_STRING ||
+	   v2->type.prim == PT_STRING)
+	    return (v1->type.prim == v2->type.prim);
+	else /* sinon c'est des scalaires, c'est bon */
+	    return true;
+
+    }
 
     return var_type_equals(v1, v2);
 }

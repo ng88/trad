@@ -321,7 +321,7 @@ d_construct:
 	if($2 != current_class()->name_index)
 	    raise_error(ET_CTOR_BAD_NAME);
 
-	if(tds_search_function(current_class()->tds, CTOR_NAME, $3, false))
+	if(tds_search_function(current_class()->tds, CTOR_NAME, $3, false, false))
 	    raise_error(ET_CTOR_ALREADY_EXISTS, lexique_get(c_lexique, current_class()->name_index));
 
 	$$ = make_constructor_node($1, $3, $4);
@@ -332,6 +332,7 @@ d_construct:
 	tds_add_params($$, $3);
 
 	$$->parent = current_class();
+	$$->block->tds->parent = current_class()->tds;
     }
     ;
 
@@ -339,7 +340,7 @@ d_fonction:
       etat type T_IDF param bloc_inst
     {
 
-	if(tds_search_function(current_class()->tds, $3, $4, false))
+	if(tds_search_function(current_class()->tds, $3, $4, false, false))
 	    raise_error(ET_FUNC_ALREADY_EXISTS, lexique_get(c_lexique, $3));
 
 	$$ = make_function_node($3, $1, $4, $5);
@@ -351,6 +352,7 @@ d_fonction:
 	tds_add_params($$, $4);
 
 	$$->parent = current_class();
+	$$->block->tds->parent = current_class()->tds;
     }
     ;
 
@@ -358,7 +360,7 @@ d_procedure:
       etat MC_VOID T_IDF param bloc_inst
     {
 
-	if(tds_search_function(current_class()->tds, $3, $4, false))
+	if(tds_search_function(current_class()->tds, $3, $4, false, false))
 	    raise_error(ET_FUNC_ALREADY_EXISTS, lexique_get(c_lexique, $3));
 
 	$$ = make_procedure_node($3, $1, $4, $5);
@@ -377,6 +379,7 @@ d_procedure:
 	}
 
 	$$->parent = current_class();
+	$$->block->tds->parent = current_class()->tds;
 
     }
     ;
@@ -445,7 +448,7 @@ class:
 
 	    _current_class->super = resolve_class_identifier(get_tds(), $4);
 
-	    _current_class->tds->parent = current_class->super->tds;
+	    _current_class->tds->parent = _current_class->super->tds;
 	}
         liste_declaration MC_END { $$ = current_class(); }
      ;

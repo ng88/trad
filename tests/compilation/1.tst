@@ -28,7 +28,7 @@ class MaClasse
     public void main()
     {
 	VAR MaClasse a;
-	a := new MaClasse();
+	/*a := new MaClasse();*/
 	a.maproc("salut", "test");
     }
 
