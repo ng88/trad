@@ -118,7 +118,7 @@ VAR        {  return MC_VAR; }
 
 
 {idf}    {
-             if(strlen(yytext) > 20)
+             if(strlen(yytext) > MAX_IDF_LEN)
 		 raise_error(ET_IDF_TOO_LONG, yytext);
 
 	     yylval.index_lexique = lexique_add_sole(c_lexique, strdup(yytext));

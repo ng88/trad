@@ -6,7 +6,7 @@
 
 #include "assert.h"
 #include "lexique.h"
-
+#include "anasyn.h"
 #include "error.h"
 
 extern lexique_t * c_lexique;
@@ -14,12 +14,49 @@ extern lexique_t * c_lexique;
 /** Implementation de la compilation vers C */
 
 #define CLASS_NAME_PREFIX "mc_class_"
+#define CLFNS_NAME_PREFIX "fns_class_"
 #define FUNC_NAME_PREFIX  "mc_func_"
 #define FIELD_NAME_PREFIX "mc_field_"
 #define LVAR_NAME_PREFIX  "mc_lvar_"
 
 #define INDENT(e) (print_indent((e)->dest, (e)->indent))
 
+
+char * get_C_name(bool is_struct, char * prefix, idf_t name1, idf_t name2, name_t_t n)
+{
+    /* taille = longuer max idf + taille("struct ")
+     + max(taille(prefix)) + un peu de marge */
+    enum { B_SIZE = MAX_IDF_LEN + 64 };
+    static char buff[B_SIZE];
+
+    char * sn;
+
+    switch(n)
+    {
+    case NTT_PTR: sn = " * "; break;
+    case NTT_STRUCT: sn = "\n{\n"; break;
+    case NTT_NONE: sn = ""; break;
+    case NTT_FIELD: sn = ";\n"; break;
+    }
+
+    if(name2)
+	snprintf(buff, B_SIZE, "%s%s%s_%s%s",
+		 is_struct ? "struct " : "",
+		 prefix,
+		 get_idf(name1),
+		 get_idf(name2),
+		 sn
+	    );
+    else    
+	snprintf(buff, B_SIZE, "%s%s%s%s",
+		 is_struct ? "struct " : "",
+		 prefix,
+		 get_idf(name1),
+		 sn
+	    );
+
+    return buff;
+}
 
 compile_env_t * make_compile_env(char * dest)
 {
@@ -135,19 +172,17 @@ void compile_var_type(compile_env_t * e, var_type_t * t)
     else
     {
 	c_assert(t->type.uclass);
-	fputs("struct " CLASS_NAME_PREFIX, e->dest);
-	fputs(lexique_get(c_lexique, t->type.uclass->name_index)
-	      , e->dest);
-	fputs(" *", e->dest);
+	fputs(get_C_name(true, CLASS_NAME_PREFIX, t->type.uclass->name_index, 0, NTT_PTR), e->dest);
     }
+    fputs(" ", e->dest);
 }
 
-void compile_field(compile_env_t * e, class_node_t * cl)
+void compile_fields(compile_env_t * e, class_node_t * cl)
 {
     c_assert(e && cl);
 
     if(cl->super)
-	compile_field(e, cl->super);
+	compile_fields(e, cl->super);
 
     size_t s = tds_count(cl->tds);
     size_t i;
@@ -161,25 +196,62 @@ void compile_field(compile_env_t * e, class_node_t * cl)
 	     fputs("\t", e->dest);
 	     compile_var_type(e, t->type);
 
-	     fputs(" " FIELD_NAME_PREFIX, e->dest);
-	     fputs(lexique_get(c_lexique, cl->name_index), e->dest);
-	     fputs("_", e->dest);
-	     fputs(lexique_get(c_lexique, t->name_index), e->dest);
-
-	     fputs(";\n", e->dest);
-
+	     fputs(get_C_name(false, FIELD_NAME_PREFIX, cl->name_index, t->name_index, NTT_FIELD), e->dest);
 	 }
     }
+}
+
+void compile_functions(compile_env_t * e, class_node_t * cl)
+{
+    c_assert(e && cl);
+
+    if(cl->super)
+	compile_functions(e, cl->super);
+
+    size_t s = tds_count(cl->tds);
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+    {
+	 tds_entry_t * t = tds_get_entry(cl->tds, i);
+
+	 if(t->otype == OBJ_FUNC || t->otype == OBJ_PROC)
+	 {
+	     function_node_t * fn = t->infos.fn;
+
+	     fputs("\t", e->dest);
+	     compile_function_type(e, t->infos.fn);
+	     compile_function_name(e, t->infos.fn);
+	 }
+    }
+}
+
+void compile_function_type(compile_env_t * e, function_node_t * fn)
+{
+
+}
+
+void compile_function_name(compile_env_t * e, function_node_t * fn)
+{
 }
 
 void compile_class_node(compile_env_t * e, class_node_t * cl)
 {
     c_assert(e && cl);
 
-    fprintf(e->dest, "struct " CLASS_NAME_PREFIX  "%s\n{\n", 
-	    lexique_get(c_lexique, cl->name_index));
+    fputs(get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
 
-    compile_field(e, cl);
+    compile_functions(e, cl);
+
+    fputs("\n};\n", e->dest);
+
+    fputs(get_C_name(true, CLASS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
+
+    fprintf(e->dest, "\t%sfns;\n", 
+	    get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_PTR)
+	);
+
+    compile_fields(e, cl);
 
     fputs("\n};\n", e->dest);
 
@@ -193,7 +265,7 @@ void compile_function_node(compile_env_t * e, function_node_t * fn)
     c_assert(fn->parent);
 
     compile_var_type(e, fn->ret_type);
-    
+    c_warning2(false,"TODO");
     fputs(" " FUNC_NAME_PREFIX, e->dest);
     fputs(lexique_get(c_lexique, fn->parent->name_index), e->dest);
 

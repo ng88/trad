@@ -70,4 +70,6 @@ void yy_m_free();
 
 extern int yylineno;
 
+enum { MAX_IDF_LEN = 20 };
+
 #endif

@@ -21,6 +21,8 @@ typedef struct
     
 } compile_env_t;
 
+#define get_idf(i) (lexique_get(c_lexique, (i)))
+
 
 compile_env_t * make_compile_env(char * dest);
 void free_compile_env(compile_env_t * e);
@@ -33,8 +35,8 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
 void compile_tds(compile_env_t * e, tds_t * t);
 void compile_tds_entry(compile_env_t * e, tds_entry_t * t);
 
-
-void compile_field(compile_env_t * e, class_node_t * cl);
+void compile_functions(compile_env_t * e, class_node_t * cl);
+void compile_fields(compile_env_t * e, class_node_t * cl);
 
 void compile_class_node(compile_env_t * e, class_node_t * cl);
 void compile_function_node(compile_env_t * e, function_node_t * fn);
@@ -65,6 +67,22 @@ void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * 
 void compile_member_expr_node(compile_env_t * e, member_expr_node_t * n);
 void compile_fn_call_expr_node(compile_env_t * e, fn_call_expr_node_t * n);
 
+
+typedef enum
+{
+    NTT_PTR,
+    NTT_STRUCT,
+    NTT_NONE,
+    NTT_FIELD,
+} name_t_t;
+
+/** Renvoie le nom C decore
+ * /!\ fonction non thread safe
+ */
+char * get_C_name(bool is_struct, char * prefix, idf_t name1, idf_t name2 , name_t_t n);
+
+void compile_function_type(compile_env_t * e, function_node_t * fn);
+void compile_function_name(compile_env_t * e, function_node_t * fn);
 
 #endif
 
