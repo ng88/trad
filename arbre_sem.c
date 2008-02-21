@@ -49,35 +49,35 @@ void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f)
 {
     c_assert(e && f);
 
-    var_type_t * gauche, * droit;
+    var_type_t gauche, droit;
     bool err = true;
 
     TYPE_SET_UNKNOWN(&f->type);
     resolve_expr_node(e->gauche, f);
-    gauche = &f->type;
+    gauche = f->type;
 
     TYPE_SET_UNKNOWN(&f->type);
     resolve_expr_node(e->droit, f);
-    droit = &f->type;
+    droit = f->type;
 
     /* ssi 2 types primitifs */
-    if(droit->type_prim && gauche->type_prim)
+    if(droit.type_prim && gauche.type_prim)
     {
 	/* ssi on a 2 scalaires */
-	if(droit->type.prim != PT_STRING && 
-	   gauche->type.prim != PT_STRING)
+	if(droit.type.prim != PT_STRING && 
+	   gauche.type.prim != PT_STRING)
 	{
 	    err = false;
 
 	    f->type.type_prim = true;
-	    f->type.type.prim = BIN_TYPE_MATRIX[gauche->type.prim][droit->type.prim];
+	    f->type.type.prim = BIN_TYPE_MATRIX[gauche.type.prim][droit.type.prim];
 	}
     }
 
     if(err)
-	raise_error(ET_TYPE_BIN_ERR, get_var_type(gauche),
+	raise_error(ET_TYPE_BIN_ERR, get_var_type(&gauche),
 		    get_bin_operator(e->type),
-		    get_var_type(droit));
+		    get_var_type(&droit));
 
 }
 
@@ -85,30 +85,30 @@ void resolve_unary_expr_node(una_expr_node_t * e, resolve_env_t * f)
 {
     c_assert(e && f);
 
-    var_type_t * fils;
+    var_type_t fils;
     bool err = true;
 
     TYPE_SET_UNKNOWN(&f->type);
     resolve_expr_node(e->fils, f);
-    fils = &f->type;
+    fils = f->type;
 
     /* ssi type primitif */
-    if(fils->type_prim)
+    if(fils.type_prim)
     {
 	/* ssi on a 1 scalaire */
-	if(fils->type.prim != PT_STRING)
+	if(fils.type.prim != PT_STRING)
 	{
 	    err = false;
 
 	    f->type.type_prim = true;
-	    f->type.type.prim = fils->type.prim;
+	    f->type.type.prim = fils.type.prim;
 	}
     }
 
     if(err)
 	raise_error(ET_TYPE_UNA_ERR,
 		    get_una_operator(e->type),
-		    get_var_type(fils));
+		    get_var_type(&fils));
 
 }
 
@@ -417,8 +417,8 @@ void resolve_var_type_assignement(var_type_t * from, var_type_t * to)
     c_assert(from && to);
 
     if(!can_assign_var_type(from, to))
-	raise_error(ET_TYPE_MISMATCH, get_var_type(from), 
-		    get_var_type(to));
+	raise_error(ET_TYPE_MISMATCH, get_var_type(to), 
+		    get_var_type(from));
 
 }
 
