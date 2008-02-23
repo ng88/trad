@@ -102,6 +102,9 @@ typedef struct _tds_entry_t
     /** Type de l'objet */
     object_type_t otype;
 
+    /** export C ? */
+    bool cexport;
+
     /** Informations spécifiques, en fonction du type d'objet */
     union
     {

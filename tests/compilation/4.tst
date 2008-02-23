@@ -18,6 +18,7 @@ public MaClasse() {}
 	VAR A mc;
 	VAR B mc2;
 	VAR integer d;
+	mc := nil;
 	c := 4;
 	ajout(4, 3);
 	mc.test1(0.01);

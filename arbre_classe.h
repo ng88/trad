@@ -4,11 +4,11 @@
 
 #include "arbre_instr.h"
 #include "tds.h"
+#include "spname.h"
 
 /** Declarations pour les arbres les classes.
  */
 
-#define CTOR_NAME 0
 
 typedef struct _class_node_t
 {

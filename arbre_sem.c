@@ -10,6 +10,7 @@
 #include "arbre_printer.h"
 #include "lexique.h"
 
+#include "spname.h"
 
 extern lexique_t * c_lexique;
 
@@ -449,6 +450,9 @@ void resolve_tds_entry(tds_entry_t * t, resolve_env_t * f)
 {
     c_assert(t);
 
+    if(t->cexport)
+	return;
+
     switch(t->otype)
     {
     case OBJ_CLASS:
@@ -515,6 +519,8 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f)
 
 void resolve_start(tree_base_t * b)
 {
+    c_assert(b);
+
     yylineno = -1;
 
     resolve_env_t env;
@@ -524,4 +530,82 @@ void resolve_start(tree_base_t * b)
     TYPE_SET_UNKNOWN(&env.type);
 
     resolve_tds(b, &env);
+}
+
+void add_builtins_symbols(tree_base_t * b)
+{
+    c_assert(b);
+
+    /* on ajoute la description des symboles buitlins */
+   
+    tds_entry_t * e;
+    function_node_t * fn;
+    vector_t * params;
+    size_t i = lexique_add_sole(c_lexique, strdup("i"));
+
+    /* nil */
+    e =  make_tds_entry(NIL_NAME, make_var_prim_type(PT_NIL), OBJ_LOCAL_VAR);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+    /* freestr(string) */
+    params = create_vector(1);
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_STRING)));
+    fn = make_procedure_node(lexique_add_sole(c_lexique, strdup("freestr")), ST_PUBLIC, params, make_bloc_instr_node());
+    e = make_tds_procedure_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+    /* freeobj(any) */
+    params = create_vector(1);
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_ANY)));
+    fn = make_procedure_node(lexique_add_sole(c_lexique, strdup("freeobj")), ST_PUBLIC, params, make_bloc_instr_node());
+    e = make_tds_procedure_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+    /* prints(string) */
+    params = create_vector(1);
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_STRING)));
+    fn = make_procedure_node(lexique_add_sole(c_lexique, strdup("prints")), ST_PUBLIC, params, make_bloc_instr_node());
+    e = make_tds_procedure_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+    /* printi(integer) */
+    params = create_vector(1);
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_INT)));
+    fn = make_procedure_node(lexique_add_sole(c_lexique, strdup("printi")), ST_PUBLIC, params, make_bloc_instr_node());
+    e = make_tds_procedure_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+    /* int isnil(any) */
+    params = create_vector(1);
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_ANY)));
+    fn = make_function_node(lexique_add_sole(c_lexique, strdup("isnil")), ST_PUBLIC, params, make_bloc_instr_node());
+    fn->ret_type = make_var_prim_type(PT_INT);
+    e = make_tds_function_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+    /* string substring(string, integer, integer) */
+    params = create_vector(3);
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_STRING)));
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_INT)));
+    vector_add_element(params, make_param_dec(i, make_var_prim_type(PT_INT)));
+    fn = make_function_node(lexique_add_sole(c_lexique, strdup("substring")), ST_PUBLIC, params, make_bloc_instr_node());
+    fn->ret_type = make_var_prim_type(PT_STRING);
+    e = make_tds_function_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
+
+
+/*
+
+char * c_export_getchar()
+int export_getint()
+char * c_export_substring(char * src, int first, int n)
+*/
+
 }

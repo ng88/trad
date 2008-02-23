@@ -22,6 +22,7 @@ extern lexique_t * c_lexique;
 #define NEW_NAME_PREFIX  "mc_new_"
 #define FIELD_NAME_PREFIX "mc_field_"
 #define LVAR_NAME_PREFIX  "mc_lvar_"
+#define EXPORT_PREFIX    "c_export_"
 
 #define INDENT(e) (print_indent((e)->dest, (e)->indent))
 
@@ -105,7 +106,8 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
     fputs("#include <stdio.h>\n"
           "#include <string.h>\n"
           "#include <stdlib.h>\n\n"
-	  "/* Fonctions diverses/builtins */ */\n\n"
+          "char * strdup(char* s);\n\n"
+	  "/* Fonctions diverses/builtins */\n\n"
 	  "void p_failed(char * err)\n{\n"
 	  "\tfprintf(stderr, \"execution failed: %s\\n\", err);\n"
 	  "\tabort();\n"
@@ -186,6 +188,9 @@ void compile_tds_entry(compile_env_t * e, tds_entry_t * t)
 {
     c_assert(e && t);
 
+    if(t->cexport)
+	return;
+
     switch(t->otype)
     {
     case OBJ_CLASS:
@@ -233,7 +238,8 @@ void compile_var_type(compile_env_t * e, var_type_t * t)
 	case PT_INT: fputs("int", e->dest); break;
 	case PT_REAL: fputs("double", e->dest); break;
 	case PT_UNKNOW: c_assert2(false, "unknown type"); break;
-	case PT_ANY: c_assert2(false, "void *"); break;
+	case PT_NIL:
+	case PT_ANY: fputs("void *", e->dest); break;
 	}
     }
     else
@@ -748,7 +754,7 @@ void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 	compile_function_name(e, fn, NULL);
 
 	fputs("))(_this", e->dest);
-	compile_param_eff_expr_node(e, n->f->node.fnc->params);
+	compile_param_eff_expr_node(e, n->f->node.fnc->params, true);
 	fputs("); })", e->dest);
     }
     else /* petite simplification */
@@ -759,12 +765,12 @@ void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 	compile_function_name(e, fn, NULL);
 
 	fputs("))(this", e->dest);
-	compile_param_eff_expr_node(e, n->f->node.fnc->params);
+	compile_param_eff_expr_node(e, n->f->node.fnc->params, true);
 	fputs(")", e->dest);
     }
 }
 
-void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n)
+void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n, bool comma)
 {
     c_assert(e && n && n->params);
 
@@ -772,7 +778,10 @@ void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n)
     int s = param_eff_count(n);
     for(i = 0; i < s; ++i)
     {
-	fputs(", ", e->dest);
+	if(comma)
+	    fputs(", ", e->dest);
+	else
+	    comma = true;
 
 	compile_expr_node(e, param_eff_get(n, i));
     }
@@ -802,7 +811,7 @@ void compile_var_idf(compile_env_t * e, tds_entry_t * t, bool need_this)
 	break;
     case OBJ_PARAM:
     case OBJ_LOCAL_VAR:
-	fputs(get_C_name(false, LVAR_NAME_PREFIX, t->name_index, 0, NTT_NONE), e->dest);
+	fputs(get_C_name(false, t->cexport ? EXPORT_PREFIX : LVAR_NAME_PREFIX, t->name_index, 0, NTT_NONE), e->dest);
 	break;
     }
 
@@ -821,14 +830,25 @@ void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * 
     {
     case DCENT_FN:
      {
-	 /* ici on a un appel direct du type fn(...)
-	   on va le transformer en this.fn(...) */
+	 if(n->resolved->cexport)
+	 {
+	     /* cas particulier des fonctions builtin */
+	     fputs(get_C_name(false, EXPORT_PREFIX, n->resolved->infos.fn->name_index, 0, NTT_NONE), e->dest);
+	     fputc('(', e->dest);
+	     compile_param_eff_expr_node(e, n->node.fnc->params, false);
+	     fputc(')', e->dest);
+	 }
+	 else
+	 {
+	     /* ici on a un appel direct du type fn(...)
+		on va le transformer en this.fn(...) */
 
-	 member_expr_node_t ct;
-	 ct.p = NULL;
-	 ct.f = n;
+	     member_expr_node_t ct;
+	     ct.p = NULL;
+	     ct.f = n;
 
-	 compile_member_fn_call_expr_node(e, &ct);
+	     compile_member_fn_call_expr_node(e, &ct);
+	 }
      }
      break;
     case DCENT_IDF:

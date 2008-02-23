@@ -125,6 +125,7 @@ tds_entry_t * make_tds_entry(size_t name_index, var_type_t * t, object_type_t ot
     r->type = t;
     r->otype = ot;
     r->infos.fn = NULL;
+    r->cexport = false;
 
     return r;
 }
@@ -379,6 +380,7 @@ char * get_var_type(var_type_t * t)
 	case PT_REAL: st = "real"; break;
 	case PT_UNKNOW: st = "unknow"; break;
 	case PT_ANY: st = "any"; break;
+	case PT_NIL: st = "nil"; break;
 	}
     }
     else

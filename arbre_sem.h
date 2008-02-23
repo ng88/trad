@@ -67,6 +67,7 @@ tds_entry_t * resolve_var_type(size_t index, resolve_env_t * f);
 
 vector_t * resolve_param_eff_list(param_eff_expr_node_t * n, resolve_env_t * f);
 
+void add_builtins_symbols(tree_base_t * b);
 
 #endif
 

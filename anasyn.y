@@ -9,6 +9,7 @@
 #include "anasyn.h"
 
 #include "arbre_printer.h"
+#include "arbre_sem.h"
 #include "assert.h"
 #include "lexique.h"
 
@@ -516,11 +517,13 @@ void yy_m_init()
 {
     c_lexique = create_lexique();
     /* used for printing constructor name */
-    lexique_add(c_lexique, strdup("constructor"));
-    lexique_add(c_lexique, strdup("main"));
+    lexique_add(c_lexique, strdup("constructor")); /* 0 */
+    lexique_add(c_lexique, strdup("main"));        /* 1 */
+    lexique_add(c_lexique, strdup("nil"));         /* 2 */
 
     block_stack = create_stack();
     base_tds = make_tds(NULL);
+    add_builtins_symbols(base_tds);
 }
 
 void yy_m_free()
