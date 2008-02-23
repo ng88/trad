@@ -68,8 +68,9 @@ void compile_constant_expr_node(compile_env_t * e, cst_expr_node_t * n);
 void compile_new_expr_node(compile_env_t * e, new_expr_node_t * n);
 void compile_rvalue_node(compile_env_t * e, rvalue_node_t * n);
 
+void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n);
 void compile_var_idf(compile_env_t * e, tds_entry_t * r, bool need_this);
-void compile_fn_call_expr_node(compile_env_t * e, fn_call_expr_node_t * n);
+void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n);
 void compile_call_expr_node(compile_env_t * e, call_expr_node_t * n);
 void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * n);
 void compile_member_expr_node(compile_env_t * e, member_expr_node_t * n);

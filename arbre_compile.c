@@ -685,11 +685,6 @@ void compile_call_expr_node(compile_env_t * e, call_expr_node_t * n)
 }
 
 
-void compile_fn_call_expr_node(compile_env_t * e, fn_call_expr_node_t * n)
-{
-    printf("<?F?>");
-}
-
 void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 {
     c_assert(n && e && n->f->type == DCENT_FN);
@@ -702,24 +697,50 @@ void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 
     function_node_t * fn = n->f->resolved->infos.fn;
 
-    fprintf(e->dest, "({%s _this = (", 
-	    get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR)
-	);
+    if(n->p)
+    {
+	fprintf(e->dest, "({%s _this = (", 
+		get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR)
+	    );
 
-    compile_call_expr_node(e, n->p);
+	compile_call_expr_node(e, n->p);
 
-    fputs("); (*(_this->fns->", e->dest);
+	fputs("); (*(_this->fns->", e->dest);
 
-    compile_function_name(e, fn, NULL);
+	compile_function_name(e, fn, NULL);
 
-    fputs("))(_this", e->dest);
+	fputs("))(_this", e->dest);
+	compile_param_eff_expr_node(e, n->f->node.fnc->params);
+	fputs("); })", e->dest);
+    }
+    else /* petite simplification */
+    {
 
-    fputs("); })", e->dest);
+	fputs("(*(this->fns->", e->dest);
 
+	compile_function_name(e, fn, NULL);
 
-    //   fputs(lexique_get(c_lexique, n->name), e->dest);
-    //print_param_eff_expr_node(n->params, e->dest);
+	fputs("))(this", e->dest);
+	compile_param_eff_expr_node(e, n->f->node.fnc->params);
+	fputs(")", e->dest);
+    }
 }
+
+void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n)
+{
+    c_assert(e && n && n->params);
+
+    int i;
+    int s = param_eff_count(n);
+    for(i = 0; i < s; ++i)
+    {
+	fputs(", ", e->dest);
+
+	compile_expr_node(e, param_eff_get(n, i));
+    }
+
+}
+
 
 void compile_var_idf(compile_env_t * e, tds_entry_t * t, bool need_this)
 {
@@ -761,8 +782,17 @@ void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * 
     switch(n->type)
     {
     case DCENT_FN:
-	compile_fn_call_expr_node(e, n->node.fnc);
-	break;
+     {
+	 /* ici on a un appel direct du type fn(...)
+	   on va le transformer en this.fn(...) */
+
+	 member_expr_node_t ct;
+	 ct.p = NULL;
+	 ct.f = n;
+
+	 compile_member_fn_call_expr_node(e, &ct);
+     }
+     break;
     case DCENT_IDF:
 	compile_var_idf(e, n->resolved, n->need_this);
 	break;
@@ -782,9 +812,7 @@ void compile_member_expr_node(compile_env_t * e, member_expr_node_t * n)
 	fputc(')', e->dest);
     }
     else
-    {
 	compile_member_fn_call_expr_node(e, n);
-    }
 }
 
 
