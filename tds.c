@@ -363,7 +363,7 @@ char * get_var_type(var_type_t * t)
 {
     c_assert(t);
 
-    char * st = "???";
+    char * st = "none";
 
     if(t->type_prim)
     {
@@ -372,12 +372,12 @@ char * get_var_type(var_type_t * t)
 	case PT_STRING: st = "string"; break;
 	case PT_INT: st = "integer"; break;
 	case PT_REAL: st = "real"; break;
-	case PT_UNKNOW: st = "<unknow>"; break;
+	case PT_UNKNOW: st = "unknow"; break;
 	}
     }
     else
     {
-	c_assert(t->type.uclass);
+	c_assert(t->type.uclass); 
 	st = lexique_get(c_lexique, t->type.uclass->name_index);
     }
 

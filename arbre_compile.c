@@ -17,6 +17,7 @@ extern lexique_t * c_lexique;
 #define CLASS_NAME_PREFIX "mc_class_"
 #define CLFNS_NAME_PREFIX "fns_class_"
 #define FUNC_NAME_PREFIX  "mc_func_"
+#define CTOR_NAME_PREFIX  "mc_ctor_"
 #define NEW_NAME_PREFIX  "mc_new_"
 #define FIELD_NAME_PREFIX "mc_field_"
 #define LVAR_NAME_PREFIX  "mc_lvar_"
@@ -237,11 +238,9 @@ void compile_functions(compile_env_t * e, class_node_t * cl)
 
 	 if(t->otype == OBJ_FUNC || t->otype == OBJ_PROC)
 	 {
-	     function_node_t * fn = t->infos.fn;
-
 	     fputs("\t", e->dest);
 	     compile_function_type(e, t->infos.fn);
-	     fputs("\n", e->dest);
+	     fputs(";\n", e->dest);
 	 }
     }
 }
@@ -250,24 +249,31 @@ void compile_function_type(compile_env_t * e, function_node_t * fn)
 {
     c_assert(e && fn && fn->params);
 
-    compile_function_name(e, fn);
+    compile_var_type(e, fn->ret_type);
+
+    fputs("(*", e->dest);
+    compile_function_name(e, fn, FUNC_NAME_PREFIX);
+    fputs(")(", e->dest);
+    compile_type_list(e, fn);
+    fputs(")", e->dest);
 }
 
-void compile_function_name(compile_env_t * e, function_node_t * fn)
+void compile_function_name(compile_env_t * e, function_node_t * fn, char * prefix)
 {
     c_assert(e && fn && fn->params);
 
-    fputs(get_C_name(false, FUNC_NAME_PREFIX, fn->name_index, 0, NTT_NONE), e->dest);
+    fputs(get_C_name(false, prefix, fn->parent->name_index, fn->name_index, NTT_NONE), e->dest);
 
     size_t s = vector_size(fn->params);
     size_t i;
 
     for(i = 0; i < s; ++i)
     {
+	param_dec_t * p =
+	    (param_dec_t *)vector_get_element_at(fn->params, i);
+
 	fputs("_", e->dest);
-	compile_var_type(e, 
-	    (var_type_t*) vector_get_element_at(fn->params, i)
-	    );
+	fputs(get_var_type(p->type), e->dest);
     }
 
 }
@@ -314,7 +320,8 @@ void compile_function_node(compile_env_t * e, function_node_t * fn)
 
     compile_var_type(e, fn->ret_type);
 
-    fputs(get_C_name(false, FUNC_NAME_PREFIX, fn->parent->name_index, fn->name_index, NTT_NONE), e->dest);
+    compile_function_name(e, fn, 
+	   fn->name_index == CTOR_NAME ? CTOR_NAME_PREFIX : FUNC_NAME_PREFIX);
 
     fputs("(", e->dest);
 
@@ -345,7 +352,7 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
     fputs(retname, e->dest);
     fputs(" * ", e->dest);
 
-    fputs(get_C_name(false, NEW_NAME_PREFIX, fn->parent->name_index, 0, NTT_NONE), e->dest);
+    compile_function_name(e, fn, NEW_NAME_PREFIX);
 
     fputs("(", e->dest);
 
@@ -362,7 +369,7 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
               "{\n"
 	      "\t%s * ret = (%s*)malloc(sizeof(*ret));\n"
 	      "\tif(!ret) p_failed(\"not enough heap memory!\");\n"
-	      "\t%s;\n"
+	      "\t;\n"
 	      "\treturn ret;\n"
 	      , retname, retname);
 

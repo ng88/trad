@@ -87,7 +87,7 @@ typedef enum
 char * get_C_name(bool is_struct, char * prefix, idf_t name1, idf_t name2 , name_t_t n);
 
 void compile_function_type(compile_env_t * e, function_node_t * fn);
-void compile_function_name(compile_env_t * e, function_node_t * fn);
+void compile_function_name(compile_env_t * e, function_node_t * fn, char * prefix);
 
 #endif
 
