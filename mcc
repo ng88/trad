@@ -1,0 +1,8 @@
+#!/bin/sh
+
+tmp=/tmp/$RANDOM$$$RANDOM.c
+
+./monCompilo $1 $tmp && gcc -W -Wall -Wno-unused $tmp
+
+rm -f $tmp
+

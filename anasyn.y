@@ -460,7 +460,7 @@ l_class:
      ;
 
 programme:
-	l_class FIN_FICHIER                                         {printf("programme -> l_class FIN_FICHIER\n");return 0;}
+	l_class FIN_FICHIER  {return 0;}
      ;
 
 %%

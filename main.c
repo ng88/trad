@@ -23,7 +23,7 @@ int main(int argc, char ** argv)
 
     yyparse();
 
-    print_tds(get_tds(), stdout, 0);
+    /*print_tds(get_tds(), stdout, 0);*/
 
     if(dest)
     {
