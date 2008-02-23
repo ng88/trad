@@ -6,6 +6,19 @@ class Test
 	public Test()
 	{
 	}
+
+	public Test(string aa, string bb)
+	{
+	}
+
+	public Test(string aa, string bb, real jj)
+	{
+	}
+
+	public Test(string aa, string bb, real jj, real kk)
+	{
+	}
+
 end
 
 class A

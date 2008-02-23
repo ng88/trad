@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "arbre_compile.h"
 #include "arbre_printer.h"
@@ -16,6 +17,7 @@ extern lexique_t * c_lexique;
 #define CLASS_NAME_PREFIX "mc_class_"
 #define CLFNS_NAME_PREFIX "fns_class_"
 #define FUNC_NAME_PREFIX  "mc_func_"
+#define NEW_NAME_PREFIX  "mc_new_"
 #define FIELD_NAME_PREFIX "mc_field_"
 #define LVAR_NAME_PREFIX  "mc_lvar_"
 
@@ -37,6 +39,7 @@ char * get_C_name(bool is_struct, char * prefix, idf_t name1, idf_t name2, name_
     case NTT_STRUCT: sn = "\n{\n"; break;
     case NTT_NONE: sn = ""; break;
     case NTT_FIELD: sn = ";\n"; break;
+    case NTT_FUNC: sn = "_"; break;
     }
 
     if(name2)
@@ -93,12 +96,27 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
 	raise_error(ET_MAIN_NOT_FOUND);
 
 
-    fputs("#include <stdio.h>\n", e->dest);
-    fputs("#include <stdlib.h>\n\n", e->dest);
+    fputs("#include <stdio.h>\n"
+          "#include <string.h>\n"
+          "#include <stdlib.h>\n\n"
+	  "void p_failed(char * err)\n{\n"
+	  "\tfprintf(stderr, \"execution failed: %s\\n\", err);\n"
+	  "\tabort();\n"
+	  "}\n\n"
+	  , e->dest);
 
-
+    fputs("/* class declaration */\n", e->dest);
+    e->header_mode = true;
+    e->class_header = true;
     compile_tds(e, b);
 
+    fputs("\n\n/* function declaration */\n", e->dest);
+    e->class_header = false;
+    compile_tds(e, b);
+
+    fputs("\n\n/* code */\n", e->dest);
+    e->header_mode = false;
+    compile_tds(e, b);
 
     fputs("int main()\n{\n", e->dest);
     fputs("   return EXIT_SUCCESS;\n}\n", e->dest);
@@ -127,9 +145,11 @@ void compile_tds_entry(compile_env_t * e, tds_entry_t * t)
     case OBJ_CLASS:
 	compile_class_node(e, t->infos.cl);
 	break;
+    case OBJ_CTOR:
+	compile_constructor_node(e, t->infos.fn);
+	break;	
     case OBJ_PROC:
     case OBJ_FUNC:
-    case OBJ_CTOR:
 	compile_function_node(e, t->infos.fn);
 	break;
     case OBJ_FIELD:
@@ -221,41 +241,69 @@ void compile_functions(compile_env_t * e, class_node_t * cl)
 
 	     fputs("\t", e->dest);
 	     compile_function_type(e, t->infos.fn);
-	     compile_function_name(e, t->infos.fn);
+	     fputs("\n", e->dest);
 	 }
     }
 }
 
 void compile_function_type(compile_env_t * e, function_node_t * fn)
 {
+    c_assert(e && fn && fn->params);
 
+    compile_function_name(e, fn);
 }
 
 void compile_function_name(compile_env_t * e, function_node_t * fn)
 {
+    c_assert(e && fn && fn->params);
+
+    fputs(get_C_name(false, FUNC_NAME_PREFIX, fn->name_index, 0, NTT_NONE), e->dest);
+
+    size_t s = vector_size(fn->params);
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+    {
+	fputs("_", e->dest);
+	compile_var_type(e, 
+	    (var_type_t*) vector_get_element_at(fn->params, i)
+	    );
+    }
+
 }
+
 
 void compile_class_node(compile_env_t * e, class_node_t * cl)
 {
     c_assert(e && cl);
 
-    fputs(get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
+    if(e->header_mode)
+    {
+	if(e->class_header)
+	    fputs(get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_FIELD), e->dest);
+	else
+	    compile_tds(e, cl->tds);
+    }
+    else
+    {
+	fputs(get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
 
-    compile_functions(e, cl);
+	compile_functions(e, cl);
 
-    fputs("\n};\n", e->dest);
+	fputs("\n};\n", e->dest);
 
-    fputs(get_C_name(true, CLASS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
+	fputs(get_C_name(true, CLASS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
 
-    fprintf(e->dest, "\t%sfns;\n", 
-	    get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_PTR)
-	);
+	fprintf(e->dest, "\t%sfns;\n", 
+		get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_PTR)
+	    );
 
-    compile_fields(e, cl);
+	compile_fields(e, cl);
 
-    fputs("\n};\n", e->dest);
+	fputs("\n};\n", e->dest);
 
-    compile_tds(e, cl->tds);
+	compile_tds(e, cl->tds);
+    }
 
 }
 
@@ -265,24 +313,64 @@ void compile_function_node(compile_env_t * e, function_node_t * fn)
     c_assert(fn->parent);
 
     compile_var_type(e, fn->ret_type);
-    c_warning2(false,"TODO");
-    fputs(" " FUNC_NAME_PREFIX, e->dest);
-    fputs(lexique_get(c_lexique, fn->parent->name_index), e->dest);
 
-    if(fn->name_index != CTOR_NAME)
-    {
-	fputs("_", e->dest);
-	fputs(lexique_get(c_lexique, fn->name_index), e->dest);
-    }
+    fputs(get_C_name(false, FUNC_NAME_PREFIX, fn->parent->name_index, fn->name_index, NTT_NONE), e->dest);
 
     fputs("(", e->dest);
 
     compile_type_list(e, fn);
 
-    fputs(")\n", e->dest);
+    fputs(")", e->dest);
 
-    compile_bloc_instr_node(e, fn->block);
 
+    if(e->header_mode)
+	fputs(";\n", e->dest);
+    else
+    {
+	fputs("\n", e->dest);
+	compile_bloc_instr_node(e, fn->block);
+    }
+
+}
+
+void compile_constructor_node(compile_env_t * e, function_node_t * fn)
+{
+    c_assert(e && fn);
+    c_assert(fn->parent);
+    c_assert(!fn->ret_type && fn->name_index == CTOR_NAME);
+
+
+    char * retname = strdup(get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_NONE));
+
+    fputs(retname, e->dest);
+    fputs(" * ", e->dest);
+
+    fputs(get_C_name(false, NEW_NAME_PREFIX, fn->parent->name_index, 0, NTT_NONE), e->dest);
+
+    fputs("(", e->dest);
+
+    compile_type_list(e, fn);
+
+    fputs(")", e->dest);
+
+    if(e->header_mode)
+	fputs(";\n", e->dest);
+    else
+    {
+	fprintf(e->dest,
+	      "\n"
+              "{\n"
+	      "\t%s * ret = (%s*)malloc(sizeof(*ret));\n"
+	      "\tif(!ret) p_failed(\"not enough heap memory!\");\n"
+	      "\t%s;\n"
+	      "\treturn ret;\n"
+	      , retname, retname);
+
+	fputs("\n}\n", e->dest);
+    }
+
+    free(retname);
+    compile_function_node(e, fn);
 }
 
 
@@ -311,7 +399,7 @@ void compile_type_list(compile_env_t * e, function_node_t * fn)
 
 	compile_var_type(e, p->type);
 
-	fputs(" " LVAR_NAME_PREFIX, e->dest);
+	fputs(LVAR_NAME_PREFIX, e->dest);
 
 	fputs(lexique_get(c_lexique,
 			  tds_get_entry(fn->block->tds, param_start + i)->name_index
