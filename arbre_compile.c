@@ -243,7 +243,7 @@ void compile_functions(compile_env_t * e, class_node_t * cl,  class_node_t * las
 		 if(dec_mode)
 		 {
 		     fputs("\t", e->dest);
-		     compile_function_type(e, t->infos.fn);
+		     compile_function_type(e, get_last_overload(t->infos.fn, last));
 		     fputs(";\n", e->dest);
 		 }
 		 else
@@ -268,7 +268,7 @@ void compile_function_type(compile_env_t * e, function_node_t * fn)
     fputs("(*", e->dest);
     compile_function_name(e, fn, NULL);
     fputs(")(", e->dest);
-    compile_type_list(e, fn);
+    compile_type_list(e, fn, true, true);
     fputs(")", e->dest);
 }
 
@@ -362,7 +362,7 @@ void compile_function_node(compile_env_t * e, function_node_t * fn)
 
     fputs("(", e->dest);
 
-    compile_type_list(e, fn);
+    compile_type_list(e, fn, true, true);
 
     fputs(")", e->dest);
 
@@ -393,7 +393,7 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
 
     fputs("(", e->dest);
 
-    compile_type_list(e, fn);
+    compile_type_list(e, fn, true, false);
 
     fputs(")", e->dest);
 
@@ -404,15 +404,23 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
 
 
 	fprintf(e->dest,
-		"\n{\n\t%s * ret = (%s*)malloc(sizeof(*ret));\n"
-		"\tif(!ret) p_failed(\"not enough heap memory!\");\n"
-		"\tret->fns = get_fns_for_%s();\n"
-		"\t;\n"
-		"\treturn ret;\n",
+		"\n{\n\t%s * this = (%s*)malloc(sizeof(*this));\n"
+		"\tif(!this) p_failed(\"not enough heap memory!\");\n"
+		"\tthis->fns = get_fns_for_%s();\n\t",
 		retname, retname,
 		lexique_get(c_lexique, fn->parent->name_index));
 
-	fputs("\n}\n", e->dest);
+	compile_function_name(e, fn, CTOR_NAME_PREFIX);
+
+	fputs("(", e->dest);
+
+	compile_type_list(e, fn, false, true);
+
+	fputs(
+	    ");\n"
+	    "\treturn this;\n"
+	    "\n}\n"
+	      , e->dest);
     }
 
     free(retname);
@@ -422,9 +430,22 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
 
 
 
-void compile_type_list(compile_env_t * e, function_node_t * fn)
+void compile_type_list(compile_env_t * e, function_node_t * fn, bool full, bool pthis)
 {
     c_assert(fn && fn->params && fn->block && fn->block->tds && e);
+
+    if(pthis)
+    {
+	if(full)
+	{
+	    var_type_t t;
+	    t.type_prim = false;
+	    t.type.uclass = fn->parent;
+	    compile_var_type(e, &t);
+	}
+	
+	fputs("this", e->dest);
+    }
 
     size_t n = vector_size(fn->params);
     size_t i;
@@ -437,13 +458,14 @@ void compile_type_list(compile_env_t * e, function_node_t * fn)
 
     for(i = 0; i < n; ++i)
     {
-	if(i)
+	if(pthis || i)
 	    fputs(", ", e->dest);
 
 	param_dec_t * p =
 	    (param_dec_t *)vector_get_element_at(fn->params, i);
 
-	compile_var_type(e, p->type);
+	if(full)
+	    compile_var_type(e, p->type);
 
 	fputs(LVAR_NAME_PREFIX, e->dest);
 

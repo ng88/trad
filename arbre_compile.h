@@ -47,7 +47,7 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn);
 
 void compile_var_type(compile_env_t * e, var_type_t * t);
 
-void compile_type_list(compile_env_t * e, function_node_t * fn);
+void compile_type_list(compile_env_t * e, function_node_t * fn, bool full, bool pthis);
 
 void compile_bloc_instr_node(compile_env_t * e, bloc_instr_node_t * n);
 
