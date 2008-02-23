@@ -181,7 +181,10 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
     }
     else
     {
-	tds = context.type.uclass->tds;
+	if(context.type.uclass)
+	    tds = context.type.uclass->tds;
+	else
+	    tds = get_tds();
 	n->need_this = false;
     }
 
@@ -192,7 +195,7 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 	return;
     }
 
-    c_assert(context.type.uclass && !context.type_prim);
+    /*c_assert(context.type.uclass && !context.type_prim);*/
 
     
 
@@ -600,12 +603,18 @@ void add_builtins_symbols(tree_base_t * b)
     e->cexport = true;
     tds_add_entry(b, e);
 
+    /* string getchar() */
+    fn = make_function_node(lexique_add_sole(c_lexique, strdup("getchar")), ST_PUBLIC, create_vector(0), make_bloc_instr_node());
+    fn->ret_type = make_var_prim_type(PT_STRING);
+    e = make_tds_function_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
 
-/*
-
-char * c_export_getchar()
-int export_getint()
-char * c_export_substring(char * src, int first, int n)
-*/
+    /* int getint() */
+    fn = make_function_node(lexique_add_sole(c_lexique, strdup("getint")), ST_PUBLIC, create_vector(0), make_bloc_instr_node());
+    fn->ret_type = make_var_prim_type(PT_INT);
+    e = make_tds_function_entry(fn);
+    e->cexport = true;
+    tds_add_entry(b, e);
 
 }
