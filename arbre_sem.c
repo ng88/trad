@@ -544,3 +544,17 @@ function_node_t * get_last_overload(function_node_t * fn, class_node_t * cl)
 
     return e ? e->infos.fn : fn;
 }
+
+function_node_t * get_default_ctor(class_node_t * cl)
+{
+    c_assert(cl);
+
+    vector_t p;
+    p.capacity = 0;
+    p.size = 0;
+
+    tds_entry_t * e = tds_search_function(cl->tds, CTOR_NAME, &p ,false, false);
+
+    return e ? e->infos.fn : NULL;
+
+}

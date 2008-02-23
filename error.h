@@ -35,6 +35,8 @@ typedef enum
     ET_TYPE_UNA_ERR,
 
     ET_TYPE_MBR_ERR,
+
+    ET_MAIN_WITHOUT_DCTOR,
 } error_t;
 
 

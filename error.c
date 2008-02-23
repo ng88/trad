@@ -58,6 +58,8 @@ char * get_error_msg(error_t code)
     case ET_TYPE_BIN_ERR: return "type invalide, ne peut effectuer l'operation `%s' %s `%s'";
     case ET_TYPE_UNA_ERR: return "type invalide, ne peut effectuer l'operation %s `%s'";
     case ET_TYPE_MBR_ERR: return "l'operateur '.' ne peut pas s'utiliser sur un type primitif `%s', mais seulement sur un objet.";
+
+    case ET_MAIN_WITHOUT_DCTOR: return "la classe comportant le point d'entre main doit posseder un constructeur par defaut (sans parametre)";
     }
 
     return "unknow";

@@ -97,6 +97,10 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
     if(!entry_point)
 	raise_error(ET_MAIN_NOT_FOUND);
 
+    function_node_t * dctor = get_default_ctor(entry_point->parent);
+
+    if(!dctor)
+	raise_error(ET_MAIN_WITHOUT_DCTOR);
 
     fputs("#include <stdio.h>\n"
           "#include <string.h>\n"
@@ -120,8 +124,11 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
     e->header_mode = false;
     compile_tds(e, b);
 
-    fputs("int main()\n{\n", e->dest);
-    fputs("   return EXIT_SUCCESS;\n}\n", e->dest);
+    fputs("int main()\n{\n\t", e->dest);
+    compile_function_name(e, entry_point, FUNC_NAME_PREFIX);
+    fputs("(", e->dest);
+    compile_function_name(e, dctor, NEW_NAME_PREFIX);
+    fputs("());\n\treturn EXIT_SUCCESS;\n}\n", e->dest);
 
 
 }

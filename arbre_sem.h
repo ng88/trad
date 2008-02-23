@@ -73,6 +73,9 @@ bool is_an_overloaded_function(function_node_t * fn);
 /** Recupere la derniere surcharge de fn a partir de cl*/
 function_node_t * get_last_overload(function_node_t * fn, class_node_t * cl);
 
+/** Retourne le ctor par defaut (sans param) ou NULL */
+function_node_t * get_default_ctor(class_node_t * cl);
+
 #endif
 
 
