@@ -314,7 +314,7 @@ bool param_equals(function_node_t * fn, vector_t * v, bool v_mode)
 	var_type_t * e2 =
 	    ((param_dec_t *)vector_get_element_at(fn->params, i))->type;
 
-	if( !var_type_equals(e1, e2) )
+	if( !can_assign_var_type(e1, e2) )
 	    return false;
     }
 

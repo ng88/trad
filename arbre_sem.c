@@ -28,6 +28,8 @@ void resolve_expr_node(expr_node_t * e, resolve_env_t * f)
 {
     c_assert(e && f);
 
+    TYPE_SET_UNKNOWN(&f->context);
+
     switch(e->type)
     {
     case NT_BINARY:
@@ -40,7 +42,6 @@ void resolve_expr_node(expr_node_t * e, resolve_env_t * f)
 	resolve_constant_expr_node(e->node.cst, f);
 	break;
     case NT_CALL:
-	TYPE_SET_UNKNOWN(&f->context);
 	resolve_call_expr_node(e->node.call, f);
 	break;
     }
@@ -185,6 +186,7 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 	    tds = context.type.uclass->tds;
 	else
 	    tds = get_tds();
+
 	n->need_this = false;
     }
 
@@ -196,8 +198,6 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
     }
 
     /*c_assert(context.type.uclass && !context.type_prim);*/
-
-    
 
     n->resolved = NULL;
 
@@ -232,6 +232,7 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
     }
 
     TYPE_SET_UNKNOWN(&f->type);
+    TYPE_SET_UNKNOWN(&f->context);
 
     if(n->resolved && n->resolved->type)
 	f->type = *(n->resolved->type);
@@ -279,6 +280,24 @@ void resolve_member_expr_node(member_expr_node_t * n, resolve_env_t * f)
 
 void resolve_new_expr_node(new_expr_node_t * n, resolve_env_t * f)
 {
+    c_assert(n);
+    f->contains_return = false;
+
+    class_node_t * cl = resolve_class_identifier(get_tds(), n->idf);
+
+    vector_t * v = resolve_param_eff_list(n->params, f);
+
+    n->resolved = 
+	tds_search_function(cl->tds, CTOR_NAME, v, true, true);
+
+    free_vector(v, 1);
+
+    if(!n->resolved)
+	raise_error(ET_CTOR_NOT_FOUND,
+		    lexique_get(c_lexique, cl->name_index));
+    
+    f->type.type_prim = false;
+    f->type.type.uclass = cl;
 }
 
 
@@ -362,14 +381,17 @@ void resolve_super_instr_node(super_instr_node_t * n, resolve_env_t * f)
 
     vector_t * v = resolve_param_eff_list(n->params, f);
 
-    n->resolved = 
-	tds_search_function(f->current_tds, CTOR_NAME, v, true, true);
+    if(f->current_cl->super)
+	n->resolved = 
+	    tds_search_function(f->current_cl->super->tds, CTOR_NAME, v, false, true);
+    else
+	n->resolved = NULL;
 
     free_vector(v, 1);
 
     if(!n->resolved)
-	raise_error(ET_CTOR_NOT_FOUND,
-		    lexique_get(c_lexique, f->current_fn->name_index));
+	raise_error(ET_SP_CTOR_NOT_FOUND,
+		    lexique_get(c_lexique, f->current_cl->name_index));
    
 }
 

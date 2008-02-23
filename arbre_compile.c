@@ -454,7 +454,7 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
 
 
 	fprintf(e->dest,
-		"\n{\n\t%s * this = (%s*)malloc(sizeof(*this));\n"
+		"\n{\n\t%s * this = (%s*)calloc(1, sizeof(*this));\n"
 		"\tif(!this) p_failed(\"not enough heap memory!\");\n"
 		"\tthis->fns = get_fns_for_%s();\n\t",
 		retname, retname,
@@ -620,7 +620,10 @@ void compile_affect_instr_node(compile_env_t * e, affect_instr_node_t* n)
 
     compile_var_idf(e, n->lvalue_resolved, true);
 
-    fputs(" = ", e->dest);
+    fputs(" = (", e->dest);
+    compile_var_type(e, n->lvalue_resolved->type);
+    fputs(")", e->dest);
+
     compile_rvalue_node(e, n->rvalue);
     fputc(';', e->dest);
 }
@@ -684,7 +687,7 @@ void compile_constant_expr_node(compile_env_t * e, cst_expr_node_t * n)
 	fprintf(e->dest, "%d", n->val.vint);
 	break;
     case CNT_DBL:
-	fprintf(e->dest, "((double)%g)", n->val.vdouble);
+	fprintf(e->dest, "%g", n->val.vdouble);
 	break;
     case CNT_STR:
 	fprintf(e->dest, "\"%s\"", lexique_get(c_lexique, n->val.index_str));
@@ -694,6 +697,10 @@ void compile_constant_expr_node(compile_env_t * e, cst_expr_node_t * n)
 
 void compile_new_expr_node(compile_env_t * e, new_expr_node_t * n)
 {
+    compile_function_name(e, n->resolved->infos.fn, NEW_NAME_PREFIX);
+    fputc('(', e->dest);
+    compile_param_eff_expr_node(e, n->params, false, n->resolved->infos.fn);
+    fputc(')', e->dest);
 }
 
 void compile_rvalue_node(compile_env_t * e, rvalue_node_t * n)
@@ -742,9 +749,8 @@ void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 
     if(n->p)
     {
-	fprintf(e->dest, "({%s _this = (", 
-		get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR)
-	    );
+	char * t = get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR);
+	fprintf(e->dest, "({%s _this = (%s)(", t, t);
 
 	compile_call_expr_node(e, n->p);
 
@@ -753,7 +759,7 @@ void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 	compile_function_name(e, fn, NULL);
 
 	fputs("))(_this", e->dest);
-	compile_param_eff_expr_node(e, n->f->node.fnc->params, true);
+	compile_param_eff_expr_node(e, n->f->node.fnc->params, true, fn);
 	fputs("); })", e->dest);
     }
     else /* petite simplification */
@@ -763,15 +769,17 @@ void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
 
 	compile_function_name(e, fn, NULL);
 
-	fputs("))(this", e->dest);
-	compile_param_eff_expr_node(e, n->f->node.fnc->params, true);
+	fprintf(e->dest, "))((%s)this", 
+		get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR)
+		);
+	compile_param_eff_expr_node(e, n->f->node.fnc->params, true, fn);
 	fputs(")", e->dest);
     }
 }
 
-void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n, bool comma)
+void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n, bool comma, function_node_t * fn)
 {
-    c_assert(e && n && n->params);
+    c_assert(e && n && n->params && fn);
 
     int i;
     int s = param_eff_count(n);
@@ -781,6 +789,11 @@ void compile_param_eff_expr_node(compile_env_t * e, param_eff_expr_node_t * n, b
 	    fputs(", ", e->dest);
 	else
 	    comma = true;
+
+	fputs("(", e->dest);
+	compile_var_type(e,
+	    ((param_dec_t *)vector_get_element_at(fn->params, i))->type);
+	fputs(")", e->dest);
 
 	compile_expr_node(e, param_eff_get(n, i));
     }
@@ -834,7 +847,7 @@ void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * 
 	     /* cas particulier des fonctions builtin */
 	     fputs(get_C_name(false, EXPORT_PREFIX, n->resolved->infos.fn->name_index, 0, NTT_NONE), e->dest);
 	     fputc('(', e->dest);
-	     compile_param_eff_expr_node(e, n->node.fnc->params, false);
+	     compile_param_eff_expr_node(e, n->node.fnc->params, false, n->resolved->infos.fn);
 	     fputc(')', e->dest);
 	 }
 	 else

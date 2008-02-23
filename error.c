@@ -39,6 +39,7 @@ char * get_error_msg(error_t code)
     case ET_CLASS_NOT_FOUND: return "classe non trouvee '%s'";
     case ET_FUNC_NOT_FOUND: return "aucune fonction/procedure nommee `%s' ne correspond au profil demande";
     case ET_CTOR_NOT_FOUND: return "aucun constructeur de `%s' n'a le profil demande";
+    case ET_SP_CTOR_NOT_FOUND: return "aucun constructeur d'une sous classe de `%s' n'a le profil demande";
     case ET_NO_CTOR_FOUND: return "la classe '%s' ne comporte aucun constructeur";
     case ET_CTOR_BAD_NAME: return "le constructeur doit porter le nom de la classe dans laquelle il est declare";
 

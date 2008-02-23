@@ -188,6 +188,7 @@ typedef struct _new_expr_node_t
 {
     idf_t idf;
     param_eff_expr_node_t * params;
+    tds_entry_t * resolved;
 } new_expr_node_t;
 
 
