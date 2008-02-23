@@ -311,7 +311,7 @@ d_var_class:
 	 $$.idf_list = $3;
 	 $$.type = $2;
 	 
-	 tds_add_field_entries(current_class()->tds, $3, $2, $1);
+	 tds_add_field_entries(current_class()->tds, $3, $2, $1, current_class());
      }
      ;
 

@@ -44,7 +44,7 @@ void tds_add_entries(tds_t * tds, vector_t * indices, var_type_t *t, object_type
 
 }
 
-void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t scope)
+void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t scope, class_node_t * parent)
 {
     c_assert(tds && indices && t);
     size_t s = vector_size(indices);
@@ -57,7 +57,7 @@ void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t
 	if(tds_search_from_index(tds, index, OBJ_FIELD, false))
 	    raise_error(ET_FIELD_ALREADY_EXISTS, lexique_get(c_lexique, index));
 
-	tds_add_entry(tds, make_tds_field_entry(index, t, scope));
+	tds_add_entry(tds, make_tds_field_entry(index, t, scope, parent));
     }
 }
 
@@ -104,12 +104,12 @@ tds_entry_t * make_tds_constructor_entry(struct _function_node_t * fn)
 
 
 
-tds_entry_t * make_tds_field_entry(size_t name_index, var_type_t *t, scope_t scope)
+tds_entry_t * make_tds_field_entry(size_t name_index, var_type_t *t, scope_t scope, struct _class_node_t * parent)
 {
     c_assert(t);
 
     tds_entry_t * e = make_tds_entry(name_index, t, OBJ_FIELD);
-    e->infos.field_scope = scope;
+    e->infos.fl = make_field_node(scope, name_index, parent);
 
     return e;
 }
@@ -216,7 +216,7 @@ void free_tds_entry(tds_entry_t * e)
     case OBJ_FUNC: free_function_node(e->infos.fn); break;
     case OBJ_PARAM:
     case OBJ_LOCAL_VAR: break;
-    case OBJ_FIELD: break;
+    case OBJ_FIELD: free_field_node(e->infos.fl); break;
     }
 
     if(e->type)
@@ -338,9 +338,6 @@ bool var_type_equals(var_type_t * v1, var_type_t * v2)
 
 bool can_assign_var_type(var_type_t * v1, var_type_t * v2)
 {
-    c_warning("TODO");
-
-
     if(TYPE_IS_UNKNOWN(v1) || TYPE_IS_UNKNOWN(v2))
 	return false;
 
@@ -353,10 +350,12 @@ bool can_assign_var_type(var_type_t * v1, var_type_t * v2)
 	    return (v1->type.prim == v2->type.prim);
 	else /* sinon c'est des scalaires, c'est bon */
 	    return true;
-
     }
-
-    return var_type_equals(v1, v2);
+   /* sinon si 2 classes */
+    else if(!v1->type_prim && !v2->type_prim)
+	return inherits_from(v1->type.uclass, v2->type.uclass);
+    else
+	return var_type_equals(v1, v2);
 }
 
 char * get_var_type(var_type_t * t)
@@ -443,4 +442,51 @@ void tds_add_params(function_node_t * f, vector_t * params)
     }
 }
 
+
+
+bool is_an_overloaded_function(function_node_t * fn)
+{
+    c_assert(fn && fn->parent);
+
+    if(fn->parent->super)
+	return tds_search_function(fn->parent->super->tds, fn->name_index, fn->params, true, false) != NULL;
+    else
+	return false;
+
+}
+
+function_node_t * get_last_overload(function_node_t * fn, class_node_t * cl)
+{
+    c_assert(fn && cl);
+
+    tds_entry_t * e = tds_search_function(cl->tds, fn->name_index, fn->params, true, false);
+
+    return e ? e->infos.fn : fn;
+}
+
+function_node_t * get_default_ctor(class_node_t * cl)
+{
+    c_assert(cl);
+
+    vector_t p;
+    p.capacity = 0;
+    p.size = 0;
+
+    tds_entry_t * e = tds_search_function(cl->tds, CTOR_NAME, &p ,false, false);
+
+    return e ? e->infos.fn : NULL;
+
+}
+
+bool inherits_from(class_node_t * a, class_node_t * b)
+{
+    c_assert(a && b);
+
+    if(a == b)
+	return true;
+    else if(a->super)
+	return inherits_from(a->super, b);
+    else
+	return false;
+}
 

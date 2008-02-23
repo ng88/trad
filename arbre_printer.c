@@ -50,13 +50,13 @@ char * get_bin_operator(bin_expr_node_type_t t)
     case BNT_DIV:    return "/" ; break;
     case BNT_PLUS:   return "+" ; break;
     case BNT_MINUS:  return "-" ; break;
-    case BNT_EQ:     return "=" ; break;
+    case BNT_EQ:     return "==" ; break;
     case BNT_NE:     return "!="; break;
     case BNT_LE:     return "<="; break;
     case BNT_GE:     return ">="; break;
     case BNT_LT:     return "<"; break;
     case BNT_GT:     return ">"; break;
-    case BNT_AND:    return "&"; break;
+    case BNT_AND:    return "&&"; break;
     case BNT_OR:     return "||"; break;
     }
 
@@ -105,9 +105,6 @@ void print_constant_expr_node(cst_expr_node_t * n, FILE * f)
 	break;
     case CNT_STR:
 	fprintf(f, "\"%s\"", lexique_get(c_lexique, n->val.index_str));
-	break;
-    case CNT_IDF:	
-	fputs(lexique_get(c_lexique, n->val.vidf), f);
 	break;
     }
 }
@@ -366,7 +363,7 @@ void print_tds_entry(tds_entry_t * t, FILE * f, int indent)
 	break;
     case OBJ_FIELD:
 	print_indent(f, indent);
-	print_scope(t->infos.field_scope, f);
+	print_scope(t->infos.fl->scope, f);
 	fprintf(f, " field `%s', type=",
 		lexique_get(c_lexique, t->name_index)
 	    );

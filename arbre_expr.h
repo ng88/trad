@@ -44,7 +44,6 @@ typedef enum
 {
     CNT_INT,
     CNT_STR,
-    CNT_IDF,
     CNT_DBL,
 } cst_expr_node_type_t;
 
@@ -156,6 +155,7 @@ typedef struct _direct_call_expr_node_t
     } node;
 
     tds_entry_t * resolved;
+    bool need_this;
 } direct_call_expr_node_t;
 
 
@@ -212,7 +212,6 @@ expr_node_t * make_binary_expr_node(bin_expr_node_type_t t, expr_node_t * g, exp
 expr_node_t * make_unary_expr_node(una_expr_node_type_t t, expr_node_t * f);
 expr_node_t * make_constant_expr_node(cst_expr_node_type_t t);
 expr_node_t * make_constant_str_expr_node(size_t index_str);
-expr_node_t * make_constant_idf_expr_node(idf_t vidf);
 expr_node_t * make_constant_int_expr_node(int vint);
 expr_node_t * make_constant_dbl_expr_node(double vd);
 expr_node_t * make_expr_from_call_expr_node(call_expr_node_t * e);

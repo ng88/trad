@@ -129,9 +129,6 @@ void resolve_constant_expr_node(cst_expr_node_t * n, resolve_env_t * f)
     case CNT_STR:
 	f->type.type.prim = PT_STRING;
 	break;
-    case CNT_IDF:	
-	c_warning2(false, "TODO");
-	break;
     }
 }
 
@@ -179,9 +176,13 @@ void resolve_direct_call_expr_node(direct_call_expr_node_t * n, resolve_env_t * 
 	context.type_prim = false;
 	context.type.uclass = f->current_cl;
 	tds = f->current_tds;
+	n->need_this = true;
     }
     else
+    {
 	tds = context.type.uclass->tds;
+	n->need_this = false;
+    }
 
     /* ssi on a un type primitif */
     if(context.type_prim)
@@ -523,38 +524,4 @@ void resolve_start(tree_base_t * b)
     TYPE_SET_UNKNOWN(&env.type);
 
     resolve_tds(b, &env);
-}
-
-bool is_an_overloaded_function(function_node_t * fn)
-{
-    c_assert(fn && fn->parent);
-
-    if(fn->parent->super)
-	return tds_search_function(fn->parent->super->tds, fn->name_index, fn->params, true, false) != NULL;
-    else
-	return false;
-
-}
-
-function_node_t * get_last_overload(function_node_t * fn, class_node_t * cl)
-{
-    c_assert(fn && cl);
-
-    tds_entry_t * e = tds_search_function(cl->tds, fn->name_index, fn->params, true, false);
-
-    return e ? e->infos.fn : fn;
-}
-
-function_node_t * get_default_ctor(class_node_t * cl)
-{
-    c_assert(cl);
-
-    vector_t p;
-    p.capacity = 0;
-    p.size = 0;
-
-    tds_entry_t * e = tds_search_function(cl->tds, CTOR_NAME, &p ,false, false);
-
-    return e ? e->infos.fn : NULL;
-
 }

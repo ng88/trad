@@ -42,6 +42,8 @@ typedef enum
 
 #define OBJ_VAR (OBJ_LOCAL_VAR | OBJ_PARAM | OBJ_FIELD)
 
+#define OBJ_NO_LOCAL (OBJ_PROC | OBJ_FUNC | OBJ_CTOR | OBJ_FIELD)
+
 /** Portee
  */
 typedef enum
@@ -100,8 +102,8 @@ typedef struct _tds_entry_t
     union
     {
 	struct _function_node_t * fn;
-	struct _class_node_t *    cl;
-	scope_t                   field_scope;
+	struct _class_node_t *    cl;	
+	struct _field_node_t *    fl;
     } infos;
 
 } tds_entry_t;
@@ -129,7 +131,7 @@ tds_t * make_tds(tds_t * parent);
 void tds_add_entry(tds_t * tds, tds_entry_t * e);
 /** Ajout multiple*/
 void tds_add_entries(tds_t * tds,vector_t * indices, var_type_t *t,object_type_t ot);
-void tds_add_field_entries(tds_t * tds,vector_t * indices, var_type_t *t,scope_t s);
+void tds_add_field_entries(tds_t * tds, vector_t * indices, var_type_t *t, scope_t s, struct _class_node_t * parent);
 
 #define tds_get_entry(tds, i) ((tds_entry_t*)vector_get_element_at((tds)->entries, (i)))
 #define tds_count(tds) (vector_size((tds)->entries))
@@ -168,7 +170,7 @@ tds_entry_t * make_tds_class_entry(struct _class_node_t * cl);
 tds_entry_t * make_tds_function_entry(struct _function_node_t * fn);
 tds_entry_t * make_tds_procedure_entry(struct _function_node_t * fn);
 tds_entry_t * make_tds_constructor_entry(struct _function_node_t * fn);
-tds_entry_t * make_tds_field_entry(size_t name_index, var_type_t *t, scope_t s);
+tds_entry_t * make_tds_field_entry(size_t name_index, var_type_t *t, scope_t s, struct _class_node_t * parent);
 tds_entry_t * make_tds_entry(size_t name_index, var_type_t *t, object_type_t ot);
 
 void tds_add_params(struct _function_node_t * f, vector_t * params);
@@ -191,5 +193,19 @@ char * get_var_type(var_type_t * t);
 void free_tds(tds_t * t);
 void free_tds_entry(tds_entry_t * e);
 void free_var_type(var_type_t * t);
+
+
+/** Retourne vrai si la fonction fn est surchargee  */
+bool is_an_overloaded_function(struct _function_node_t * fn);
+
+/** Recupere la derniere surcharge de fn a partir de cl*/
+struct _function_node_t * get_last_overload(struct _function_node_t * fn, struct _class_node_t * cl);
+
+/** Retourne le ctor par defaut (sans param) ou NULL */
+struct _function_node_t * get_default_ctor(struct _class_node_t * cl);
+
+/** Indique si a herite de b */
+bool inherits_from(struct _class_node_t * a, struct _class_node_t * b);
+
 
 #endif

@@ -46,6 +46,19 @@ class_node_t * make_class_node(size_t name_index, tds_t * parent)
     return r;
 }
 
+field_node_t * make_field_node(scope_t scope, size_t name_index,class_node_t * parent)
+{
+    field_node_t * r = (field_node_t *)malloc(sizeof(field_node_t));
+    c_assert2(r, "malloc failed");
+
+    r->parent = parent;
+    r->name_index = name_index;
+    r->scope = scope;
+    r->line = yylineno;
+
+    return r;   
+}
+
 
 void free_function_node(function_node_t *e)
 {
@@ -64,3 +77,7 @@ void free_class_node(class_node_t * e)
 }
 
 
+void free_field_node(field_node_t * e)
+{
+    free(e);
+}

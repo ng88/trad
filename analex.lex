@@ -53,7 +53,7 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
                                         {
                                             yytext[ yyleng - 1 ] = 0;
 
-                                            yylval.index_lexique = lexique_add_sole(c_lexique, process_backslashes(yytext + 1));
+                                            yylval.index_lexique = lexique_add_sole(c_lexique, strdup(yytext + 1));
                                             
                                             return T_CST_STR;
                                         }

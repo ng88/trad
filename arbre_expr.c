@@ -69,13 +69,6 @@ expr_node_t * make_constant_str_expr_node(size_t index_str)
     return r;
 }
 
-expr_node_t * make_constant_idf_expr_node(idf_t vidf)
-{
-    expr_node_t * r = make_constant_expr_node(CNT_IDF);
-    r->node.cst->val.vidf = vidf;
-    return r;
-}
-
 expr_node_t * make_constant_int_expr_node(int vint)
 {
     expr_node_t * r = make_constant_expr_node(CNT_INT);
@@ -141,6 +134,7 @@ direct_call_expr_node_t * make_direct_call_expr_node(direct_call_expr_node_type_
     c_assert2(r, "malloc failed");
     r->type = t;
     r->resolved = NULL;
+    r->need_this = false;
 
     return r;
 }

@@ -45,6 +45,7 @@ typedef union
 
     class_node_t * mclass;
     function_node_t * mfn;
+    field_node_t * mfl;
 
     scope_t scope;
 

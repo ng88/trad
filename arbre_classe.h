@@ -42,6 +42,19 @@ typedef struct _function_node_t
 
 } function_node_t;
 
+
+typedef struct _field_node_t
+{
+    class_node_t * parent;
+
+    scope_t scope;
+
+    size_t name_index;
+
+    int line;
+
+} field_node_t;
+
 typedef tds_t tree_base_t;
 
 
@@ -63,8 +76,12 @@ function_node_t * make_constructor_node(scope_t scope,
 class_node_t * make_class_node(size_t name_index,
 			       tds_t * parent);
 
+field_node_t * make_field_node(scope_t scope,
+			       size_t name_index,
+			       class_node_t * parent);
+
 void free_function_node(function_node_t *e);
 void free_class_node(class_node_t * e);
-
+void free_field_node(field_node_t * e);
 
 #endif

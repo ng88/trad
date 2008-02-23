@@ -4,7 +4,7 @@
 
 #include "arbre_compile.h"
 #include "arbre_printer.h"
-#include "arbre_sem.h"
+#include "tds.h"
 
 #include "assert.h"
 #include "lexique.h"
@@ -567,10 +567,19 @@ void compile_return_instr_node(compile_env_t * e, return_instr_node_t * n)
 
 void compile_super_instr_node(compile_env_t * e, super_instr_node_t * n)
 {
+
 }
 
 void compile_affect_instr_node(compile_env_t * e, affect_instr_node_t* n)
 {
+    c_assert(n);
+    c_assert(n->lvalue_resolved);
+
+    compile_var_idf(e, n->lvalue_resolved, true);
+
+    fputs(" = ", e->dest);
+    compile_rvalue_node(e, n->rvalue);
+    fputc(';', e->dest);
 }
 
 void compile_expr_node(compile_env_t * e, expr_node_t * n)
@@ -589,22 +598,55 @@ void compile_expr_node(compile_env_t * e, expr_node_t * n)
 	compile_constant_expr_node(e, n->node.cst);
 	break;
     case NT_CALL:
-	//TODO
-	c_warning2(0, "TODO");
+	compile_call_expr_node(e, n->node.call);
 	break;
     }
 }
 
 void compile_binary_expr_node(compile_env_t * e, bin_expr_node_t * n)
 {
+    c_assert(n && e);
+
+    fputc('(',  e->dest);
+    compile_expr_node(e, n->gauche);
+    fputc(' ',  e->dest);
+
+    fputs(get_bin_operator(n->type),  e->dest);
+
+    fputc(' ',  e->dest);
+    compile_expr_node(e, n->droit);
+    fputc(')',  e->dest);
 }
 
 void compile_unary_expr_node(compile_env_t * e, una_expr_node_t * n)
 {
+    c_assert(n);
+
+    fputc('(', e->dest);
+
+    fputs(get_una_operator(n->type),  e->dest);
+
+    fputc(' ',  e->dest);
+    compile_expr_node(e, n->fils);
+    fputc(')',  e->dest);
 }
 
 void compile_constant_expr_node(compile_env_t * e, cst_expr_node_t * n)
 {
+    c_assert(n && e);
+
+    switch(n->type)
+    {
+    case CNT_INT:
+	fprintf(e->dest, "%d", n->val.vint);
+	break;
+    case CNT_DBL:
+	fprintf(e->dest, "%g", n->val.vdouble);
+	break;
+    case CNT_STR:
+	fprintf(e->dest, "\"%s\"", lexique_get(c_lexique, n->val.index_str));
+	break;
+    }
 }
 
 void compile_new_expr_node(compile_env_t * e, new_expr_node_t * n)
@@ -613,6 +655,17 @@ void compile_new_expr_node(compile_env_t * e, new_expr_node_t * n)
 
 void compile_rvalue_node(compile_env_t * e, rvalue_node_t * n)
 {
+    c_assert(n && e);
+
+    switch(n->type)
+    {
+    case RNT_NEW:
+	compile_new_expr_node(e, n->node.nnew);
+	break;
+    case RNT_EXPR:
+	compile_expr_node(e, n->node.expr);
+	break;
+    }
 }
 
 
@@ -632,9 +685,53 @@ void compile_call_expr_node(compile_env_t * e, call_expr_node_t * n)
 }
 
 
+void compile_fn_call_expr_node(compile_env_t * e, fn_call_expr_node_t * n)
+{
+    c_assert(n && e);
+    fputs(lexique_get(c_lexique, n->name), e->dest);
+    print_param_eff_expr_node(n->params, e->dest);
+}
+
+void compile_var_idf(compile_env_t * e, tds_entry_t * t, bool need_this)
+{
+    c_assert(e && t);
+
+    bool pthis = need_this && (t->otype & OBJ_NO_LOCAL);
+
+    if(pthis)
+	fputs("(this->", e->dest);
+
+    switch(t->otype)
+    {
+    case OBJ_CLASS:
+
+	break;
+    case OBJ_CTOR:
+
+	break;	
+    case OBJ_PROC:
+    case OBJ_FUNC:
+//	int c = ({ struct mc_class_MaClasse * _this = (mc_new_MaClasse()); (*(_this->fns->mc_func_ajout_integer_integer))(_this , 3, 4); });
+	break;
+    case OBJ_FIELD:
+	fputs(get_C_name(false, FIELD_NAME_PREFIX, t->infos.fl->parent->name_index, t->name_index, NTT_NONE), e->dest);
+	break;
+    case OBJ_PARAM:
+    case OBJ_LOCAL_VAR:
+	fputs(get_C_name(false, LVAR_NAME_PREFIX, t->name_index, 0, NTT_NONE), e->dest);
+	break;
+    }
+
+    if(pthis)
+	fputs(")", e->dest);
+
+}
+
 void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * n)
 {
     c_assert(n && e);
+
+    c_assert(n->resolved);
 
     switch(n->type)
     {
@@ -642,7 +739,7 @@ void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * 
 	compile_fn_call_expr_node(e, n->node.fnc);
 	break;
     case DCENT_IDF:
-	fputs(lexique_get(c_lexique, n->node.vidf), e->dest);
+	compile_var_idf(e, n->resolved, n->need_this);
 	break;
     }
 }
@@ -652,16 +749,9 @@ void compile_member_expr_node(compile_env_t * e, member_expr_node_t * n)
     c_assert(n && e);
     fputc('(', e->dest);
     compile_call_expr_node(e, n->p);
-    fputc('.', e->dest);
+    fputs("->", e->dest);
     compile_direct_call_expr_node(e, n->f);
     fputc(')', e->dest);
 }
 
-
-void compile_fn_call_expr_node(compile_env_t * e, fn_call_expr_node_t * n)
-{
-    c_assert(n && e);
-    fputs(lexique_get(c_lexique, n->name), e->dest);
-    print_param_eff_expr_node(n->params, e->dest);
-}
 

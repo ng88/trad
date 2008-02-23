@@ -67,14 +67,6 @@ tds_entry_t * resolve_var_type(size_t index, resolve_env_t * f);
 
 vector_t * resolve_param_eff_list(param_eff_expr_node_t * n, resolve_env_t * f);
 
-/** Retourne vrai si la fonction fn est surchargee  */
-bool is_an_overloaded_function(function_node_t * fn);
-
-/** Recupere la derniere surcharge de fn a partir de cl*/
-function_node_t * get_last_overload(function_node_t * fn, class_node_t * cl);
-
-/** Retourne le ctor par defaut (sans param) ou NULL */
-function_node_t * get_default_ctor(class_node_t * cl);
 
 #endif
 
