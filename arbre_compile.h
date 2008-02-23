@@ -38,7 +38,7 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
 void compile_tds(compile_env_t * e, tds_t * t);
 void compile_tds_entry(compile_env_t * e, tds_entry_t * t);
 
-void compile_functions(compile_env_t * e, class_node_t * cl);
+void compile_functions(compile_env_t * e, class_node_t * cl,  class_node_t * last, bool dec_mode);
 void compile_fields(compile_env_t * e, class_node_t * cl);
 
 void compile_class_node(compile_env_t * e, class_node_t * cl);

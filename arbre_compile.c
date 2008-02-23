@@ -4,6 +4,7 @@
 
 #include "arbre_compile.h"
 #include "arbre_printer.h"
+#include "arbre_sem.h"
 
 #include "assert.h"
 #include "lexique.h"
@@ -216,18 +217,17 @@ void compile_fields(compile_env_t * e, class_node_t * cl)
 	 {
 	     fputs("\t", e->dest);
 	     compile_var_type(e, t->type);
-
 	     fputs(get_C_name(false, FIELD_NAME_PREFIX, cl->name_index, t->name_index, NTT_FIELD), e->dest);
 	 }
     }
 }
 
-void compile_functions(compile_env_t * e, class_node_t * cl)
+void compile_functions(compile_env_t * e, class_node_t * cl,  class_node_t * last, bool dec_mode)
 {
     c_assert(e && cl);
 
     if(cl->super)
-	compile_functions(e, cl->super);
+	compile_functions(e, cl->super, last, dec_mode);
 
     size_t s = tds_count(cl->tds);
     size_t i;
@@ -238,9 +238,23 @@ void compile_functions(compile_env_t * e, class_node_t * cl)
 
 	 if(t->otype == OBJ_FUNC || t->otype == OBJ_PROC)
 	 {
-	     fputs("\t", e->dest);
-	     compile_function_type(e, t->infos.fn);
-	     fputs(";\n", e->dest);
+	     if(!is_an_overloaded_function(t->infos.fn))
+	     {
+		 if(dec_mode)
+		 {
+		     fputs("\t", e->dest);
+		     compile_function_type(e, t->infos.fn);
+		     fputs(";\n", e->dest);
+		 }
+		 else
+		 {
+		     fputs("\t\tfns.", e->dest);
+		     compile_function_name(e, t->infos.fn, NULL);
+		     fputs(" = &", e->dest);
+		     compile_function_name(e, get_last_overload(t->infos.fn, last), FUNC_NAME_PREFIX);
+		     fputs(";\n", e->dest);
+		 }
+	     }
 	 }
     }
 }
@@ -252,7 +266,7 @@ void compile_function_type(compile_env_t * e, function_node_t * fn)
     compile_var_type(e, fn->ret_type);
 
     fputs("(*", e->dest);
-    compile_function_name(e, fn, FUNC_NAME_PREFIX);
+    compile_function_name(e, fn, NULL);
     fputs(")(", e->dest);
     compile_type_list(e, fn);
     fputs(")", e->dest);
@@ -262,7 +276,10 @@ void compile_function_name(compile_env_t * e, function_node_t * fn, char * prefi
 {
     c_assert(e && fn && fn->params);
 
-    fputs(get_C_name(false, prefix, fn->parent->name_index, fn->name_index, NTT_NONE), e->dest);
+    if(prefix)
+	fputs(get_C_name(false, prefix, fn->parent->name_index, fn->name_index, NTT_NONE), e->dest);
+    else
+	fputs(get_C_name(false, FUNC_NAME_PREFIX, fn->name_index, 0, NTT_NONE), e->dest);
 
     size_t s = vector_size(fn->params);
     size_t i;
@@ -286,7 +303,7 @@ void compile_class_node(compile_env_t * e, class_node_t * cl)
     if(e->header_mode)
     {
 	if(e->class_header)
-	    fputs(get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_FIELD), e->dest);
+	    fputs(get_C_name(true, CLASS_NAME_PREFIX, cl->name_index, 0, NTT_FIELD), e->dest);
 	else
 	    compile_tds(e, cl->tds);
     }
@@ -294,9 +311,29 @@ void compile_class_node(compile_env_t * e, class_node_t * cl)
     {
 	fputs(get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
 
-	compile_functions(e, cl);
+	compile_functions(e, cl, cl, true);
 
 	fputs("\n};\n", e->dest);
+
+	char * fnsn = get_C_name(true, CLFNS_NAME_PREFIX, cl->name_index, 0, NTT_NONE);
+
+	fprintf(e->dest,
+		"%s * get_fns_for_%s()\n"
+		"{\n"
+		"\tstatic %s fns;\n"
+		"\tstatic int first = 1;\n"
+		"\tif(first)\n\t{\n"
+		"\t\tfirst = 0;\n",
+		fnsn, lexique_get(c_lexique, cl->name_index), fnsn
+	    );
+
+	compile_functions(e, cl, cl, false);
+
+
+	fprintf(e->dest,
+		"\t}\n"
+		"\treturn &fns;\n}\n"
+	    );
 
 	fputs(get_C_name(true, CLASS_NAME_PREFIX, cl->name_index, 0, NTT_STRUCT), e->dest);
 
@@ -364,14 +401,16 @@ void compile_constructor_node(compile_env_t * e, function_node_t * fn)
 	fputs(";\n", e->dest);
     else
     {
+
+
 	fprintf(e->dest,
-	      "\n"
-              "{\n"
-	      "\t%s * ret = (%s*)malloc(sizeof(*ret));\n"
-	      "\tif(!ret) p_failed(\"not enough heap memory!\");\n"
-	      "\t;\n"
-	      "\treturn ret;\n"
-	      , retname, retname);
+		"\n{\n\t%s * ret = (%s*)malloc(sizeof(*ret));\n"
+		"\tif(!ret) p_failed(\"not enough heap memory!\");\n"
+		"\tret->fns = get_fns_for_%s();\n"
+		"\t;\n"
+		"\treturn ret;\n",
+		retname, retname,
+		lexique_get(c_lexique, fn->parent->name_index));
 
 	fputs("\n}\n", e->dest);
     }
