@@ -610,7 +610,18 @@ void compile_return_instr_node(compile_env_t * e, return_instr_node_t * n)
 
 void compile_super_instr_node(compile_env_t * e, super_instr_node_t * n)
 {
+    c_assert(e && n && n->resolved);
 
+    function_node_t * fn = n->resolved->infos.fn;
+
+    compile_function_name(e, fn, CTOR_NAME_PREFIX);
+
+    fprintf(e->dest, "((%s)this",
+	  get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR)
+	);
+
+    compile_param_eff_expr_node(e, n->params, true, fn);
+    fputs(");", e->dest);
 }
 
 void compile_affect_instr_node(compile_env_t * e, affect_instr_node_t* n)
