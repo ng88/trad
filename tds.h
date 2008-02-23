@@ -17,6 +17,8 @@ typedef enum
     PT_REAL = 1,
     PT_UNKNOW = 2,
     PT_STRING = 3,
+    PT_ANY = 4, /* any object */
+    PT_NIL = 5, /* nil type */
 } primitive_type_t;
 
 /** Types d'objet 
@@ -76,6 +78,8 @@ typedef struct
 
 /** attention double evaluation de t */
 #define TYPE_IS_UNKNOWN(t)  ((t)->type_prim && (t)->type.prim == PT_UNKNOW)
+#define TYPE_IS_ANY(t)  ((t)->type_prim && (t)->type.prim == PT_ANY)
+#define TYPE_IS_NIL(t)  ((t)->type_prim && (t)->type.prim == PT_NIL)
 #define TYPE_SET_UNKNOWN(t) do { (t)->type_prim = true;(t)->type.prim = PT_UNKNOW; } while(0);
 
 typedef struct

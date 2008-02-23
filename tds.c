@@ -341,6 +341,12 @@ bool can_assign_var_type(var_type_t * v1, var_type_t * v2)
     if(TYPE_IS_UNKNOWN(v1) || TYPE_IS_UNKNOWN(v2))
 	return false;
 
+    if(TYPE_IS_NIL(v1))
+	return true;
+
+    if(!v1->type_prim && TYPE_IS_ANY(v2))
+	return true;
+
    /* si 2 primitifs */
     if(v1->type_prim && v2->type_prim)
     {
@@ -372,6 +378,7 @@ char * get_var_type(var_type_t * t)
 	case PT_INT: st = "integer"; break;
 	case PT_REAL: st = "real"; break;
 	case PT_UNKNOW: st = "unknow"; break;
+	case PT_ANY: st = "any"; break;
 	}
     }
     else

@@ -105,10 +105,47 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
     fputs("#include <stdio.h>\n"
           "#include <string.h>\n"
           "#include <stdlib.h>\n\n"
+	  "/* Fonctions diverses/builtins */ */\n\n"
 	  "void p_failed(char * err)\n{\n"
 	  "\tfprintf(stderr, \"execution failed: %s\\n\", err);\n"
 	  "\tabort();\n"
 	  "}\n\n"
+	  "enum { GETC_BUFF_SIZE = 1024, GETI_BUFF_SIZE = 256 };\n\n"
+	  "#define c_export_freestr(s) free((s))\n"
+	  "#define c_export_freeobj(o) free((o))\n"
+	  "#define c_export_prints(s) fputs((s), stdout)\n"
+	  "#define c_export_printi(i) printf(\"%d\", (i))\n"
+	  "#define c_export_isnil(v) ((v) == c_export_nil)\n"
+	  "#define c_export_nil NULL\n\n"
+	  "char * c_export_getchar()\n"
+	  "{\n"
+	  "\tchar buff[GETC_BUFF_SIZE];\n"
+	  "\tfgets(buff, GETC_BUFF_SIZE, stdin);\n"
+	  "\tbuff[GETC_BUFF_SIZE - 1] = '\\0';\n"
+	  "\treturn strdup(buff);\n"
+	  "}\n\n"
+	  "int c_export_getint()\n"
+	  "{\n"
+	  "\tchar buff[GETI_BUFF_SIZE];\n"
+	  "\tfgets(buff, GETI_BUFF_SIZE, stdin);\n"
+	  "\tbuff[GETI_BUFF_SIZE - 1] = '\\0';\n"
+	  "\treturn atoi(buff);\n"
+	  "}\n\n"
+	  "char * c_export_substring(char * src, int first, int n)\n"
+	  "{\n"
+	  "\tint s = strlen(src);\n"
+	  "\tif(first >= s)\n"
+	  "\t\treturn strdup(\"\");\n"
+	  "\n"
+	  "\tif(first + n >= s)\n"
+	  "\t\tn = s - first - 1;\n"
+	  "\n"
+	  "\tchar * ret = (char*)malloc(n + 1);\n"
+	  "\tmemcpy(ret, src + first, n + 1);\n"
+	  "\tret[n] = '\\0';\n"
+	  "\n"
+	  "\treturn ret;\n"
+	  "}\n"
 	  , e->dest);
 
     fputs("/* class declaration */\n", e->dest);
@@ -196,6 +233,7 @@ void compile_var_type(compile_env_t * e, var_type_t * t)
 	case PT_INT: fputs("int", e->dest); break;
 	case PT_REAL: fputs("double", e->dest); break;
 	case PT_UNKNOW: c_assert2(false, "unknown type"); break;
+	case PT_ANY: c_assert2(false, "void *"); break;
 	}
     }
     else
