@@ -641,7 +641,7 @@ void compile_constant_expr_node(compile_env_t * e, cst_expr_node_t * n)
 	fprintf(e->dest, "%d", n->val.vint);
 	break;
     case CNT_DBL:
-	fprintf(e->dest, "%g", n->val.vdouble);
+	fprintf(e->dest, "((double)%g)", n->val.vdouble);
 	break;
     case CNT_STR:
 	fprintf(e->dest, "\"%s\"", lexique_get(c_lexique, n->val.index_str));
@@ -687,9 +687,38 @@ void compile_call_expr_node(compile_env_t * e, call_expr_node_t * n)
 
 void compile_fn_call_expr_node(compile_env_t * e, fn_call_expr_node_t * n)
 {
-    c_assert(n && e);
-    fputs(lexique_get(c_lexique, n->name), e->dest);
-    print_param_eff_expr_node(n->params, e->dest);
+    printf("<?F?>");
+}
+
+void compile_member_fn_call_expr_node(compile_env_t * e, member_expr_node_t * n)
+{
+    c_assert(n && e && n->f->type == DCENT_FN);
+    c_assert(n->f && n->f->resolved && (n->f->resolved->otype & OBJ_FNP));
+
+/*
+  produit un truc du genre de :
+  ({ struct mc_class_MaClasse * _this = (expression); (*(_this->fns->mc_func_ajout_integer_integer))(_this , parametres); });
+*/
+
+    function_node_t * fn = n->f->resolved->infos.fn;
+
+    fprintf(e->dest, "({%s _this = (", 
+	    get_C_name(true, CLASS_NAME_PREFIX, fn->parent->name_index, 0, NTT_PTR)
+	);
+
+    compile_call_expr_node(e, n->p);
+
+    fputs("); (*(_this->fns->", e->dest);
+
+    compile_function_name(e, fn, NULL);
+
+    fputs("))(_this", e->dest);
+
+    fputs("); })", e->dest);
+
+
+    //   fputs(lexique_get(c_lexique, n->name), e->dest);
+    //print_param_eff_expr_node(n->params, e->dest);
 }
 
 void compile_var_idf(compile_env_t * e, tds_entry_t * t, bool need_this)
@@ -704,14 +733,10 @@ void compile_var_idf(compile_env_t * e, tds_entry_t * t, bool need_this)
     switch(t->otype)
     {
     case OBJ_CLASS:
-
-	break;
     case OBJ_CTOR:
-
-	break;	
     case OBJ_PROC:
     case OBJ_FUNC:
-//	int c = ({ struct mc_class_MaClasse * _this = (mc_new_MaClasse()); (*(_this->fns->mc_func_ajout_integer_integer))(_this , 3, 4); });
+	/* pas gere ici */
 	break;
     case OBJ_FIELD:
 	fputs(get_C_name(false, FIELD_NAME_PREFIX, t->infos.fl->parent->name_index, t->name_index, NTT_NONE), e->dest);
@@ -747,11 +772,19 @@ void compile_direct_call_expr_node(compile_env_t * e, direct_call_expr_node_t * 
 void compile_member_expr_node(compile_env_t * e, member_expr_node_t * n)
 {
     c_assert(n && e);
-    fputc('(', e->dest);
-    compile_call_expr_node(e, n->p);
-    fputs("->", e->dest);
-    compile_direct_call_expr_node(e, n->f);
-    fputc(')', e->dest);
+
+    if(n->f->type == DCENT_IDF)
+    {
+	fputc('(', e->dest);
+	compile_call_expr_node(e, n->p);
+	fputs("->", e->dest);
+	compile_direct_call_expr_node(e, n->f);
+	fputc(')', e->dest);
+    }
+    else
+    {
+	compile_member_fn_call_expr_node(e, n);
+    }
 }
 
 
