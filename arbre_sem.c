@@ -62,19 +62,46 @@ void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f)
     resolve_expr_node(e->droit, f);
     droit = f->type;
 
-    /* ssi 2 types primitifs */
-    if(droit.type_prim && gauche.type_prim)
+    switch(e->type)
     {
-	/* ssi on a 2 scalaires */
-	if(droit.type.prim != PT_STRING && 
-	   gauche.type.prim != PT_STRING)
+    case BNT_MUL:
+    case BNT_DIV:
+    case BNT_PLUS:
+    case BNT_MINUS:
+	/* ssi 2 types primitifs */
+	if(droit.type_prim && gauche.type_prim)
+	{
+	    /* ssi on a 2 scalaires */
+	    if(droit.type.prim != PT_STRING && 
+	       gauche.type.prim != PT_STRING)
+	    {
+		err = false;
+		
+		f->type.type_prim = true;
+		f->type.type.prim = BIN_TYPE_MATRIX[gauche.type.prim][droit.type.prim];
+	    }
+	}
+	break;
+    case BNT_EQ:
+    case BNT_NE:
+    case BNT_LE:
+    case BNT_GE:
+    case BNT_LT:
+    case BNT_GT:
+    case BNT_AND:
+    case BNT_OR:
+	if(can_assign_var_type(&droit, &gauche) ||
+	   can_assign_var_type(&gauche, &droit))
 	{
 	    err = false;
-
+	    
 	    f->type.type_prim = true;
-	    f->type.type.prim = BIN_TYPE_MATRIX[gauche.type.prim][droit.type.prim];
+	    f->type.type.prim = PT_INT;
 	}
-    }
+	break;
+
+    } 
+ 
 
     if(err)
 	raise_error(ET_TYPE_BIN_ERR, get_var_type(&gauche),
