@@ -58,7 +58,7 @@ void vector_add_element_first(vector_t * v, vector_elt_t e)
     vector_add_element(v, e);
 
     unsigned int i;
-    for(i = 1; i < v->size; ++i)
+    for(i = v->size - 1; i > 0; --i)
 	v->table[i] = v->table[i - 1];
 
     v->table[0] = e;

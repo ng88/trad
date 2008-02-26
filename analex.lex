@@ -11,6 +11,7 @@
 
 #include "lexique.h"
 
+void check_backslashes(char * str);
 char * process_backslashes(char * str);
 
 lexique_t * c_lexique = NULL;
@@ -53,6 +54,7 @@ idf     ([a-zA-Z][a-zA-Z0-9]*)
                                         {
                                             yytext[ yyleng - 1 ] = 0;
 
+                                            check_backslashes(yytext + 1);
                                             yylval.index_lexique = lexique_add_sole(c_lexique, strdup(yytext + 1));
                                             
                                             return T_CST_STR;
@@ -177,8 +179,8 @@ char * process_backslashes(char * str)
 		break;
 	    default:
 		//free(dest);
-		printf("attention: \\%c n'est pas échappement valide\n", 
-		       str[i + 1]);
+		raise_error(ET_BAD_ESC_CHAR, str[i + 1]);
+		return dest;
 	    }
 	}
 	else
@@ -189,3 +191,29 @@ char * process_backslashes(char * str)
 
     return dest;
 }
+
+
+void check_backslashes(char * str)
+{
+    while(*str)
+    {
+	if(*str == '\\')
+	{
+	    /* on est sur que i+1 existe */
+	    switch(*(str + 1))
+	    {
+	    case 'n':
+	    case 't':
+	    case '\\':
+	    case '"':
+		break;
+	    default:
+		raise_error(ET_BAD_ESC_CHAR, *(str + 1));
+		return;
+	    }
+	}
+	str++;
+    }
+    
+}
+

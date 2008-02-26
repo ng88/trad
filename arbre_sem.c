@@ -561,7 +561,6 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f)
 	/* pas de super explicite, on va ajouter un appel a super() */
 	if(!f->super_count && cl->parent->super)
 	{
-	    c_warning2(false, "ATTENTION PROBLEME AVEC add_instr_bloc_begin() apparemment, a voir/corriger");
 	    instr_node_t * n = make_super_instr_node(make_param_eff_expr_node());
 	    add_instr_bloc_begin(cl->block, n);
 	    resolve_instr_node(n, f);

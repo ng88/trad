@@ -1,4 +1,7 @@
 
+
+
+/** Classe de base  */
 class Forme
 
     public Forme() {}
@@ -22,7 +25,7 @@ class Triangle
 
     private real ca, cb, cc;
 
-    /* on suppose les infos bonnes ... c'est juste un exemple :)*/
+    /* on suppose les infos bonnes ... c'est juste un exemple :) */
     public Triangle(real a, real b, real c)
     {
        ca := a;
@@ -86,13 +89,17 @@ class TestPloy
 	f2.printNom();
 	f3.printNom();
 
+	freeobj(f3);
+	f3 := f2;
+	f3.printNom();
+
 	printi(f1.nombreCotes());
 	prints("\n");
 
 
 	freeobj(f1);
 	freeobj(f2);
-	freeobj(f3);
+	
 
 
     }

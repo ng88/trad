@@ -6,6 +6,13 @@
 */
 
 
+/** Iterator (interface generale) */
+class Iterator
+     public Iterator() {}
+     public integer hasNext() { return (0); }
+     public integer next() { return (0); }
+end
+
 /** Un noeud de la LinkedList */
 class Node
 
@@ -24,13 +31,6 @@ class Node
     public void setVal(integer v) { val := v; }
     public void setNext(Node n) { next := n; }
 
-end
-
-/** Iterator (interface generale) */
-class Iterator
-     public Iterator() {}
-     public integer hasNext() { return (0); }
-     public integer next() { return (0); }
 end
 
 /** Iterator pour notre LinkedList */
@@ -77,7 +77,7 @@ class LinkedList
 	if first = nil then
 	    first := n;
 	else
-		last.setNext(n);
+	    last.setNext(n);
 	endif
 
 	last := n;
@@ -118,6 +118,17 @@ class TestLL
 
     public TestLL() {}
 
+
+    public void burn(LinkedList l, integer n)
+    {
+	VAR integer i;
+	while i < n do
+	{
+		l.add(n * i);
+		i := i + 1;
+	}
+    }
+
     public void main()
     {
 	VAR LinkedList l1;
@@ -144,6 +155,12 @@ class TestLL
 		printi(it.next());
 		prints("\n");
 	}
+
+	burn(l1, 50000);
+
+	prints("Taille de la liste=");
+	printi(l1.size());
+	prints("\n");
 
 	l1.clear();
 	freeobj(l1);

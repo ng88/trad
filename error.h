@@ -6,6 +6,7 @@
 
 typedef enum
 {
+    ET_BAD_ESC_CHAR,
     ET_BAD_STRING,
     ET_IDF_TOO_LONG,
     ET_SYNTAX_ERROR,

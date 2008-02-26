@@ -31,6 +31,7 @@ char * get_error_msg(error_t code)
 {
     switch(code)
     {
+    case ET_BAD_ESC_CHAR: return "attention: \\%c n'est pas un caractere d'echappement valide";
     case ET_BAD_STRING: return "chaine de caractere incorrecte";
     case ET_IDF_TOO_LONG: return "identificateur trop long '%s'";
     case ET_SYNTAX_ERROR: return "erreur de syntaxe pres de '%s' (%s)";
