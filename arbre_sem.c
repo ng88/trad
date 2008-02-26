@@ -405,6 +405,7 @@ void resolve_super_instr_node(super_instr_node_t * n, resolve_env_t * f)
 {
     c_assert(n);
     f->contains_return = false;
+    f->super_count++;
 
     vector_t * v = resolve_param_eff_list(n->params, f);
 
@@ -552,7 +553,24 @@ void resolve_function_node(function_node_t * cl, resolve_env_t * f)
     yylineno = cl->line;
     f->current_fn = cl;
     f->contains_return = false;
+    f->super_count = 0;
     resolve_bloc_instr_node(cl->block, f);
+
+    if(cl->name_index == CTOR_NAME) /* c'est un constructeur */
+    {
+	/* pas de super explicite, on va ajouter un appel a super() */
+	if(!f->super_count && cl->parent->super)
+	{
+	    instr_node_t * n = make_super_instr_node(make_param_eff_expr_node());
+	    add_instr_bloc_begin(cl->block, n);
+	    resolve_instr_node(n, f);
+	}
+    }
+    else /* c'est une methode */
+    {
+	if(f->super_count)
+	  raise_error(ET_SUPER_IN_FNPROC, lexique_get(c_lexique, cl->name_index));  
+    }
 
     if(cl->ret_type) /* c'est une fonction */
     {

@@ -127,6 +127,14 @@ void add_instr_bloc(bloc_instr_node_t * b, instr_node_t * i)
     vector_add_element(b->instrs, i);
 }
 
+void add_instr_bloc_begin(bloc_instr_node_t * b, instr_node_t * i)
+{
+    c_assert(b);
+    c_assert(i);
+
+    vector_add_element_first(b->instrs, i);
+}
+
 size_t count_instr_bloc(bloc_instr_node_t * b)
 {
     c_assert(b);

@@ -38,6 +38,8 @@ typedef enum
     ET_TYPE_MBR_ERR,
 
     ET_MAIN_WITHOUT_DCTOR,
+
+    ET_SUPER_IN_FNPROC,
 } error_t;
 
 

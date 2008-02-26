@@ -16,14 +16,22 @@
  */
 typedef struct
 {
+    /** classe courante */
     class_node_t * current_cl;
+    /** fonction courante */
     function_node_t * current_fn;
+    /** tds courante */
     tds_t * current_tds;
 
+    /** dernier type/contexte calcule */
     var_type_t type;
     var_type_t context;
 
+    /** vrai si la derniere instruction/bloc
+     contient un return */
     bool contains_return;
+    /** nombre d'instruction super du bloc */
+    size_t super_count;
 
 } resolve_env_t;
 

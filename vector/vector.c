@@ -53,6 +53,17 @@ void vector_add_element(vector_t * v, vector_elt_t e)
     v->size++;
 }
 
+void vector_add_element_first(vector_t * v, vector_elt_t e)
+{
+    vector_add_element(v, e);
+
+    unsigned int i;
+    for(i = 1; i < v->size; ++i)
+	v->table[i] = v->table[i - 1];
+
+    v->table[0] = e;
+}
+
 size_t vector_size(vector_t * v)
 {
     c_assert(v);

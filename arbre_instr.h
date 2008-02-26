@@ -1,4 +1,3 @@
-
 #ifndef ARBRE_INSTR_H
 #define ARBRE_INSTR_H
 
@@ -120,6 +119,7 @@ instr_node_t * make_affect_instr_node(idf_t lv, rvalue_node_t * rv);
 
 bloc_instr_node_t * make_bloc_instr_node();
 void add_instr_bloc(bloc_instr_node_t * b, instr_node_t * i);
+void add_instr_bloc_begin(bloc_instr_node_t * b, instr_node_t * i);
 size_t count_instr_bloc(bloc_instr_node_t * b);
 instr_node_t * get_bloc_instr(bloc_instr_node_t * b, size_t index);
 
