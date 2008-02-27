@@ -120,9 +120,12 @@ void compile_start(compile_env_t * e, tree_base_t * b, function_node_t * entry_p
 	  "#define c_export_nil NULL\n\n"
 	  "char * c_export_getchar()\n"
 	  "{\n"
+	  "\tunsigned int n;;\n"
 	  "\tchar buff[GETC_BUFF_SIZE];\n"
 	  "\tfgets(buff, GETC_BUFF_SIZE, stdin);\n"
 	  "\tbuff[GETC_BUFF_SIZE - 1] = '\\0';\n"
+	  "\tn = strlen(buff);\n"
+	  "\tif(n > 0) buff[n - 1] = '\\0';\n"
 	  "\treturn strdup(buff);\n"
 	  "}\n\n"
 	  "int c_export_getint()\n"
@@ -665,11 +668,22 @@ void compile_binary_expr_node(compile_env_t * e, bin_expr_node_t * n)
 {
     c_assert(n && e);
 
+    if(n->string_op)
+    {
+	if(n->type == BNT_EQ)
+	    fputc('!',  e->dest);
+	fputs("strcmp",  e->dest);
+    }
+
     fputc('(',  e->dest);
+
     compile_expr_node(e, n->gauche);
     fputc(' ',  e->dest);
 
-    fputs(get_bin_operator(n->type),  e->dest);
+    if(n->string_op)
+	fputc(',',  e->dest);
+    else
+	fputs(get_bin_operator(n->type),  e->dest);
 
     fputc(' ',  e->dest);
     compile_expr_node(e, n->droit);

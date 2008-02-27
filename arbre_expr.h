@@ -99,6 +99,7 @@ typedef struct _expr_node_t
 typedef struct _bin_expr_node_t
 {
     bin_expr_node_type_t type;
+    bool string_op;
     expr_node_t * gauche;
     expr_node_t * droit;
 } bin_expr_node_t;

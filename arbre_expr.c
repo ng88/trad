@@ -30,6 +30,7 @@ expr_node_t * make_binary_expr_node(bin_expr_node_type_t t, expr_node_t * g, exp
     r->node.bin->type = t;
     r->node.bin->gauche = g;
     r->node.bin->droit = d;
+    r->node.bin->string_op = false;
 
     return r ;
 }

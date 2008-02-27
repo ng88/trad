@@ -84,12 +84,18 @@ void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f)
 	break;
     case BNT_EQ:
     case BNT_NE:
+	if(droit.type.prim == PT_STRING && 
+	   gauche.type.prim == PT_STRING)
+	{
+	    e->string_op = true;
+	}
     case BNT_LE:
     case BNT_GE:
     case BNT_LT:
     case BNT_GT:
     case BNT_AND:
     case BNT_OR:
+
 	if(can_assign_var_type(&droit, &gauche) ||
 	   can_assign_var_type(&gauche, &droit))
 	{
@@ -98,6 +104,7 @@ void resolve_binary_expr_node(bin_expr_node_t * e, resolve_env_t * f)
 	    f->type.type_prim = true;
 	    f->type.type.prim = PT_INT;
 	}
+	
 	break;
 
     } 
