@@ -41,6 +41,8 @@ typedef enum
     ET_MAIN_WITHOUT_DCTOR,
 
     ET_SUPER_IN_FNPROC,
+
+    ET_PRIVATE_MEMBER,
 } error_t;
 
 

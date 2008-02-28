@@ -2,8 +2,8 @@
 #ifndef LEXIQUE_H
 #define LEXIQUE_H
 
-#include "hashtable/hashtable.h"
-#include "vector/vector.h"
+#include "hashtable.h"
+#include "vector.h"
 
 #define KEY_NOT_FOUND ((size_t)-1)
 

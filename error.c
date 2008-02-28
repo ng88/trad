@@ -65,6 +65,7 @@ char * get_error_msg(error_t code)
 
     case ET_SUPER_IN_FNPROC: return "la fonction/procedure `%s' contient une instruction 'super' mais seuls les constructeurs peuvent contenir cette instruction";
 
+    case ET_PRIVATE_MEMBER: return "`%s' est un membre prive, de l'exterieur, seuls les membres publics sont visibles";
     }
 
     return "unknow";

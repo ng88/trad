@@ -1,6 +1,6 @@
 
 #include "vector.h"
-#include "../assert.h"
+#include "assert.h"
 
 vector_t * create_vector(size_t init_capacity)
 {

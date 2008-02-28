@@ -1,8 +1,5 @@
 #!/bin/sh
 
-tmp=/tmp/$RANDOM$$$RANDOM.c
+./tradV1 $1 && gcc -W -Wall -Wno-unused resultat.c
 
-./monCompilo $1 $tmp && gcc -W -Wall -Wno-unused $tmp
-
-rm -f $tmp
 

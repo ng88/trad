@@ -1,5 +1,5 @@
 #include "stack.h"
-#include "../assert.h"
+#include "assert.h"
 
 stack_t * create_stack()
 {

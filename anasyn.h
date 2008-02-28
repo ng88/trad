@@ -3,8 +3,8 @@
 
 #include "arbre.h"
 #include "error.h"
-#include "vector/vector.h"
-#include "stack/stack.h"
+#include "vector.h"
+#include "stack.h"
 #include <stdlib.h>
 
 typedef struct

@@ -3,7 +3,7 @@
 #define ARBRE_EXPR_H
 
 #include <stdio.h>
-#include "vector/vector.h"
+#include "vector.h"
 #include "tds.h"
 
 typedef size_t idf_t;

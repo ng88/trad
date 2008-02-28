@@ -15,6 +15,9 @@ int main(int argc, char ** argv)
 
     char * dest = NULL;
 
+    if(argc == 1)
+	dest = "resultat.c";
+
     if(argc >= 2)
 	yyin = fopen(argv[1], "r");
 

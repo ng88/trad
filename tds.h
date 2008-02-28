@@ -2,7 +2,7 @@
 #define TDS_H
 
 #include "lexique.h"
-#include "vector/vector.h"
+#include "vector.h"
 #include "bool.h"
 
 /** Declaration de la table des symboles
