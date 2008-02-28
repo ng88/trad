@@ -1,5 +1,10 @@
 #!/bin/sh
 
-./tradV1 $1 && gcc -W -Wall -Wno-unused resultat.c
+tmp=/tmp/$RANDOM$$$RANDOM.c
+
+./tradV1 $1 $tmp && gcc -W -Wall -Wno-unused $tmp
+
+rm -f $tmp
+
 
 

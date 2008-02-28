@@ -36,7 +36,7 @@ class MaClasse
 
     public MaClasse next;
     
-    public MaClasse() {}
+    public MaClasse() {super(0, 0);}
 
     public void main()
     {

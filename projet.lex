@@ -206,6 +206,7 @@ void check_backslashes(char * str)
 	    case 't':
 	    case '\\':
 	    case '"':
+		str++;
 		break;
 	    default:
 		raise_error(ET_BAD_ESC_CHAR, *(str + 1));

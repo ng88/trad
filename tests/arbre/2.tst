@@ -1,17 +1,22 @@
 
+class TEST
+	public TEST(string a, integer b, integer c, integer d, integer e, real f)
+	{
+	}
+end
 
 class MaClasse
 
+    public MaClasse() {}
 
-
-    private void main(string arg1, string arg2)
+    public void main()
     {
-        VAR int a;
-        VAR string str;
+        VAR integer a;
+        VAR TEST t;
         
         a := 1 + 1;
  
-        str := new TEST("arg1", 2, 3, 4, 5, 6+6);
+        t := new TEST("arg1", 2, 3, 4, 5, 6+6);
         
     }
    

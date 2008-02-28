@@ -3,6 +3,9 @@
 class MaClasse
 
 
+    public MaClasse() {}
+
+    public void main()
 
     private void main(string arg1, string arg2)
     {
@@ -20,9 +23,10 @@ class MaClasse
                 
                 if 2 then
                 {
+		    VAR TEST t;
                     a := 1 + 5;
  
-                    str := new TEST("arg1", 2, 3, 4, 5, 6+6);
+                    t := new TEST("arg1", 2, 3, 4, 5, 6+6);
                     
                     if 3=2-1-2-8*8 then
                     {
