@@ -1,11 +1,7 @@
-
-
-
 /** Classe de base  */
 class Forme
 
     public Forme() {}
-
 
     public integer nombreCotes() { return(0); }
     public real perimetre() { return(0.0); }
@@ -99,9 +95,6 @@ class TestPloy
 
 	freeobj(f1);
 	freeobj(f2);
-	
-
-
     }
 
 end
